@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.core.exceptions import ValidationError
 from rest_framework.decorators import api_view
-from .seed import user_seed_data, event_seed_data, bulletin_template_seed_data,custom_field_seed_data
+# from .seed import user_seed_data, event_seed_data, bulletin_template_seed_data,custom_field_seed_data
 from greenplan.models import Event, BulletinTemplate, CustomField
 
 
@@ -40,8 +40,8 @@ def import_dummy_data(request):
         #              for template in bulletin_template_seed_data]
         # bulletin = BulletinTemplate.objects.bulk_create(bulletins)
 
-        fields = [CustomField(**field) for field in custom_field_seed_data]
-        field = CustomField.objects.bulk_create(fields)
+        # fields = [CustomField(**field) for field in custom_field_seed_data]
+        # field = CustomField.objects.bulk_create(fields)
 
         return Response({'message': "succesfull"}, status=status.HTTP_201_CREATED)
 

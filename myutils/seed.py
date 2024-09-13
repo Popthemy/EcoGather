@@ -11,6 +11,7 @@ User = Users.objects.all()
 Events = Event.objects.all()
 Bulletin = BulletinTemplate.objects.all()
 
+"""
 
 user_seed_data = [
     {
@@ -185,6 +186,7 @@ bulletin_template_seed_data = [
     }
 ]
 
+
 custom_field_seed_data = [
     {
         # Assume this refers to the first bulletin "Academic Summit Bulletin"
@@ -252,7 +254,7 @@ custom_field_seed_data = [
     },
      {
         # Assume this refers to the first bulletin "Academic Summit Bulletin"
-        "bulletin_template":Bulletin.get(title=bulletin_template_seed_data[5]['title']),
+        "bulletin_template":Bulletin.get(title=bulletin_template_seed_data[1]['title']),
         "label": "Welcome Address",
         "content": "Welcome speech by the event host.",
         "start_time": "09:00",
@@ -260,7 +262,7 @@ custom_field_seed_data = [
     },
     {
         # Assume this refers to the second bulletin "Fintech Conference Bulletin"
-        "bulletin_template": Bulletin.get(title=bulletin_template_seed_data[5]['title']),
+        "bulletin_template": Bulletin.get(title=bulletin_template_seed_data[1]['title']),
         "label": "Keynote Address",
         "content": "Keynote speech by industry expert.",
         "start_time": "10:00",
@@ -268,7 +270,7 @@ custom_field_seed_data = [
     },
     {
         # Assume this refers to the third bulletin "Agricultural Summit Bulletin"
-        "bulletin_template":Bulletin.get(title=bulletin_template_seed_data[5]['title']),
+        "bulletin_template":Bulletin.get(title=bulletin_template_seed_data[3]['title']),
         "label": "Panel Discussion",
         "content": "Discussion on latest agricultural technologies.",
         "start_time": "11:00",
@@ -280,7 +282,7 @@ custom_field_seed_data = [
         "content": "Dr. Amina J. Mohammed",
     },
     {
-        "bulletin_template": Bulletin.get(title=bulletin_template_seed_data[5]['title']),
+        "bulletin_template": Bulletin.get(title=bulletin_template_seed_data[1]['title']),
         "label": "Session Topics",
         "content": "Sustainable Development, Gender Equality, Technology in Education",
     },
@@ -291,3 +293,4 @@ custom_field_seed_data = [
     },
 ]
 
+"""

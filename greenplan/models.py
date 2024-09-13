@@ -3,7 +3,7 @@ import string
 from django.db import models
 from django.conf import settings
 from django.utils import timezone, text
-
+from django.db import transaction
 # Create your models here.
 
 
@@ -15,14 +15,14 @@ class Event(models.Model):
     )
     title = models.CharField(max_length=255)
     location = models.CharField(max_length=255)
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
+    start = models.DateTimeField()
+    end = models.DateTimeField()
     organizer = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     slug = models.SlugField(unique=True, blank=True, null=True)
 
     def __str__(self):
-        return f'Event: {self.code} at {self.location} \
+        return f'{self.code} at {self.location} \
           [{self.start_time.strftime("%b %d, %Y %I:%M %p")}]'
 
     def get_event_status(self):
@@ -73,32 +73,33 @@ class BulletinTemplate(models.Model):
         verbose_name_plural = "Bulletin Templates"
 
     def __str__(self):
-        return f'Template: {self.code} (Event: {self.event_name.title})'
+        return f'{self.code} (Event: {self.event_name.title})'
 
     def generate_unique_code(self):
         '''Generate unique code for event if not set so as to reduce case of integrity error'''
         return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
     def clone(self, new_template=None):
-
-        if self.custom_field.exists():
-            new_template = BulletinTemplate.objects.create(
-                title=f'{self.title } (copy)',
-                event_name=self.event_name,
-                code=self.generate_unique_code()
-            )
-
-            for custom_field in self.custom_field.all():
-                CustomField.objects.create(
-                    bulletin_template=new_template,
-                    label=custom_field.label,
-                    content=custom_field.content,
-                    start_time=custom_field.start_time,
-                    end_time=custom_field.end_time
-
+        
+        with transaction.atomic():
+            if self.custom_field.exists():
+                new_template = BulletinTemplate.objects.create(
+                    title=f'{self.title } (copy)',
+                    event_name=self.event_name,
+                    code=self.generate_unique_code()
                 )
 
-            return new_template
+                for custom_field in self.custom_field.all():
+                    CustomField.objects.create(
+                        bulletin_template=new_template,
+                        label=custom_field.label,
+                        content=custom_field.content,
+                        start_time=custom_field.start_time,
+                        end_time=custom_field.end_time
+
+                    )
+
+                return new_template
         return None
 
     def save(self, *args, **kwargs):

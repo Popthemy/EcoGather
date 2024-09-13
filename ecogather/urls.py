@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
+from debug_toolbar.toolbar import debug_toolbar_urls
 
 admin.site.site_title = 'Green Admin'
 admin.site.site_header = 'EcoGather: A Greener Way to Event Planning'
@@ -23,4 +24,5 @@ admin.site.site_header = 'EcoGather: A Greener Way to Event Planning'
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('playground/', include('myutils.urls')),
-]
+    path('api/', include('greenplan.urls')),
+] + debug_toolbar_urls()
