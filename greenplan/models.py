@@ -15,26 +15,28 @@ class Event(models.Model):
     )
     title = models.CharField(max_length=255)
     location = models.CharField(max_length=255)
-    start = models.DateTimeField()
-    end = models.DateTimeField()
+    start_datetime = models.DateTimeField()
+    end_datetime = models.DateTimeField()
     organizer = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     slug = models.SlugField(unique=True, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['start_datetime','-updated_at','title']
 
     def __str__(self):
         return f'{self.code} at {self.location} \
-          [{self.start_time.strftime("%b %d, %Y %I:%M %p")}]'
+          [{self.start_datetime.strftime("%b %d, %I:%M %p")} - {self.end_datetime.strftime("%b %d, %Y %I:%M %p")}]'
 
     def get_event_status(self):
-        """ Get when and event is happening"""
+        """ Get the status of an event if it is PAST, ONGOING, UPCOMING """
         now = timezone.now()  # Use timezone-aware current time
 
-        if not self.start_time or not self.end_time:
-            return 'UNKNOWN'
-
-        if now < self.start_time:
+        if now < self.start_datetime:
             return 'UPCOMING'
-        elif self.start_time <= now <= self.end_time:
+        if self.start_datetime <= now <= self.end_datetime:
             return 'ONGOING'
         else:
             return 'PAST'
@@ -45,14 +47,14 @@ class Event(models.Model):
             slug = base_slug
             counter = 1
             # Check for slug conflicts and modify the slug if necessary
-            while Event.objects.only('slug').filter(slug=slug).exists():
+            while Event.objects.only('slug').filter(slug=slug).exclude(pk=self.pk if self.pk else None).exists():
                 slug = f"{base_slug}-{counter}"
                 counter += 1
             self.slug = slug
         super().save(*args, **kwargs)
 
 
-class BulletinTemplate(models.Model):
+class Template(models.Model):
     code = models.CharField(
         max_length=50,
         unique=True,
@@ -61,29 +63,32 @@ class BulletinTemplate(models.Model):
     )
     title = models.CharField(max_length=255)
     event_name = models.ForeignKey(
-        Event, on_delete=models.CASCADE, related_name='bulletin', null=True, blank=True)
+        Event, on_delete=models.CASCADE, related_name='template', null=True, blank=True)
     slug = models.SlugField(unique=True, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-updated_at']
-        verbose_name = "Bulletin Template"
-        verbose_name_plural = "Bulletin Templates"
+        ordering = ['-updated_at','title']
+        verbose_name = "Template"
+        verbose_name_plural = "Templates"
 
     def __str__(self):
         return f'{self.code} (Event: {self.event_name.title})'
 
     def generate_unique_code(self):
         '''Generate unique code for event if not set so as to reduce case of integrity error'''
-        return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+        character = random.choices(string.ascii_uppercase, k=6)
+        digit = random.choices(string.digits, k=4)
+        code = character + digit
+        return ''.join(code)
 
     def clone(self, new_template=None):
-        
+
         with transaction.atomic():
             if self.custom_field.exists():
-                new_template = BulletinTemplate.objects.create(
+                new_template = Template.objects.create(
                     title=f'{self.title } (copy)',
                     event_name=self.event_name,
                     code=self.generate_unique_code()
@@ -91,7 +96,7 @@ class BulletinTemplate(models.Model):
 
                 for custom_field in self.custom_field.all():
                     CustomField.objects.create(
-                        bulletin_template=new_template,
+                        template=new_template,
                         label=custom_field.label,
                         content=custom_field.content,
                         start_time=custom_field.start_time,
@@ -108,7 +113,7 @@ class BulletinTemplate(models.Model):
             base_slug = text.slugify(self.title)
             slug = base_slug
             counter = 1
-            while BulletinTemplate.objects.only('slug').filter(slug=slug).exists():
+            while Template.objects.only('slug').filter(slug=slug).exclude(pk=self.pk if self.pk else None).exists():
                 slug = f"{base_slug}-{counter}"
                 counter += 1
             self.slug = slug
@@ -118,7 +123,7 @@ class BulletinTemplate(models.Model):
             self.code = self.generate_unique_code()
 
         # Ensure uniqueness of the code
-        while BulletinTemplate.objects.filter(code=self.code).exists():
+        while Template.objects.filter(code=self.code).exclude(pk=self.pk if self.pk else None).exists():
             self.code = self.generate_unique_code()
 
         super().save(*args, **kwargs)
@@ -134,12 +139,15 @@ class CustomField(models.Model):
         End Time: 7:50 AM
     """
 
-    bulletin_template = models.ForeignKey(
-        BulletinTemplate, on_delete=models.CASCADE, related_name='custom_field')
+    template = models.ForeignKey(
+        Template, on_delete=models.CASCADE, related_name='custom_field')
     label = models.CharField(max_length=255)
-    content = models.CharField(max_length=255)
+    content = models.TextField()
     start_time = models.TimeField(null=True, blank=True)
     end_time = models.TimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['start_time','label']
 
     def __str__(self):
         start_time = self.start_time.strftime(

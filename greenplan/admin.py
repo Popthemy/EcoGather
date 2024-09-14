@@ -1,31 +1,61 @@
+from typing import Any
 from django.contrib import admin, messages
-from greenplan.models import Event, BulletinTemplate, CustomField
+from django.db.models.query import QuerySet
+from django.http import HttpRequest
+from django.utils import timezone
+from greenplan.models import Event, Template, CustomField
 # Register your models here.
+
+
+class EventStatusFilter(admin.SimpleListFilter):
+    title = 'event_status'
+    parameter_name = 'event_status'
+
+    def lookups(self, request , model_admin):
+        return [('upcoming','UPCOMING'),('ongoing', 'ONGOING'),('past','PAST')]
+    
+    def queryset(self, request, queryset):
+        cur_date = timezone.now()
+    
+        if self.value() == 'upcoming':
+            return queryset.filter(start_datetime__gt=cur_date)
+        if self.value() == 'past':
+            return queryset.filter(end_datetime__lt=cur_date)
+        if self.value() == 'ongoing':
+            return queryset.filter(start_datetime__lte=cur_date ,end_datetime__gte=cur_date)
+        return queryset
 
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
+    list_filter = [EventStatusFilter]
     fields = ['code', 'title', 'slug', 'organizer',
-              'start', 'end', 'location']
-    list_display = ['code', 'title', 'organizer',
-                    'location', 'start', 'end']
+              'start_datetime', 'end_datetime', 'location']
+    list_display = ['code', 'title', 'organizer','event_status',
+                    'location', 'start_datetime', 'end_datetime']
     list_editable = ['title', 'organizer', 'location']
+    list_select_related = ['organizer']
 
+    @admin.display(ordering='start_datetime')
+    def event_status(self,event):
+        return event.get_event_status()
 
 class CustomFieldInline(admin.TabularInline):
     model = CustomField
 
 
-@admin.register(BulletinTemplate)
-class BulletinTemplateAdmin(admin.ModelAdmin):
-    actions = ['clone_bulletin_template']
-    fields = ['code', 'title', 'event_name', 'description']
+@admin.register(Template)
+class TemplateAdmin(admin.ModelAdmin):
+    actions = ['clone_template']
+    fields = ['code', 'title','event_name','slug', 'description']
     inlines = [CustomFieldInline]
     list_display = ['code', 'title', 'event_name', 'description']
     list_editable = ['title']
+    list_select_related = ['event_name']
+
 
     @admin.action(description='Clone template')
-    def clone_bulletin_template(self, request, queryset):
+    def clone_template(self, request, queryset):
         """Using the action as part of action on the admin panel to clone a template"""
 
         if queryset.exists():
@@ -62,10 +92,11 @@ class BulletinTemplateAdmin(admin.ModelAdmin):
 
 @admin.register(CustomField)
 class CustomFieldAdmin(admin.ModelAdmin):
-    fields = ['bulletin_template', 'label',
+    fields = ['template', 'label',
               'content', 'start_time', 'end_time']
 
-    list_display = ['bulletin_template', 'label',
+    list_display = ['template', 'label',
                     'content', 'start_time', 'end_time']
 
     list_editable = ['label', 'content', 'start_time', 'end_time']
+    list_select_related = ['template']

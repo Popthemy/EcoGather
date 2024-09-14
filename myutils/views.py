@@ -1,12 +1,9 @@
-from django.shortcuts import render
 from django.contrib.auth import get_user_model
-from greenplan.models import Event, BulletinTemplate, CustomField
 from rest_framework.response import Response
 from rest_framework import status
-from django.core.exceptions import ValidationError
 from rest_framework.decorators import api_view
-# from .seed import user_seed_data, event_seed_data, bulletin_template_seed_data,custom_field_seed_data
-from greenplan.models import Event, BulletinTemplate, CustomField
+from greenplan.models import Event, Template, CustomField
+# from .seed import user_seed_data , event_seed_data , template_seed_data ,custom_field_seed_data
 
 
 # Create your views here.
@@ -18,27 +15,28 @@ Users = get_user_model()
 def import_dummy_data(request):
     try:
 
+
         # users = [ Users(**user) for user in user_seed_data ]
         # user = Users.objects.bulk_create(users)
 
-        # inserted_users = {str(user.id): user for user in Users.objects.all()}
+        inserted_users = {str(user.id): user for user in Users.objects.all()}
     
-        # for event in event_seed_data:
+        for event in event_seed_data:
 
-        #     user_id = str(event['organizer'])
-        #     if user_id in inserted_users:
-        #         print('Found a match inserting')
-        #         event['organizer'] = inserted_users[user_id]
-        #     else:
-        #         print('Did not find a match but i got u,inserting')
+            user_id = str(event['organizer'])
+            if user_id in inserted_users:
+                print('Found a match inserting')
+                event['organizer'] = inserted_users[user_id]
+            else:
+                print('Did not find a match but i got u,inserting')
             
 
         # events = [Event(**event) for event in event_seed_data]
         # event = Event.objects.bulk_create(events)
 
-        # bulletins = [BulletinTemplate(**template)
-        #              for template in bulletin_template_seed_data]
-        # bulletin = BulletinTemplate.objects.bulk_create(bulletins)
+        # bulletins = [Template(**template)
+        #              for template in template_seed_data]
+        # bulletin = Template.objects.bulk_create(bulletins)
 
         # fields = [CustomField(**field) for field in custom_field_seed_data]
         # field = CustomField.objects.bulk_create(fields)
