@@ -7,6 +7,22 @@ from django.db import transaction
 # Create your models here.
 
 
+class Program(models.Model):
+    """Categories of event"""
+
+    title = models.CharField(
+        max_length=255, help_text='Categories of event e.g Conference,Summit,Webinar')
+    featured_event = models.ForeignKey(
+        'Event', on_delete=models.SET_NULL, blank=True, null=True, related_name='featured_event')
+
+    def __str__(self) -> str:
+        return self.title
+    
+    class Meta:
+        ordering = ['title']
+
+
+
 class Event(models.Model):
     code = models.CharField(
         max_length=50,
@@ -14,9 +30,13 @@ class Event(models.Model):
         help_text="Enter a unique code name for this event. e.g ACADA2024."
     )
     title = models.CharField(max_length=255)
+    description = models.TextField(null=True, blank=True)
+    program = models.ForeignKey(Program,on_delete=models.PROTECT,related_name='events',null=True)
     location = models.CharField(max_length=255)
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
+    contact_email = models.EmailField(null=True,blank=True)
+    contact_phone_number = models.CharField(max_length=20,null=True,blank=True)
     organizer = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     slug = models.SlugField(unique=True, blank=True, null=True)
@@ -24,7 +44,7 @@ class Event(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['start_datetime','-updated_at','title']
+        ordering = ['start_datetime', '-updated_at', 'title']
 
     def __str__(self):
         return f'{self.code} at {self.location} \
@@ -40,6 +60,9 @@ class Event(models.Model):
             return 'ONGOING'
         else:
             return 'PAST'
+
+    def get_organizer_total_events(self):
+        return Event.objects.filter(organizer=self.organizer).count()
 
     def save(self, *args, **kwargs) -> None:
         if not self.slug:
@@ -70,7 +93,7 @@ class Template(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-updated_at','title']
+        ordering = ['-updated_at', 'title']
         verbose_name = "Template"
         verbose_name_plural = "Templates"
 
@@ -147,7 +170,7 @@ class CustomField(models.Model):
     end_time = models.TimeField(null=True, blank=True)
 
     class Meta:
-        ordering = ['start_time','label']
+        ordering = ['start_time', 'label']
 
     def __str__(self):
         start_time = self.start_time.strftime(
