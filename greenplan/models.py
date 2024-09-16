@@ -4,6 +4,7 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone, text
 from django.db import transaction
+from django.core.exceptions import ValidationError
 # Create your models here.
 
 
@@ -17,10 +18,9 @@ class Program(models.Model):
 
     def __str__(self) -> str:
         return self.title
-    
+
     class Meta:
         ordering = ['title']
-
 
 
 class Event(models.Model):
@@ -31,20 +31,31 @@ class Event(models.Model):
     )
     title = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
-    program = models.ForeignKey(Program,on_delete=models.PROTECT,related_name='events',null=True)
+    program = models.ForeignKey(
+        Program, on_delete=models.PROTECT, related_name='events', null=True)
     location = models.CharField(max_length=255)
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
-    contact_email = models.EmailField(null=True,blank=True)
-    contact_phone_number = models.CharField(max_length=20,null=True,blank=True)
+    contact_email = models.EmailField(null=True, blank=True)
+    contact_phone_number = models.CharField(
+        max_length=20, null=True, blank=True)
     organizer = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    slug = models.SlugField(unique=True, blank=True, null=True)
+    slug = models.SlugField(unique=True, blank=True, null=True,
+                            help_text="A slug is a URL-friendly version of the title. It should contain only letters, numbers, hyphens, and underscores. It will be used in URLs to identify this item."
+                            )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['start_datetime', '-updated_at', 'title']
+
+    def clean(self):
+        if self.start_datetime > self.end_datetime:
+            raise ValidationError(
+                'Start date and time should be before End date and time')
+
+        return super().clean()
 
     def __str__(self):
         return f'{self.code} at {self.location} \
@@ -87,7 +98,9 @@ class Template(models.Model):
     title = models.CharField(max_length=255)
     event_name = models.ForeignKey(
         Event, on_delete=models.CASCADE, related_name='template', null=True, blank=True)
-    slug = models.SlugField(unique=True, null=True, blank=True)
+    slug = models.SlugField(unique=True, null=True, blank=True,
+                            help_text="A slug is a URL-friendly version of the title. It should contain only letters, numbers, hyphens, and underscores. It will be used in URLs to identify this item."
+                            )
     description = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

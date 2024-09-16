@@ -37,3 +37,10 @@ class EventSerializer(serializers.ModelSerializer):
 
     def get_event_status(self, event):
         return event.get_event_status()
+
+
+class CreateEventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Event
+        fields = ['code', 'title', 'slug', 'description', 'program',
+                  'location','start_datetime', 'end_datetime', 'contact_email', 'contact_phone_number']
