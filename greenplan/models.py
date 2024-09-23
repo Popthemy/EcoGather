@@ -5,14 +5,49 @@ from django.conf import settings
 from django.utils import timezone, text
 from django.db import transaction
 from django.core.exceptions import ValidationError
+from django.conf import settings
+from myutils.models import BaseSocialMediaLink
 # Create your models here.
+
+
+class Organizer(BaseSocialMediaLink):
+    """ Similar to the profile model in apps"""
+
+    INDIVIDUAL_TYPE = "INDIVIDUAL"
+    ORGANIZATION_TYPE = 'ORGANIZATION'
+
+    ORGANIZER_TYPES = (
+        (INDIVIDUAL_TYPE, 'Individual'),
+        (ORGANIZATION_TYPE, 'Organization'),
+    )
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, primary_key=True, on_delete=models.CASCADE)
+    username = models.CharField(max_length=100, unique=True)
+    first_name = models.CharField(max_length=255, null=True, blank=True)
+    last_name = models.CharField(max_length=255, null=True, blank=True)
+    email = models.EmailField()
+    phone_number = models.CharField(max_length=20)
+    type = models.TextField(
+        max_length=30, choices=ORGANIZER_TYPES, default=INDIVIDUAL_TYPE)
+    bio = models.TextField(null=True, blank=True)
+    vision = models.CharField(max_length=255, null=True, blank=True)
+    mission = models.CharField(max_length=255, null=True, blank=True)
+    address = models.CharField(max_length=255, null=True, blank=True)
+
+
+    class Meta:
+        ordering = ['username', 'first_name', 'last_name', 'type']
+
+    def __str__(self) -> str:
+        return f"{self.username} - {self.phone_number}"
 
 
 class Program(models.Model):
     """Categories of event"""
 
     title = models.CharField(
-        max_length=255, help_text='Categories of event e.g Conference,Summit,Webinar')
+        max_length=255, unique=True, help_text='Categories of event e.g Conference,Summit,Webinar')
     featured_event = models.ForeignKey(
         'Event', on_delete=models.SET_NULL, blank=True, null=True, related_name='featured_event')
 
@@ -33,14 +68,15 @@ class Event(models.Model):
     description = models.TextField(null=True, blank=True)
     program = models.ForeignKey(
         Program, on_delete=models.PROTECT, related_name='events', null=True)
-    location = models.CharField(max_length=255)
+    venue = models.CharField(max_length=255)
+    city_or_state = models.CharField(max_length=255)
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
     contact_email = models.EmailField(null=True, blank=True)
     contact_phone_number = models.CharField(
         max_length=20, null=True, blank=True)
     organizer = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+        Organizer, on_delete=models.CASCADE)
     slug = models.SlugField(unique=True, blank=True, null=True,
                             help_text="A slug is a URL-friendly version of the title. It should contain only letters, numbers, hyphens, and underscores. It will be used in URLs to identify this item."
                             )
@@ -58,7 +94,7 @@ class Event(models.Model):
         return super().clean()
 
     def __str__(self):
-        return f'{self.code} at {self.location} \
+        return f'{self.code} at {self.venue} \
           [{self.start_datetime.strftime("%b %d, %I:%M %p")} - {self.end_datetime.strftime("%b %d, %Y %I:%M %p")}]'
 
     def get_event_status(self):

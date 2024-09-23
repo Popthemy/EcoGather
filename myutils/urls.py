@@ -1,7 +1,8 @@
 from django.urls import path
-from .views import import_dummy_data
+from . import views
 
 urlpatterns = [
-  path('data',view=import_dummy_data,name='data')
+  path('data',views.import_dummy_data,name='data'),
+  path('demo_event/',views.list_event,name='list_event')
     
 ]

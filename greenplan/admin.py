@@ -1,11 +1,17 @@
 from typing import Any
 from django.contrib import admin, messages
-from django.db.models.query import QuerySet
 from django.db.models.aggregates import Count
-from django.http import HttpRequest
 from django.utils import timezone
-from greenplan.models import Event, Template, CustomField, Program
+from greenplan.models import Event, Template, CustomField, Program,Organizer
 # Register your models here.
+
+
+@admin.register(Organizer)
+class OrganizerAdmin(admin.ModelAdmin):
+
+    class Meta:
+        model = Organizer
+        fields = "__all__"
 
 
 @admin.register(Program)
@@ -49,11 +55,11 @@ class EventAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug':['title']}
     list_filter = [EventStatusFilter]
     fields = ['code', 'title',  'organizer', 'slug', 'program', 'description',
-              'start_datetime', 'end_datetime', 'location', 'contact_email', 'contact_phone_number']
+              'start_datetime', 'end_datetime', 'venue', 'contact_email', 'contact_phone_number']
 
     list_display = ['code', 'title', 'organizer', 'event_status', 'program',
-                    'location', 'start_datetime', 'end_datetime']
-    list_editable = ['title', 'organizer', 'location']
+                    'venue', 'start_datetime', 'end_datetime']
+    list_editable = ['title', 'organizer', 'venue']
     list_select_related = ['organizer','program']
 
     @admin.display(ordering='start_datetime')

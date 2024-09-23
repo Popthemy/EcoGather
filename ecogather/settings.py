@@ -50,6 +50,7 @@ LOCAL_APPS = [
     'myuser',
     'myutils',
     'greenplan',
+    'sponsors',
 
 ]
 
@@ -59,7 +60,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware', #deug toolbar
+    'debug_toolbar.middleware.DebugToolbarMiddleware', #debug toolbar
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -105,7 +106,6 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-
 
 
 # Password validation

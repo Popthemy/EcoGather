@@ -12,11 +12,20 @@ from greenplan.serializers import EventSerializer, CreateEventSerializer
 
 class EventApiView(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
-
+    
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return CreateEventSerializer
-        return EventSerializer
+        else:
+            return EventSerializer
+    
+    def get_serializer(self, *args, **kwargs):
+
+        serializer_class =  self.get_serializer_class()
+        kwargs['context'] = self.get_serializer_context()
+        kwargs['context']['organizer'] = self.request.user
+
+        return serializer_class(*args, **kwargs)
 
     def get_queryset(self):
         user = self.request.user
@@ -47,11 +56,30 @@ class EventApiView(ListCreateAPIView):
 
         return Response(data, status=status.HTTP_200_OK)
 
-    def post(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer = serializer.save()
+            serializer = EventSerializer(serializer)
+            data = {
+                "status":"success",
+                "message": " Event Created successfully",
+                "data":serializer.data
+            }
 
-        serializer = serializer(data=request.data)
-        return super().post(request, *args, **kwargs)
+            return Response(data,status=status.HTTP_201_CREATED)
+        error_message = {'status':'failed',
+                         'message':'Event not created'}
+        return Response(error_message,status=status.HTTP_400_BAD_REQUEST)
+    
+
+    
+    # def create(self, request, *args, **kwargs):
+    #     serializer = self.get_serializer(data=request.data)
+    #     if serializer.is_valid():
+    #         event = self.perform_create(serializer)
+    #         serializer  = EventSerializer(event)
+    #         return Response(serializer.data,status=status.HTTP_201_CREATED)
 
     def get_serializer_context(self):
-        return {'request': self.request}
+        return {'request': self.request,'user': self.request.user}
