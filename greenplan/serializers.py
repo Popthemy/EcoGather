@@ -80,22 +80,3 @@ class CreateEventSerializer(serializers.ModelSerializer):
         #         return Event.objects.create(organizer=user, **validated_data)
         #     raise serializers.ValidationError("Event not created")
 
-
-        def create(self, validated_data):
-            # Ensure user is correctly retrieved from context
-            user = self.context['organizer']
-            if not user:
-                raise serializers.ValidationError(
-                    "User is not authenticated or not provided in context.")
-
-            # Ensure required fields are present
-            if 'program' in validated_data:
-                program = validated_data['program']
-                program, created = Program.objects.get_or_create(
-                    title=program.capitalize())
-            else:
-                raise serializers.ValidationError("Program is required.")
-
-            # Create and return the event with the user as organizer
-            return Event.objects.create(organizer=user, **validated_data)
-        

@@ -1,17 +1,16 @@
 from uuid import uuid4
 from django.contrib.auth import get_user_model
-from greenplan.models import Event, Template
+from greenplan.models import Event,Organizer, Template
 from datetime import datetime, timedelta
 from django.contrib.auth.hashers import make_password
 # Generate sample seed data
 
-Users = get_user_model()
-User = Users.objects.all()
+User = get_user_model()
+# User = Users.objects.all()
+organizer_queryset = Organizer.objects.select_related('user')
 
 Events = Event.objects.all()
 Bulletin = Template.objects.all()
-
-''''
 
 user_seed_data = [
     {
@@ -66,76 +65,143 @@ user_seed_data = [
 ]
 
 
+program_seed_data = [
+  {'title': 'Conference'},
+  {'title': 'Summit'},
+  {'title': 'Workshop'}
+]
+
+
+organizer_seed_data = [
+  
+    {   "user": User.objects.get(email=user_seed_data[0]['email']),
+        "username": 'Bayo001',
+        "email": "bayo.adesina@example.com",
+        "first_name": "Bayo",
+        "last_name": "Adesina",
+        "phone_number":'000'
+    },
+    {
+        "user": User.objects.get(email=user_seed_data[1]['email']),
+        "username":'Amina001',
+        "email": "amina.muhammad@example.com",
+        "first_name": "Amina",
+        "last_name": "Muhammad",
+        "phone_number": "2092123"
+    },
+    {
+        "user": User.objects.get(email=user_seed_data[2]['email']),
+        'username': 'john001',
+        "email" : "john.ekene@example.com",
+        "first_name": "John",
+        "last_name": "Ekene",
+        "phone_number": "i092u81203"
+    },
+    {
+        "user": User.objects.get(email=user_seed_data[3]['email']),
+        'username':'fatima001',
+        "email": "fatima.kane@example.com",
+        "first_name": "Fatima",
+        "last_name": "Kane",
+        "phone_number": "2902901203"
+    },
+    {
+        "user": User.objects.get(email=user_seed_data[4]['email']),
+        "username": 'Kwame001',
+        "email" : "kwame.owusu@example.com",
+        "first_name": "Kwame",
+        "last_name": "Owusu",
+        "phone_number": "2000901203"
+    },
+    {
+        "user": User.objects.get(email=user_seed_data[5]['email']),
+        "email": "isaac@example.com",
+        "first_name": "Isaac",
+        "last_name": "Eli",
+        "phone_number": "200000903"
+    }
+
+]
+
+
+
 event_seed_data = [
     {
         "code": "DEVFEST2024",
         "title": "African Developer Tech Summit",
-        "location": "Nairobi, Kenya",
+        "venue": 'Nairaobi',
+        "city_or_state": "Nairobi, Kenya",
         "start_datetime": datetime.now() + timedelta(days=1),
         "end_datetime": datetime.now() + timedelta(days=1, hours=3),
-        "organizer": User.get(email=user_seed_data[0]['email']),
+        "organizer": organizer_queryset.get(email=user_seed_data[0]['email']),
         "slug": "african-developer-tech-summit-2024"
     },
     {
         "code": "FINA2025",
         "title": "Pan-African Financial Summit",
-        "location": "Johannesburg, South Africa",
+        "venue": 'Johannesburg',
+        "city_or_state": "Johannesburg, South Africa",
         "start_datetime": datetime.now() + timedelta(days=30),
         "end_datetime": datetime.now() + timedelta(days=35),
-        "organizer": User.get(email=user_seed_data[2]['email']),
+        "organizer": organizer_queryset.get(email=user_seed_data[1]['email']),
     },
     {
         "code": "AGRI2024",
         "title": "African Agricultural Innovation Expo",
-        "location": "Accra, Ghana",
+        "venue": 'lauxer',
+        "city_or_state": "Accra, Ghana",
         "start_datetime": datetime.now() + timedelta(days=20),
         "end_datetime": datetime.now() + timedelta(days=25),
-        # Assuming you have a User model with ID 3
-        "organizer": User.get(email=user_seed_data[1]['email']),
+        "organizer": organizer_queryset.get(email=user_seed_data[1]['email']),
     },
     {
         "code": "LAGEDU2024",
         "title": "African Academic Summit 2024",
-        "location": "Lagos, Nigeria",
+        "venue": 'UNILAG',
+        "city_or_state": "Lagos, Nigeria",
         "start_datetime": datetime.now(),
         "end_datetime": datetime.now() + timedelta(hours=4),
-        "organizer": User.get(email=user_seed_data[3]['email']),
+        "organizer": organizer_queryset.get(email=user_seed_data[3]['email']),
         "slug": "african-lagos-academic-summit-2024"
     },
     {
         "code": "FINTECH2024",
         "title": "African Fintech Conference 2024",
-        "location": "Accra, Ghana",
+        "venue": 'University of Ibadan',
+        "city_or_state": "Oyo, Nigeria",
         "start_datetime": datetime.now() + timedelta(days=1),
         "end_datetime": datetime.now() + timedelta(days=1, hours=3),
-        "organizer":User.get(email=user_seed_data[4]['email']),
+        "organizer": organizer_queryset.get(email=user_seed_data[4]['email']),
         "slug": "african-fintech-conference-2024"
     },
     {
         "code": "AGRICON2024",
         "title": "Agricultural Innovations Summit",
-        "location": "Nairobi, Kenya",
+        "venue": 'University of Nairaobi',
+        "city_or_state":"Nairobi, Kenya",
         "start_datetime": datetime.now() + timedelta(days=2),
         "end_datetime": datetime.now() + timedelta(days=2, hours=5),
-        "organizer": User.get(email=user_seed_data[4]['email']),
+        "organizer": organizer_queryset.get(email=user_seed_data[4]['email']),
         "slug": "agricultural-innovations-summit"
     },
     {
         "code": "YOUTHFORUM2024",
         "title": "African Youth Forum 2024",
-        "location": "Johannesburg, South Africa",
+        "venue": 'University of South Africa',
+        "city_or_state":"Johannesburg, South Africa",
         "start_datetime": datetime.now() + timedelta(days=3),
         "end_datetime": datetime.now() + timedelta(days=3, hours=4),
-        "organizer": User.get(email=user_seed_data[3]['email']),
+        "organizer": organizer_queryset.get(email=user_seed_data[3]['email']),
         "slug": "african-youth-forum-2024"
     },
     {
         "code": "GOOGLEDEV2024",
         "title": "Google Developers Summit Africa 2024",
-        "location": "Cape Town, South Africa",
+        "venue": 'Lanscape House of Africa',
+        "city_or_state":"Cape Town, South Africa",
         "start_datetime": datetime.now() + timedelta(days=4),
         "end_datetime": datetime.now() + timedelta(days=4, hours=6),
-        "organizer":User.get(email=user_seed_data[2]['email']),
+        "organizer": organizer_queryset.get(email=user_seed_data[2]['email']),
         "slug": "google-developers-summit-africa"
     }
 ]
@@ -294,4 +360,32 @@ custom_field_seed_data = [
     },
 ]
 
-'''
+
+
+sponsors_seed_data = [
+    {
+        "name": "Tech Innovations Ltd.",
+        "description": "Leading provider of innovative tech solutions and services.",
+        "email": "contact@techinnovations.com"
+    },
+    {
+        "name": "Green Earth Organization",
+        "description": "Committed to promoting sustainability and environmental stewardship.",
+        "email": "info@greenearth.org"
+    },
+    {
+        "name": "HealthFirst Inc.",
+        "description": "A healthcare company focused on improving patient care and outcomes.",
+        "email": "support@healthfirst.com"
+    },
+    {
+        "name": "Culinary Creations",
+        "description": "Delivering gourmet meals with a focus on local ingredients.",
+        "email": "hello@culinarycreations.com"
+    },
+    {
+        "name": "Adventure Outdoors",
+        "description": "Your partner for unforgettable outdoor adventures and experiences.",
+        "email": "info@adventureoutdoors.com"
+    }
+]

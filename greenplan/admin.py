@@ -57,7 +57,7 @@ class EventAdmin(admin.ModelAdmin):
     fields = ['code', 'title',  'organizer', 'slug', 'program', 'description',
               'start_datetime', 'end_datetime', 'venue', 'contact_email', 'contact_phone_number']
 
-    list_display = ['code', 'title', 'organizer', 'event_status', 'program',
+    list_display = ['id','code', 'title', 'organizer', 'event_status', 'program',
                     'venue', 'start_datetime', 'end_datetime']
     list_editable = ['title', 'organizer', 'venue']
     list_select_related = ['organizer','program']

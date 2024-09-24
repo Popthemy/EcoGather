@@ -44,7 +44,7 @@ class Organizer(BaseSocialMediaLink):
 
 
 class Program(models.Model):
-    """Categories of event"""
+    """Categories of event e.g summit, conference"""
 
     title = models.CharField(
         max_length=255, unique=True, help_text='Categories of event e.g Conference,Summit,Webinar')
