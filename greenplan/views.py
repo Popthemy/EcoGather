@@ -6,15 +6,23 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from greenplan.models import Event,Organizer
-from greenplan.serializers import ListEventSerializer, CreateEventSerializer,OrganizerSerializer
-from uuid import UUID
+from greenplan.serializers import EventSerializer, CreateEventSerializer,OrganizerSerializer
 # Create your views here.
 
-@api_view(['GET'])
+@api_view(['GET','POST'])
 def list_events(request):
-    events  = Event.objects.select_related('program','organizer').all()
-    serializer = ListEventSerializer(events,many=True,context= {'request': request})
-    return Response(serializer.data)
+    if request.method == 'GET':
+        events  = Event.objects.select_related('program','organizer').all()
+        serializer = EventSerializer(events,many=True,context= {'request': request})
+        return Response(serializer.data)
+    
+    elif request.method == 'POST':
+        serializer = CreateEventSerializer(data=request.data, context= {'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        serializer = EventSerializer(serializer.data)
+        return Response(serializer.data)
+
 
 @api_view(['GET'])
 def organizer_detail(request,pk):
@@ -29,7 +37,7 @@ class EventApiView(ListCreateAPIView):
         if self.request.method == 'POST':
             return CreateEventSerializer
         else:
-            return ListEventSerializer
+            return EventSerializer
     
     def get_serializer(self, *args, **kwargs):
 

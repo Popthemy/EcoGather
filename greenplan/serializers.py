@@ -18,19 +18,13 @@ class BasicProgramSerializer(serializers.ModelSerializer):
 
 class OrganizerSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    full_name = serializers.SerializerMethodField()
-
 
     class Meta:
         model = Organizer
-        fields = ['id','username','type', 'email', 'full_name']
-
-    def get_full_name(self,organizer):
-        return f'{organizer.first_name} {organizer.last_name}'
+        fields = ['id','username','type', 'email', 'first_name','last_name']
 
 
-
-class ListEventSerializer(serializers.ModelSerializer):
+class EventSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     organizer = serializers.HyperlinkedRelatedField(
         queryset= Organizer.objects.all(),
@@ -50,7 +44,6 @@ class ListEventSerializer(serializers.ModelSerializer):
 
     def get_event_status(self, event):
         return event.get_event_status()
-
 
 class CreateEventSerializer(serializers.ModelSerializer):
     class Meta:
@@ -82,14 +75,14 @@ class CreateEventSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(errors)
             return attrs
 
-        # def create(self, validated_data):
-        #     user = self.context['user']
-        #     program = validated_data['program']
+        def create(self, validated_data):
+            user = self.context['request'].user
+            program = validated_data['program']
 
-        #     if program and user:
-        #         program, created = Program.objects.get_or_create(
-        #             title=(program).capitalize())
+            if program and user:
+                program, created = Program.objects.get_or_create(
+                    title=(program).capitalize())
 
-        #         return Event.objects.create(organizer=user, **validated_data)
-        #     raise serializers.ValidationError("Event not created")
+                return Event.objects.create(organizer=user, **validated_data)
+            raise serializers.ValidationError("Event not created")
 
