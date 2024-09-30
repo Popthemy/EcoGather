@@ -1,8 +1,10 @@
 from rest_framework import serializers
-from greenplan.models import Event, Program
+from greenplan.models import Event, Program,Organizer
 from django.contrib.auth import get_user_model
 from django.db.models.aggregates import Count
 from django.shortcuts import get_object_or_404
+
+
 CustomUser = get_user_model()
 
 
@@ -14,15 +16,26 @@ class BasicProgramSerializer(serializers.ModelSerializer):
         fields = ['id', 'title']
 
 
-class BasicCustomUser(serializers.ModelSerializer):
+class OrganizerSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    full_name = serializers.SerializerMethodField()
+
+
     class Meta:
-        model = CustomUser
-        fields = ['id', 'email', 'full_name']
+        model = Organizer
+        fields = ['id','username','type', 'email', 'full_name']
+
+    def get_full_name(self,organizer):
+        return f'{organizer.first_name} {organizer.last_name}'
+
 
 
 class ListEventSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    organizer = BasicCustomUser()
+    organizer = serializers.HyperlinkedRelatedField(
+        queryset= Organizer.objects.all(),
+        view_name = 'organizer_detail'
+    )# BasicCustomUser()
     event_status = serializers.SerializerMethodField()
     organizer_events_count = serializers.SerializerMethodField()
     program = BasicProgramSerializer()

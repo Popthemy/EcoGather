@@ -1,21 +1,26 @@
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from greenplan.models import Event
-from greenplan.serializers import ListEventSerializer, CreateEventSerializer
-
+from greenplan.models import Event,Organizer
+from greenplan.serializers import ListEventSerializer, CreateEventSerializer,OrganizerSerializer
+from uuid import UUID
 # Create your views here.
 
 @api_view(['GET'])
 def list_events(request):
-
     events  = Event.objects.select_related('program','organizer').all()
-    serialzier = ListEventSerializer(events,many=True)
-    return Response(serialzier.data)
+    serializer = ListEventSerializer(events,many=True,context= {'request': request})
+    return Response(serializer.data)
 
+@api_view(['GET'])
+def organizer_detail(request,pk):
+    organizer = get_object_or_404(Organizer,pk=pk)
+    serializer = OrganizerSerializer(organizer)
+    return Response(serializer.data)
 
 class EventApiView(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
