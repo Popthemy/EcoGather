@@ -1,13 +1,20 @@
 from django.http import Http404
-from rest_framework.views import APIView
+from rest_framework.decorators import api_view
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from greenplan.models import Event
-from greenplan.serializers import EventSerializer, CreateEventSerializer
+from greenplan.serializers import ListEventSerializer, CreateEventSerializer
 
 # Create your views here.
+
+@api_view(['GET'])
+def list_events(request):
+
+    events  = Event.objects.select_related('program','organizer').all()
+    serialzier = ListEventSerializer(events,many=True)
+    return Response(serialzier.data)
 
 
 class EventApiView(ListCreateAPIView):
@@ -17,7 +24,7 @@ class EventApiView(ListCreateAPIView):
         if self.request.method == 'POST':
             return CreateEventSerializer
         else:
-            return EventSerializer
+            return ListEventSerializer
     
     def get_serializer(self, *args, **kwargs):
 

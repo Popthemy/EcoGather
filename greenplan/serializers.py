@@ -20,7 +20,7 @@ class BasicCustomUser(serializers.ModelSerializer):
         fields = ['id', 'email', 'full_name']
 
 
-class EventSerializer(serializers.ModelSerializer):
+class ListEventSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     organizer = BasicCustomUser()
     event_status = serializers.SerializerMethodField()

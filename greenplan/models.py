@@ -38,6 +38,8 @@ class Organizer(BaseSocialMediaLink):
 
     class Meta:
         ordering = ['username', 'first_name', 'last_name', 'type']
+        verbose_name = 'Organizer'
+        verbose_name_plural = 'Organizers'
 
     def __str__(self) -> str:
         return f"{self.username} - {self.phone_number}"
@@ -56,6 +58,8 @@ class Program(models.Model):
 
     class Meta:
         ordering = ['title']
+        verbose_name = 'Program'
+        verbose_name_plural = 'Programs'
 
 
 class Event(models.Model):
@@ -85,12 +89,13 @@ class Event(models.Model):
 
     class Meta:
         ordering = ['start_datetime', '-updated_at', 'title']
+        verbose_name =  'Event'
+        verbose_name_plural =  'Events'
 
     def clean(self):
         if self.start_datetime > self.end_datetime:
             raise ValidationError(
                 'Start date and time should be before End date and time')
-
         return super().clean()
 
     def __str__(self):
@@ -166,6 +171,7 @@ class Template(models.Model):
                     code=self.generate_unique_code()
                 )
 
+
                 for custom_field in self.custom_field.all():
                     CustomField.objects.create(
                         template=new_template,
@@ -220,6 +226,8 @@ class CustomField(models.Model):
 
     class Meta:
         ordering = ['start_time', 'label']
+        verbose_name = 'Custom Field'
+        verbose_name_plural = 'Custom Fields'
 
     def __str__(self):
         start_time = self.start_time.strftime(

@@ -51,6 +51,7 @@ LOCAL_APPS = [
     'myutils',
     'greenplan',
     'sponsors',
+    'custom',
 
 ]
 

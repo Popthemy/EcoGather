@@ -1,8 +1,12 @@
 from typing import Any
 from django.contrib import admin, messages
 from django.db.models.aggregates import Count
+from django.db.models.query import QuerySet
+from django.http import HttpRequest
 from django.utils import timezone
-from greenplan.models import Event, Template, CustomField, Program,Organizer
+from django.utils.html import format_html, urlencode
+from django.urls import reverse
+from greenplan.models import Event, Template, CustomField, Program, Organizer
 # Register your models here.
 
 
@@ -20,31 +24,47 @@ class ProgramAdmin(admin.ModelAdmin):
     fields = ['title', 'featured_event']
     list_display = ['title', 'featured_event', 'event_count']
     list_select_related = ['featured_event']
-    search_fields = ['title']
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).annotate(event_count=Count('events'))
+    search_fields = ['title__icontains']
 
     @admin.display(ordering='event_count')
     def event_count(self, program):
-        return program.event_count
+        page_link = reverse('admin:greenplan_event_changelist')
+        query_link = (page_link
+                      + '?'
+                      + urlencode({
+                          "program__id": str(program.id)
+                      })
+                      )
+        link_event_count = (
+            format_html("<a href='{}'> {} </a>",
+                        query_link, program.event_count)
+        )
+        return link_event_count
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).annotate(event_count=Count('events'))
 
 
 class EventStatusFilter(admin.SimpleListFilter):
     title = 'event_status'
     parameter_name = 'event_status'
+    filter_by_upcoming = 'UPCOMING'
+    filter_by_ongoing = 'ONGOING'
+    filter_by_past = 'PAST'
 
     def lookups(self, request, model_admin):
-        return [('upcoming', 'UPCOMING'), ('ongoing', 'ONGOING'), ('past', 'PAST')]
+        return [(self.filter_by_upcoming, 'Upcoming'),
+                (self.filter_by_ongoing, 'Ongoing'),
+                (self.filter_by_past, 'past')]
 
     def queryset(self, request, queryset):
         cur_date = timezone.now()
 
-        if self.value() == 'upcoming':
+        if self.value() == self.filter_by_upcoming:
             return queryset.filter(start_datetime__gt=cur_date)
-        if self.value() == 'past':
+        if self.value() == self.filter_by_past:
             return queryset.filter(end_datetime__lt=cur_date)
-        if self.value() == 'ongoing':
+        if self.value() == self.filter_by_ongoing:
             return queryset.filter(start_datetime__lte=cur_date, end_datetime__gte=cur_date)
         return queryset
 
@@ -52,23 +72,26 @@ class EventStatusFilter(admin.SimpleListFilter):
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     autocomplete_fields = ['program']
-    prepopulated_fields = {'slug':['title']}
-    list_filter = [EventStatusFilter]
+    prepopulated_fields = {'slug': ['title','code']}
     fields = ['code', 'title',  'organizer', 'slug', 'program', 'description',
               'start_datetime', 'end_datetime', 'venue', 'contact_email', 'contact_phone_number']
-
-    list_display = ['id','code', 'title', 'organizer', 'event_status', 'program',
+    list_display = [ 'code', 'title', 'organizer', 'event_status', 'program',
                     'venue', 'start_datetime', 'end_datetime']
     list_editable = ['title', 'organizer', 'venue']
-    list_select_related = ['organizer','program']
+    list_filter = [EventStatusFilter, 'program']
+    list_select_related = ['organizer', 'program']
+    search_fields = ['code', 'title']
 
     @admin.display(ordering='start_datetime')
     def event_status(self, event):
         return event.get_event_status()
 
 
+
 class CustomFieldInline(admin.TabularInline):
     model = CustomField
+    min_num = 1
+
 
 
 @admin.register(Template)
@@ -82,7 +105,7 @@ class TemplateAdmin(admin.ModelAdmin):
 
     @admin.action(description='Clone template')
     def clone_template(self, request, queryset):
-        """Using the action as part of action on the admin panel to clone a template"""
+        """Using the action to clone a template"""
 
         if queryset.exists():
             cloned_templates = []
