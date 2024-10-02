@@ -45,6 +45,26 @@ class Organizer(BaseSocialMediaLink):
         return f"{self.username} - {self.phone_number}"
 
 
+class Address(models.Model):
+    'address for each organizer, an organizer might have more than one address'
+
+    organizer = models.ForeignKey(Organizer, on_delete=models.CASCADE,related_name='addresses')
+    street_number = models.PositiveIntegerField()
+    street_name = models.CharField(max_length=255)
+    city = models.CharField(max_length=255)
+    state = models.CharField(max_length=255)
+    zip_code = models.IntegerField(null=True, blank=True)
+    country = models.CharField(max_length=255)
+
+    class Meta:
+        ordering = ['street_number','street_name','city','zip_code']
+        verbose_name = 'Address'
+        verbose_name_plural = 'Addresses'
+    
+    def __str__(self) -> str:
+        return f'{self.organizer} reside at {self.street_number} {self.street_name},{self.city},{self.state}'
+
+
 class Program(models.Model):
     """Categories of event e.g summit, conference"""
 

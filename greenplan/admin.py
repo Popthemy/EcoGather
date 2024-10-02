@@ -6,8 +6,12 @@ from django.http import HttpRequest
 from django.utils import timezone
 from django.utils.html import format_html, urlencode
 from django.urls import reverse
-from greenplan.models import Event, Template, CustomField, Program, Organizer
+from greenplan.models import Event, Template, CustomField, Program, Organizer,Address
 # Register your models here.
+
+@admin.register(Address)
+class AddressAdmin(admin.ModelAdmin):
+    pass
 
 
 @admin.register(Organizer)

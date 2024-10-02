@@ -1,51 +1,23 @@
-from django.http import Http404
 from django.shortcuts import get_object_or_404
-from rest_framework.decorators import api_view
-from rest_framework.generics import ListCreateAPIView
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from greenplan.models import Event,Organizer
-from greenplan.serializers import EventSerializer, CreateEventSerializer,OrganizerSerializer
+from .models import Event,Organizer
+from .serializers import EventSerializer, CreateEventSerializer,OrganizerSerializer
+
 # Create your views here.
 
-@api_view(['GET','POST'])
-def list_events(request):
-    if request.method == 'GET':
-        events  = Event.objects.select_related('program','organizer').all()
-        serializer = EventSerializer(events,many=True,context= {'request': request})
-        return Response(serializer.data)
-    
-    elif request.method == 'POST':
-        serializer = CreateEventSerializer(data=request.data, context= {'request': request})
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        serializer = EventSerializer(serializer.data)
-        return Response(serializer.data)
-
-
-@api_view(['GET'])
-def organizer_detail(request,pk):
-    organizer = get_object_or_404(Organizer,pk=pk)
-    serializer = OrganizerSerializer(organizer)
-    return Response(serializer.data)
 
 class EventApiView(ListCreateAPIView):
     permission_classes = [IsAuthenticated]
-    
+
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return CreateEventSerializer
         else:
             return EventSerializer
-    
-    def get_serializer(self, *args, **kwargs):
-
-        serializer_class =  self.get_serializer_class()
-        kwargs['context'] = self.get_serializer_context()
-        kwargs['context']['organizer'] = self.request.user
-
-        return serializer_class(*args, **kwargs)
 
     def get_queryset(self):
         user = self.request.user
@@ -68,7 +40,7 @@ class EventApiView(ListCreateAPIView):
 
         serializer = self.get_serializer(events, many=True)
         data = {
-            "status": "success",
+            "status": "Success",
             "message": "Events retrieved successfully",
             'total_events': total_events,
             "data": serializer.data
@@ -76,30 +48,59 @@ class EventApiView(ListCreateAPIView):
 
         return Response(data, status=status.HTTP_200_OK)
 
-    def create(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             serializer = serializer.save()
-            serializer = EventSerializer(serializer)
+            serializer = EventSerializer(serializer,context={'request': request})
             data = {
-                "status":"success",
+                "status": "success",
                 "message": " Event Created successfully",
-                "data":serializer.data
+                "data": serializer.data
             }
 
-            return Response(data,status=status.HTTP_201_CREATED)
-        error_message = {'status':'failed',
-                         'message':'Event not created'}
-        return Response(error_message,status=status.HTTP_400_BAD_REQUEST)
-    
-
-    
-    # def create(self, request, *args, **kwargs):
-    #     serializer = self.get_serializer(data=request.data)
-    #     if serializer.is_valid():
-    #         event = self.perform_create(serializer)
-    #         serializer  = EventSerializer(event)
-    #         return Response(serializer.data,status=status.HTTP_201_CREATED)
+            return Response(data, status=status.HTTP_201_CREATED)
+        error_message = {'status': 'failed',
+                         'message': 'Event not created'}
+        return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
 
     def get_serializer_context(self):
-        return {'request': self.request,'user': self.request.user}
+        return {'request': self.request}
+
+
+class OrganizerListApiView(ListCreateAPIView):
+    serializer_class = OrganizerSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        pk = user.pk
+        qs = Organizer.objects.all()
+
+        if user.is_staff:
+            return qs
+
+        return qs.filter(pk=pk)
+    
+    def get_serializer_context(self):
+        return {'request': self.request}
+
+class OrganizerDetailApiView(RetrieveUpdateDestroyAPIView):
+    serializer_class = OrganizerSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        pk =self.kwargs.get('pk')
+        user = self.request.user
+        organizer = get_object_or_404(Organizer,pk=pk)
+
+        # Our staff can view everyone profile"""
+        if user.is_staff:
+            return organizer
+
+        #A user can view their profile
+        if str(user.id) == pk:
+            return organizer
+        return PermissionDenied('You do not have permission to access this profile.')
+    
+    

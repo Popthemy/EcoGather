@@ -1,9 +1,8 @@
 from django.urls import path
-from greenplan.views import EventApiView,list_events,organizer_detail
+from greenplan import views
 
 urlpatterns = [
-    path('events/', view=EventApiView.as_view(), name='all_event'),
-    # sample
-    path('event_list/',list_events,name='func_event'),
-    path('organizer/<uuid:pk>/',organizer_detail,name='organizer_detail')
+    path('events/', view=views.EventApiView.as_view(), name='all_event'),
+    path('organizers/', view=views.OrganizerListApiView.as_view(), name='organizer_detail'),
+    path('organizer_details/<uuid:pk>/', view=views.OrganizerDetailApiView.as_view(), name='organizer_details'),
 ]

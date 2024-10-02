@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from greenplan.models import Event, Program,Organizer
+from greenplan.models import Event, Program, Organizer, Address
 from django.contrib.auth import get_user_model
 from django.db.models.aggregates import Count
 from django.shortcuts import get_object_or_404
@@ -8,81 +8,73 @@ from django.shortcuts import get_object_or_404
 CustomUser = get_user_model()
 
 
-class BasicProgramSerializer(serializers.ModelSerializer):
+class OrganizerSerializer(serializers.ModelSerializer):
+    id = serializers.CharField(max_length=32,read_only=True, source='user_id')
+
+    class Meta:
+        model = Organizer
+        fields = ['id', 'username', 'email', 'first_name', 'last_name',
+                  'type', 'phone_number', 'bio', 'vision', 'mission']
+        
+    
+    def create(self, validated_data):
+        user = self.context['request'].user
+        user_instance = get_object_or_404(CustomUser,pk=user.id)
+        
+        return Organizer.objects.create(user=user_instance, **validated_data)
+
+class ProgramSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Program
-        fields = ['id', 'title']
-
-
-class OrganizerSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(read_only=True)
-
-    class Meta:
-        model = Organizer
-        fields = ['id','username','type', 'email', 'first_name','last_name']
+        fields = ['id', 'title', 'featured_event']
 
 
 class EventSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     organizer = serializers.HyperlinkedRelatedField(
-        queryset= Organizer.objects.all(),
-        view_name = 'organizer_detail'
-    )# BasicCustomUser()
+        queryset=Organizer.objects.all(),
+        view_name='organizer_details'
+    )
     event_status = serializers.SerializerMethodField()
     organizer_events_count = serializers.SerializerMethodField()
-    program = BasicProgramSerializer()
+    program = ProgramSerializer(required=True)
 
     class Meta:
         model = Event
         fields = ['id', 'code', 'title', 'slug', 'organizer', 'description', 'program',
-                  'venue','city_or_state', 'event_status', 'organizer_events_count', 'start_datetime', 'end_datetime', 'contact_email', 'contact_phone_number']
+                  'venue', 'city_or_state', 'event_status', 'organizer_events_count', 'start_datetime', 'end_datetime', 'contact_email', 'contact_phone_number']
 
     def get_organizer_events_count(self, event):
         return event.get_organizer_total_events()
 
     def get_event_status(self, event):
+
         return event.get_event_status()
 
+
 class CreateEventSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Event
         fields = ['code', 'title', 'slug', 'description', 'program',
-                  'venue','city_or_state', 'start_datetime', 'end_datetime', 'contact_email', 'contact_phone_number']
+                  'venue', 'city_or_state', 'start_datetime', 'end_datetime', 'contact_email', 'contact_phone_number']
 
-        def validate(self, attrs):
-            '''Validate details from users'''
+    def create(self, validated_data):
+        user = self.context['request'].user
 
-            errors = {}
+        program = validated_data['program']
+        print(f'user: {user} program:{program}')
 
-            if not attrs.get('code'):
-                errors['code'] = [
-                    'Input a unique code for this event e.g SDG2025']
-            if not attrs.get('title'):
-                errors['title'] = ['Title is required']
-            if not attrs.get('program'):
-                errors['program'] = [
-                    'Program is required. Enter the type of program your event belongs to e.g Seminar, Conference..']
-            if not attrs.get('location'):
-                errors['location'] = ['Location is required']
-            if not attrs.get('start_datetime'):
-                errors['start_datetime'] = ['start_datetime is required']
-            if not attrs.get('end_datetime'):
-                errors['end_datetime'] = ['end_datetime is required']
+        if program and user:
+            program, created = Program.objects.get_or_create(
+                title=str(program).capitalize())
 
-            if errors:
-                raise serializers.ValidationError(errors)
-            return attrs
+            organizer = get_object_or_404(Organizer, email=user.email)
+            event = Event.objects.create(
+                organizer=organizer, **validated_data)
 
-        def create(self, validated_data):
-            user = self.context['request'].user
-            program = validated_data['program']
+            return event
 
-            if program and user:
-                program, created = Program.objects.get_or_create(
-                    title=(program).capitalize())
-
-                return Event.objects.create(organizer=user, **validated_data)
-            raise serializers.ValidationError("Event not created")
-
+        raise serializers.ValidationError('user or program are required')
