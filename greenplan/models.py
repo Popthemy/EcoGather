@@ -5,7 +5,6 @@ from django.conf import settings
 from django.utils import timezone, text
 from django.db import transaction
 from django.core.exceptions import ValidationError
-from django.conf import settings
 from myutils.models import BaseSocialMediaLink
 # Create your models here.
 
@@ -104,6 +103,7 @@ class Event(models.Model):
     slug = models.SlugField(unique=True, blank=True, null=True,
                             help_text="A slug is a URL-friendly version of the title. It should contain only letters, numbers, hyphens, and underscores. It will be used in URLs to identify this item."
                             )
+    is_private = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
