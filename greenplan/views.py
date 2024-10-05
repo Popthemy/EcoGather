@@ -10,9 +10,11 @@ from .serializers import EventSerializer, CreateEventSerializer, OrganizerSerial
 
 # Create your views here.
 
+# class CreateView()
 
 class EventApiView(ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
+
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -33,7 +35,7 @@ class EventApiView(ListCreateAPIView):
             return qs.filter(organizer_id=user.pk)
 
         # If no events found or user isn't authenticated
-        return qs.none()
+        return qs.filter(is_private=False)
 
     def get(self, request, *args, **kwargs):
         events = self.get_queryset()

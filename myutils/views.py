@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from greenplan.models import Event, Template, CustomField, Program, Organizer
 from sponsors.models import Sponsor,Sponsorship
-from .seed import user_seed_data, program_seed_data, organizer_seed_data, event_seed_data, template_seed_data, custom_field_seed_data, sponsors_seed_data
+# from .seed import user_seed_data, program_seed_data, organizer_seed_data , event_seed_data, template_seed_data, custom_field_seed_data, sponsors_seed_data
 
 # Create your views here.
 

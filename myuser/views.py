@@ -1,8 +1,13 @@
 from django.shortcuts import render
 from django.contrib.auth import get_user_model
+from django.contrib.auth import logout
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
+from rest_framework_simplejwt.views import TokenRefreshView as BaseTokenRefreshView, TokenBlacklistView as BaseTokenBlacklistView
+from rest_framework_simplejwt.serializers import TokenBlacklistSerializer
+from rest_framework_simplejwt.exceptions import TokenError
+from myutils.reusable_func import get_jwt_tokens
 from .serializers import UserSerializer, LoginSerializer
 from .permissions import IsAnonymous
 
@@ -18,11 +23,14 @@ class RegisterView(GenericAPIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        user = serializer.save()
+
+        token = get_jwt_tokens(user)
 
         data = {
             'status': 'Success',
             'message': 'Registration Successful',
+            'token': token,
             'data': serializer.data
         }
 
@@ -41,19 +49,43 @@ class LoginView(GenericAPIView):
 
         if user:
             serializer = UserSerializer(user)
+            token = get_jwt_tokens(user)
 
             data = {
                 'status': 'Success',
-                'message': 'Login in successful',
+                'message': 'Welcome back👋',
+                'token': token,
                 'data': serializer.data
             }
             return Response(data=data, status=status.HTTP_200_OK)
-        
+
         return Response(data={
             'status': 'Error',
             'message': 'Login Unsuccessful',
             'data': serializer.errors},
             status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-# class LogoutView(GenericAPIView):
-    
+
+class TokenRefreshView(BaseTokenRefreshView):
+    """ Allows a user to get new access token after their token has expired."""
+    pass
+
+
+class LogoutView(BaseTokenBlacklistView):
+    serializer_class = TokenBlacklistSerializer
+
+    def post(self, request,*args, **kwargs):
+
+        try:
+            serializer = self.serializer_class(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            data = {
+                'status': 'Success',
+                'message': f'{request.user}, you have logged out successful, we will miss you.😭',
+            }
+            return Response(data=data, status=status.HTTP_200_OK)
+
+        except TokenError as e:
+            data = {'status': 'error', 'message': str(e)}
+            return Response(data, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+

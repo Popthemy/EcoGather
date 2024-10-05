@@ -77,11 +77,11 @@ class EventStatusFilter(admin.SimpleListFilter):
 class EventAdmin(admin.ModelAdmin):
     autocomplete_fields = ['program']
     prepopulated_fields = {'slug': ['title','code']}
-    fields = ['code', 'title',  'organizer', 'slug', 'program', 'description',
+    fields = ['code', 'title',  'organizer', 'slug', 'program','is_private', 'description',
               'start_datetime', 'end_datetime', 'venue', 'contact_email', 'contact_phone_number']
-    list_display = [ 'code', 'title', 'organizer', 'event_status', 'program',
+    list_display = [ 'code', 'title', 'organizer', 'event_status', 'program','is_private',
                     'venue', 'start_datetime', 'end_datetime']
-    list_editable = ['title', 'organizer', 'venue']
+    list_editable = ['title', 'organizer','is_private', 'venue']
     list_filter = [EventStatusFilter, 'program']
     list_select_related = ['organizer', 'program']
     search_fields = ['code', 'title']

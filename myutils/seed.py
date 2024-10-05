@@ -12,6 +12,8 @@ organizer_queryset = Organizer.objects.select_related('user')
 Events = Event.objects.all()
 Bulletin = Template.objects.all()
 
+"""
+
 user_seed_data = [
     {
         "id": uuid4(),
@@ -361,7 +363,6 @@ custom_field_seed_data = [
 ]
 
 
-
 sponsors_seed_data = [
     {
         "name": "Tech Innovations Ltd.",
@@ -389,3 +390,4 @@ sponsors_seed_data = [
         "email": "info@adventureoutdoors.com"
     }
 ]
+"""

@@ -66,7 +66,7 @@ class EventSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Event
-        fields = ['id', 'code', 'title', 'slug', 'organizer', 'description', 'program',
+        fields = ['id', 'code', 'title', 'slug', 'organizer', 'description', 'program','is_private',
                   'venue', 'city_or_state', 'event_status', 'organizer_events_count', 'start_datetime', 'end_datetime', 'contact_email', 'contact_phone_number']
 
     def get_organizer_events_count(self, event):
