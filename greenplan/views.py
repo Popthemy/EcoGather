@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.http import Http404
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.viewsets import ModelViewSet
@@ -24,14 +25,20 @@ class OrganizerViewSet(ModelViewSet):
         user = self.request.user
 
         if user.is_staff:
-            if pk:
-                return Organizer.objects.filter(pk=pk)
+            organizer = Organizer.objects.filter(pk=pk)
+            if pk and organizer is not None:
+                return organizer
             return Organizer.objects.all()
+        
+        organizer = Organizer.objects.filter(pk=user.id)
+        if organizer is not None:
+            return organizer
 
-        return Organizer.objects.filter(pk=user.id)
+        raise Http404('Organizer Not Found. Kindly create your organizer profile.')
 
 
 class AddressApiView(ListCreateAPIView):
+
     serializer_class = AddressSerializer
     permission_classes = [IsAuthenticated]
 
@@ -41,7 +48,6 @@ class AddressApiView(ListCreateAPIView):
 
         if user.is_staff and pk:
             return Address.objects.filter(organizer_id=pk)
-
         return Address.objects.filter(organizer_id=user.id)
 
     def post(self, request, *args, **kwargs):
@@ -69,11 +75,14 @@ class AddressDetailApiView(RetrieveUpdateDestroyAPIView):
     def get_object(self):
         pk = self.kwargs['pk']
         user = self.request.user
-        qs = Address.objects.filter(pk=pk)
+        address = Address.objects.filter(pk=pk)
 
         if user.is_staff:
-            return qs.first()
-        return qs.filter(organizer__email=user.email).first()
+            return address.first()
+        address = address.filter(organizer__email=user.email).first()
+        if address is None:
+            raise Http404('Address Not Found')
+        return address
 
 
 class EventApiView(ListCreateAPIView):

@@ -30,7 +30,7 @@ class AddressSerializer(serializers.ModelSerializer):
         return Address.objects.create(organizer_id=organizer.pk, **validated_data)
 
 
-
+    
 class OrganizerSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True, source='user_id')
     addresses = AddressSerializer(many=True, read_only=True)
@@ -46,6 +46,10 @@ class OrganizerSerializer(serializers.ModelSerializer):
 
         return Organizer.objects.create(user=user_instance, **validated_data)
 
+class MiniOrganizerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Organizer
+        fields = ['username','email','type']
 
 class ProgramSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
@@ -57,9 +61,10 @@ class ProgramSerializer(serializers.ModelSerializer):
 
 class EventSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    organizer = serializers.HyperlinkedRelatedField(
+    organizer = MiniOrganizerSerializer()
+    organizer_url = serializers.HyperlinkedRelatedField(
         queryset=Organizer.objects.all(),
-        view_name='organizer_details'
+        view_name='organizers-detail', source='organizer'
     )
     event_status = serializers.SerializerMethodField()
     organizer_events_count = serializers.SerializerMethodField()
@@ -67,7 +72,7 @@ class EventSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Event
-        fields = ['id', 'code', 'title', 'slug', 'organizer', 'description', 'program','is_private',
+        fields = ['id', 'code', 'title', 'slug','organizer', 'organizer_url', 'description', 'program','is_private',
                   'venue', 'city_or_state', 'event_status', 'organizer_events_count', 'start_datetime', 'end_datetime', 'contact_email', 'contact_phone_number']
 
     def get_organizer_events_count(self, event):
