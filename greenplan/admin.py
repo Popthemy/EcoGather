@@ -11,7 +11,9 @@ from greenplan.models import Event, Template, CustomField, Program, Organizer,Ad
 
 @admin.register(Address)
 class AddressAdmin(admin.ModelAdmin):
-    pass
+    fields= ('organizer','street_number','street_name','city','state','zip_code','country')
+    list_display = ('id','organizer','street_number','street_name','city','state','country')
+    search_fields = ('city','state','country')
 
 
 @admin.register(Organizer)

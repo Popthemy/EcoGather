@@ -11,7 +11,6 @@ class CustomBaseUserManager(BaseUserManager):
 
         email = self.normalize_email(email)
         user = self.model(
-
             email=email,
             **extra_fields
         )

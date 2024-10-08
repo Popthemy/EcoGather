@@ -6,6 +6,7 @@ from django.utils import timezone, text
 from django.db import transaction
 from django.core.exceptions import ValidationError
 from myutils.models import BaseSocialMediaLink
+from .managers import OrganizerManager
 # Create your models here.
 
 
@@ -32,8 +33,7 @@ class Organizer(BaseSocialMediaLink):
     bio = models.TextField(null=True, blank=True)
     vision = models.CharField(max_length=255, null=True, blank=True)
     mission = models.CharField(max_length=255, null=True, blank=True)
-    address = models.CharField(max_length=255, null=True, blank=True)
-
+    objects = OrganizerManager()
 
     class Meta:
         ordering = ['username', 'first_name', 'last_name', 'type']
@@ -47,7 +47,8 @@ class Organizer(BaseSocialMediaLink):
 class Address(models.Model):
     'address for each organizer, an organizer might have more than one address'
 
-    organizer = models.ForeignKey(Organizer, on_delete=models.CASCADE,related_name='addresses')
+    organizer = models.ForeignKey(
+        Organizer, on_delete=models.CASCADE, related_name='addresses')
     street_number = models.PositiveIntegerField()
     street_name = models.CharField(max_length=255)
     city = models.CharField(max_length=255)
@@ -56,10 +57,10 @@ class Address(models.Model):
     country = models.CharField(max_length=255)
 
     class Meta:
-        ordering = ['street_number','street_name','city','zip_code']
+        ordering = ['street_number', 'street_name', 'city', 'zip_code']
         verbose_name = 'Address'
         verbose_name_plural = 'Addresses'
-    
+
     def __str__(self) -> str:
         return f'{self.organizer} reside at {self.street_number} {self.street_name},{self.city},{self.state}'
 
@@ -109,8 +110,8 @@ class Event(models.Model):
 
     class Meta:
         ordering = ['start_datetime', '-updated_at', 'title']
-        verbose_name =  'Event'
-        verbose_name_plural =  'Events'
+        verbose_name = 'Event'
+        verbose_name_plural = 'Events'
 
     def clean(self):
         if self.start_datetime > self.end_datetime:
@@ -190,7 +191,6 @@ class Template(models.Model):
                     event_name=self.event_name,
                     code=self.generate_unique_code()
                 )
-
 
                 for custom_field in self.custom_field.all():
                     CustomField.objects.create(

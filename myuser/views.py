@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth import get_user_model
-from django.contrib.auth import logout
+from django.contrib.auth import authenticate
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
@@ -45,9 +45,9 @@ class LoginView(GenericAPIView):
         serializer = self.serializer_class(
             data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
-        user = serializer.login_user(serializer.validated_data)
+        user = self.login_user(serializer.validated_data)
 
-        if user:
+        if user is not None:
             serializer = UserSerializer(user)
             token = get_jwt_tokens(user)
 
@@ -58,12 +58,22 @@ class LoginView(GenericAPIView):
                 'data': serializer.data
             }
             return Response(data=data, status=status.HTTP_200_OK)
-
+        
         return Response(data={
             'status': 'Error',
             'message': 'Login Unsuccessful',
             'data': serializer.errors},
             status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+    def login_user(self, validated_data):
+        email = validated_data['email']
+        password = validated_data['password']
+
+        user = authenticate(
+            request=self.request, username=email, password=password)
+        print(user)
+     
+        return user
 
 
 class TokenRefreshView(BaseTokenRefreshView):
@@ -74,7 +84,7 @@ class TokenRefreshView(BaseTokenRefreshView):
 class LogoutView(BaseTokenBlacklistView):
     serializer_class = TokenBlacklistSerializer
 
-    def post(self, request,*args, **kwargs):
+    def post(self, request, *args, **kwargs):
 
         try:
             serializer = self.serializer_class(data=request.data)
@@ -88,4 +98,3 @@ class LogoutView(BaseTokenBlacklistView):
         except TokenError as e:
             data = {'status': 'error', 'message': str(e)}
             return Response(data, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-

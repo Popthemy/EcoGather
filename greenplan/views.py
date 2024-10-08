@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
@@ -12,9 +13,71 @@ from .serializers import EventSerializer, CreateEventSerializer, OrganizerSerial
 
 # class CreateView()
 
+
+class OrganizerViewSet(ModelViewSet):
+    serializer_class = OrganizerSerializer
+    permission_classes = [IsAuthenticated]
+    http_method_names = ['get', 'put', 'patch', 'delete']
+
+    def get_queryset(self):
+        pk = self.kwargs.get('pk')
+        user = self.request.user
+
+        if user.is_staff:
+            if pk:
+                return Organizer.objects.filter(pk=pk)
+            return Organizer.objects.all()
+
+        return Organizer.objects.filter(pk=user.id)
+
+
+class AddressApiView(ListCreateAPIView):
+    serializer_class = AddressSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        pk = self.kwargs.get('pk')
+
+        if user.is_staff and pk:
+            return Address.objects.filter(organizer_id=pk)
+
+        return Address.objects.filter(organizer_id=user.id)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(
+            data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        data = {
+            'status': 'Success',
+            'message': 'Address created successfully.',
+            'data': serializer.data
+        }
+
+        return Response(data=data, status=status.HTTP_201_CREATED)
+
+    def get_serializer_context(self):
+        return {'request': self.request}
+
+
+class AddressDetailApiView(RetrieveUpdateDestroyAPIView):
+    serializer_class = AddressSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        pk = self.kwargs['pk']
+        user = self.request.user
+        qs = Address.objects.filter(pk=pk)
+
+        if user.is_staff:
+            return qs.first()
+        return qs.filter(organizer__email=user.email).first()
+
+
 class EventApiView(ListCreateAPIView):
     # permission_classes = [IsAuthenticated]
-
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -70,93 +133,3 @@ class EventApiView(ListCreateAPIView):
 
     def get_serializer_context(self):
         return {'request': self.request}
-
-
-class OrganizerApiView(ListCreateAPIView):
-    serializer_class = OrganizerSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        pk = user.pk
-        qs = Organizer.objects.all()
-
-        if user.is_staff:
-            return qs
-
-        return qs.filter(pk=pk)
-
-    def get_serializer_context(self):
-        return {'request': self.request}
-
-
-class OrganizerDetailApiView(RetrieveUpdateDestroyAPIView):
-    serializer_class = OrganizerSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_object(self):
-        pk = self.kwargs.get('pk')
-        user = self.request.user
-        organizer = get_object_or_404(Organizer, pk=pk)
-
-        # Our staff can view everyone profile"""
-        if user.is_staff:
-            return organizer
-
-        # A user can view their profile
-        if str(user.id) == pk:
-            return organizer
-        return PermissionDenied('You do not have permission to access this profile.')
-
-
-class AddressApiView(ListCreateAPIView):
-    serializer_class = AddressSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        pk = self.kwargs.get('pk')
-        qs = Address.objects.select_related(
-            'organizer').filter(organizer_id=pk)
-
-        if user.is_staff:
-            return qs
-        if str(pk) == user.id:
-            return qs
-        return PermissionDenied('You do not have permission to access this Address.')
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data,context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        data = {
-            'status': 'Success',
-            'message': 'Address created successfully.',
-            'data': serializer.data
-        }
-
-        return Response(data=data, status=status.HTTP_201_CREATED)
-    
-    def get_serializer_context(self):
-        return {'request': self.request}
-
-
-class AddressDetailApiView(RetrieveUpdateDestroyAPIView):
-    serializer_class = AddressSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_object(self):
-        pk = self.kwargs['pk']
-        user = self.request.user
-
-        address = get_object_or_404(Address,pk=pk)
-
-        if user.is_staff:
-            return address
-        
-        if str(user.id) == address.organizer.id:
-            return address
-        return PermissionDenied('You do not have permission to access this profile.')
-
- 

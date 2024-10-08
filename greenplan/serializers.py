@@ -10,7 +10,7 @@ CustomUser = get_user_model()
 class AddressSerializer(serializers.ModelSerializer):
     """{
     "street_number": 5,
-    "street_name": "Staidum",
+    "street_name": "Stadium",
     "city": "Ogbomosho",
     "state": "Oyo",
     "zip_code": null,
@@ -28,6 +28,7 @@ class AddressSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         organizer = self.context['request'].user
         return Address.objects.create(organizer_id=organizer.pk, **validated_data)
+
 
 
 class OrganizerSerializer(serializers.ModelSerializer):
