@@ -132,8 +132,7 @@ class Event(models.Model):
             return 'UPCOMING'
         if self.start_datetime <= now <= self.end_datetime:
             return 'ONGOING'
-        else:
-            return 'PAST'
+        return 'PAST'
 
     def get_organizer_total_events(self):
         return Event.objects.filter(organizer=self.organizer).count()

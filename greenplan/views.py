@@ -1,20 +1,16 @@
 from django.shortcuts import get_object_or_404
 from django.http import Http404
-from rest_framework.exceptions import PermissionDenied
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import GenericAPIView,ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from .models import Event, Organizer, Address
-from .serializers import EventSerializer, CreateEventSerializer, OrganizerSerializer, \
-    AddressSerializer
+from .models import  Organizer, Address,Program, Event
+from .serializers import  CreateEventSerializer, OrganizerSerializer, \
+    AddressSerializer,ProgramSerializer, EventSerializer
 from .permissions import IsAuthenticatedOrReadonly
 
 # Create your views here.
-
-# class CreateView()
-
 
 class OrganizerViewSet(ModelViewSet):
     serializer_class = OrganizerSerializer
@@ -86,14 +82,31 @@ class AddressDetailApiView(RetrieveUpdateDestroyAPIView):
         return address
 
 
+class ProgramApiView(GenericAPIView):
+    serializer_class = ProgramSerializer
+
+    def get(self,request):
+        programs = Program.objects.all()
+        serializer = self.get_serializer(programs, many=True)
+
+        data = {
+            'status':'Success',
+            'message': 'Programs with all the events that belong to them retrieved.',
+            'data': serializer.data
+        }
+
+        return Response(data,status=status.HTTP_200_OK)
+
+
+
+
 class EventApiView(ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadonly]
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return CreateEventSerializer
-        else:
-            return EventSerializer
+        return EventSerializer
 
     def get_queryset(self):
         user = self.request.user

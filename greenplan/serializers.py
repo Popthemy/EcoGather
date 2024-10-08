@@ -30,7 +30,6 @@ class AddressSerializer(serializers.ModelSerializer):
         return Address.objects.create(organizer_id=organizer.pk, **validated_data)
 
 
-    
 class OrganizerSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True, source='user_id')
     addresses = AddressSerializer(many=True, read_only=True)
@@ -46,17 +45,39 @@ class OrganizerSerializer(serializers.ModelSerializer):
 
         return Organizer.objects.create(user=user_instance, **validated_data)
 
+
 class MiniOrganizerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Organizer
-        fields = ['username','email','type']
+        fields = ['username', 'type']
+
+
+class MiniEventSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    event_status = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Event
+        fields = ['id', 'title', 'event_status',
+                  'venue']
+
+    def get_event_status(self, event):
+        return event.get_event_status()
+
 
 class ProgramSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
+    featured_event = MiniEventSerializer()
+    events = MiniEventSerializer(many=True)
+    program_event_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Program
-        fields = ['id', 'title', 'featured_event']
+        fields = ['id', 'title', 'program_event_count',
+                  'featured_event', 'events']
+
+    def get_program_event_count(self, program):
+        return program.events.count()
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -68,18 +89,17 @@ class EventSerializer(serializers.ModelSerializer):
     )
     event_status = serializers.SerializerMethodField()
     organizer_events_count = serializers.SerializerMethodField()
-    program = ProgramSerializer()
+    program = serializers.StringRelatedField()
 
     class Meta:
         model = Event
-        fields = ['id', 'code', 'title', 'slug','organizer', 'organizer_url', 'description', 'program','is_private',
+        fields = ['id', 'code', 'title', 'slug', 'organizer', 'organizer_url', 'description', 'program', 'is_private',
                   'venue', 'city_or_state', 'event_status', 'organizer_events_count', 'start_datetime', 'end_datetime', 'contact_email', 'contact_phone_number']
 
     def get_organizer_events_count(self, event):
         return event.get_organizer_total_events()
 
     def get_event_status(self, event):
-
         return event.get_event_status()
 
 
