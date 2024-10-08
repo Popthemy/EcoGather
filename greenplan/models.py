@@ -6,7 +6,7 @@ from django.utils import timezone, text
 from django.db import transaction
 from django.core.exceptions import ValidationError
 from myutils.models import BaseSocialMediaLink
-from .managers import OrganizerManager
+from .managers import OrganizerManager, AddressManager
 # Create your models here.
 
 
@@ -55,6 +55,7 @@ class Address(models.Model):
     state = models.CharField(max_length=255)
     zip_code = models.IntegerField(null=True, blank=True)
     country = models.CharField(max_length=255)
+    objects = AddressManager()
 
     class Meta:
         ordering = ['street_number', 'street_name', 'city', 'zip_code']

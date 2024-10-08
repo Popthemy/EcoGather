@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Event, Organizer, Address
 from .serializers import EventSerializer, CreateEventSerializer, OrganizerSerializer, \
     AddressSerializer
+from .permissions import IsAuthenticatedOrReadonly
 
 # Create your views here.
 
@@ -86,7 +87,7 @@ class AddressDetailApiView(RetrieveUpdateDestroyAPIView):
 
 
 class EventApiView(ListCreateAPIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadonly]
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
