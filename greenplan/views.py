@@ -1,16 +1,18 @@
 from django.shortcuts import get_object_or_404
 from django.http import Http404
-from rest_framework.generics import GenericAPIView,ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from django.db.models import Q
+from rest_framework.generics import GenericAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from .models import  Organizer, Address,Program, Event
-from .serializers import  CreateEventSerializer, OrganizerSerializer, \
-    AddressSerializer,ProgramSerializer, EventSerializer
+from .models import Organizer, Address, Program, Event
+from .serializers import CreateEventSerializer, OrganizerSerializer, \
+    AddressSerializer, ProgramSerializer, EventSerializer
 from .permissions import IsAuthenticatedOrReadonly
 
 # Create your views here.
+
 
 class OrganizerViewSet(ModelViewSet):
     serializer_class = OrganizerSerializer
@@ -26,12 +28,13 @@ class OrganizerViewSet(ModelViewSet):
             if pk and organizer is not None:
                 return organizer
             return Organizer.objects.all()
-        
+
         organizer = Organizer.objects.filter(pk=user.id)
         if organizer is not None:
             return organizer
 
-        raise Http404('Organizer Not Found. Kindly create your organizer profile.')
+        raise Http404(
+            'Organizer Not Found. Kindly create your organizer profile.')
 
 
 class AddressApiView(ListCreateAPIView):
@@ -84,20 +87,84 @@ class AddressDetailApiView(RetrieveUpdateDestroyAPIView):
 
 class ProgramApiView(GenericAPIView):
     serializer_class = ProgramSerializer
+    permission_class = [IsAuthenticatedOrReadonly]
 
-    def get(self,request):
+    def get(self, request, *args, **kwargs):
         programs = Program.objects.all()
         serializer = self.get_serializer(programs, many=True)
 
         data = {
-            'status':'Success',
+            'status': 'Success',
             'message': 'Programs with all the events that belong to them retrieved.',
             'data': serializer.data
         }
 
-        return Response(data,status=status.HTTP_200_OK)
+        return Response(data, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        data = {
+            'status': 'Success',
+            'message': 'Program created.',
+            'data': serializer.data
+        }
+
+        return Response(data, status=status.HTTP_201_CREATED)
+
+    def get_serializer_context(self):
+        return {'request': self.request}
 
 
+class ProgramDetailApiView(GenericAPIView):
+    ''' provide get(), patch(), delete() methods'''
+
+    serializer_class = ProgramSerializer
+
+    def get_object(self):
+        pk = self.kwargs['pk']
+        program = get_object_or_404(Program, pk=pk)
+        return program
+
+    def get(self, request, *args, **kwargs):
+        program = self.get_object()
+        serializer = self.get_serializer(program)
+
+        data = {
+            'status': 'Success',
+            'message': 'Programs with all the events that belong to them retrieved.',
+            'data': serializer.data
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
+
+    def patch(self, request, *args, **kwargs):
+        '''partial update'''
+
+        partial = kwargs.pop('partial', True)
+        instance = self.get_object()
+        serializer = self.get_serializer(
+            instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        data = {
+            'status': 'Success',
+            'message': 'Program Updated',
+            'data': serializer.data
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
+
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def get_serializer_context(self):
+        return {'request': self.request}
 
 
 class EventApiView(ListCreateAPIView):
@@ -110,18 +177,19 @@ class EventApiView(ListCreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        qs = Event.objects.select_related('organizer', 'program')
+        qs = Event.objects.all()
+        public_events = qs.filter(is_private=False)
 
         # Admin sees all the events
         if user.is_staff:
             return qs
 
-        # Regular authenticated users see only their events
+        # Regular authenticated users see their events and other people public event
         if user.is_authenticated:
-            return qs.filter(organizer_id=user.pk)
+            return qs.filter(Q(organizer_id=user.pk)| Q(is_private=False)).order_by('-is_private')
 
         # If no events found or user isn't authenticated
-        return qs.filter(is_private=False)
+        return public_events
 
     def get(self, request, *args, **kwargs):
         events = self.get_queryset()
