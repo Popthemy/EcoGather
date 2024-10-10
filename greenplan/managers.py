@@ -1,0 +1,14 @@
+from django.db import models
+
+
+class OrganizerManager(models.Manager):
+    def get_queryset(self) -> models.QuerySet:
+        return super().get_queryset().select_related('user').prefetch_related('addresses')
+
+class AddressManager(models.Manager):
+    def get_queryset(self) -> models.QuerySet:
+        return super().get_queryset().select_related('organizer')
+    
+class ProgramManager(models.Manager):
+    def get_queryset(self) -> models.QuerySet:
+        return super().get_queryset().select_related('featured_event').prefetch_related('events')

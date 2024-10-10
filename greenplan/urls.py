@@ -16,6 +16,4 @@ urlpatterns = [
     path('programs/<int:pk>/',view=views.ProgramDetailApiView.as_view(),name='programs-detail'),
 
     path('events/', view=views.EventApiView.as_view(), name='events'),
-    # path('organizers/', view=views.OrganizerApiView.as_view(), name='organizers'),
-    # path('organizer_details/<uuid:pk>/', view=views.OrganizerDetailApiView.as_view(), name='organizer_details'),
 ]

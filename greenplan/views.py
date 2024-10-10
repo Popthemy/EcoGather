@@ -1,16 +1,19 @@
+
+from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 from django.db.models import Q
 from rest_framework.generics import GenericAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
+
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
-from .models import Organizer, Address, Program, Event
+from rest_framework import status, filters
+from django_filters.rest_framework import DjangoFilterBackend
+
+from .permissions import IsAuthenticatedOrReadonly
 from .serializers import CreateEventSerializer, OrganizerSerializer, \
     AddressSerializer, ProgramSerializer, EventSerializer
-from .permissions import IsAuthenticatedOrReadonly
-
+from .models import Organizer, Address, Program, Event
 # Create your views here.
 
 
@@ -169,6 +172,10 @@ class ProgramDetailApiView(GenericAPIView):
 
 class EventApiView(ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadonly]
+    filter_backends = [DjangoFilterBackend,filters.SearchFilter]
+    filterset_fields = ['title', 'program__title', 'city_or_state']
+    search_fields = ['title']
+
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -176,9 +183,9 @@ class EventApiView(ListCreateAPIView):
         return EventSerializer
 
     def get_queryset(self):
+        # getting what is used for the filtering
         user = self.request.user
         qs = Event.objects.all()
-        public_events = qs.filter(is_private=False)
 
         # Admin sees all the events
         if user.is_staff:
@@ -186,24 +193,28 @@ class EventApiView(ListCreateAPIView):
 
         # Regular authenticated users see their events and other people public event
         if user.is_authenticated:
-            return qs.filter(Q(organizer_id=user.pk)| Q(is_private=False)).order_by('-is_private')
+            return  qs.filter(Q(organizer_id=user.pk) | Q(
+                is_private=False)).order_by('-is_private')
 
         # If no events found or user isn't authenticated
-        return public_events
+        return  qs.filter(is_private=False)
 
     def get(self, request, *args, **kwargs):
         events = self.get_queryset()
         total_events = events.count()
 
         serializer = self.get_serializer(events, many=True)
-        data = {
-            "status": "Success",
-            "message": "Events retrieved successfully",
-            'total_events': total_events,
-            "data": serializer.data
-        }
+        if len(serializer.data) > 0:
 
-        return Response(data, status=status.HTTP_200_OK)
+            data = {
+                "status": "Success",
+                "message": "Events retrieved successfully",
+                'total_events': total_events,
+                "data": serializer.data
+            }
+
+            return Response(data, status=status.HTTP_200_OK)
+        return Response(data=('No Match'), status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -211,6 +222,7 @@ class EventApiView(ListCreateAPIView):
             serializer = serializer.save()
             serializer = EventSerializer(
                 serializer, context={'request': request})
+
             data = {
                 "status": "success",
                 "message": " Event Created successfully",
@@ -218,9 +230,11 @@ class EventApiView(ListCreateAPIView):
             }
 
             return Response(data, status=status.HTTP_201_CREATED)
+
         error_message = {'status': 'failed',
                          'message': 'Event not created'}
         return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
 
     def get_serializer_context(self):
         return {'request': self.request}
+

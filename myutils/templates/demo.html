@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EcoGather playground</title>
+
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    td,th {
+      border: 1px solid;
+      text-align: left;
+      padding: 8px;
+    }
+  </style>
+</head>
+<body>
+  <H2>Lists Event</H2>
+  <table>
+    <tr>
+      <th> Code </th>
+      <th> Event Type </th>
+      <th> Title  </th>
+      <th> Organizer  </th>
+      <th> Venue </th>
+    </tr>
+
+    {% for event in events  %}
+    <tr>
+      <td>{{ event.code}} </td>
+      <td>{{ event.program}} </td>
+      <td> {{ event.title}} </td>
+      <td>{{ event.organizer}} </td>
+      <td> {{ event.venue}} </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <br>
+  <h2> Categories of event</h2>
+  <table>
+    <tr>
+      <th> Title  </th>
+      <th> featured_event  </th>
+      <th> Event_count </th>
+      <th> Events </th>
+    </tr>
+
+    {% for program in programs  %}
+    <tr>
+      <td>{{ program.title}} </td>
+      <td>{{ program.featured_event.title}} </td>
+      <td>{{ program.event_count}} </td>
+      <td>{{ program.events }} </td>
+      
+    </tr>
+    {% endfor %}
+  </table>
+
+  <hr>
+
+  <h2> summit_event </h2>
+
+  {% for event  in summit_event %}
+  <ol> {{ event }} </ol>
+  {% endfor %}
+
+  <h2> Template field </h2>
+  {{ templates }}
+  {% for template in templates %}
+  <ul> {{ template.event_name.title }} - Fields:{{ template.custom_field.content}} </ul>
+  {% endfor %}
+
+  <h3> custom_field template </h3>
+
+  {% for field in template_fields %}
+  <ul> {{ field.template.id}} - {{  field.label}} - {{ field.start_time }}</ul>
+  {% endfor %}
+
+  <hr>
+
+  {% for sponsored_event in sponsored_events %}
+  <ol> {{ sponsored_event}} </ol>
+  {% endfor %}
+
+
+
+
+
+</body>
+</html>
