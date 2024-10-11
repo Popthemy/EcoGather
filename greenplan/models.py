@@ -4,10 +4,9 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone, text
 from django.db import transaction
-from django.urls import reverse
 from django.core.exceptions import ValidationError
 from myutils.models import BaseSocialMediaLink
-from .managers import OrganizerManager, AddressManager,ProgramManager
+from .managers import OrganizerManager, AddressManager
 # Create your models here.
 
 
@@ -74,13 +73,14 @@ class Program(models.Model):
         max_length=255, unique=True, help_text='Categories of event e.g Conference,Summit,Webinar')
     featured_event = models.ForeignKey(
         'Event', on_delete=models.SET_NULL, blank=True, null=True, related_name='featured_event')
-    objects = ProgramManager()
 
     def __str__(self) -> str:
         return self.title
 
     class Meta:
         ordering = ['title']
+        verbose_name = 'Program'
+        verbose_name_plural = 'Programs'
 
 
 class Event(models.Model):
@@ -110,7 +110,7 @@ class Event(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['is_private','start_datetime', '-updated_at', 'title']
+        ordering = ['start_datetime', '-updated_at', 'title']
         verbose_name = 'Event'
         verbose_name_plural = 'Events'
 

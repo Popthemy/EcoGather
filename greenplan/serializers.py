@@ -2,8 +2,6 @@ from rest_framework import serializers
 from greenplan.models import Event, Program, Organizer, Address
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from django.urls import reverse
-from django.utils.html import format_html,urlencode
 
 
 CustomUser = get_user_model()
@@ -69,61 +67,17 @@ class MiniEventSerializer(serializers.ModelSerializer):
 
 class ProgramSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    featured_event = MiniEventSerializer(read_only=True)
-    featured_event_id = serializers.IntegerField(write_only=True)
-    events = MiniEventSerializer(many=True, read_only=True)
+    featured_event = MiniEventSerializer()
+    events = MiniEventSerializer(many=True)
     program_event_count = serializers.SerializerMethodField()
-    program_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Program
-        fields = ['id', 'title', 'program_event_count','program_url',
-                  'featured_event', 'featured_event_id', 'events']
-
-
-    def validate_featured_event_id(self, value):
-        if value <= 0:
-            raise serializers.ValidationError(
-                'featured event id must be greater the 0 e.g 1,2,3')
-        return value
-
-
-    def get_program_url(self,program):
-        '''get a link that leads to a program list of events.'''
-
-        request = self.context['request']
-        url = reverse('programs-detail',kwargs={'pk':program.id})
-        full_path = request.build_absolute_uri(url)
-        return full_path
-
+        fields = ['id', 'title', 'program_event_count',
+                  'featured_event', 'events']
 
     def get_program_event_count(self, program):
-        '''get a link that leads to a program list of events in that program.'''
         return program.events.count()
-
-
-    def create(self, validated_data):
-        ''' Create a program we want to create based on the required field(title) first, 
-        then check if the featured-d is present and then add '''
-
-        featured_event_id = validated_data.pop('featured_event_id', None)
-        program = Program.objects.create(**validated_data)
-        if featured_event_id is not None:
-            program.featured_event_id = featured_event_id
-            program.save()
-        return program
-
-
-    def update(self, instance, validated_data):
-        featured_event_id = validated_data.pop('featured_event_id', None)
-        instance = super().update(instance, validated_data)
-
-        if featured_event_id is not None:
-            instance.featured_event_id = featured_event_id
-            instance.save()
-
-        return instance  
-
 
 
 class EventSerializer(serializers.ModelSerializer):

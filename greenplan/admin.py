@@ -1,6 +1,8 @@
 from typing import Any
 from django.contrib import admin, messages
 from django.db.models.aggregates import Count
+from django.db.models.query import QuerySet
+from django.http import HttpRequest
 from django.utils import timezone
 from django.utils.html import format_html, urlencode
 from django.urls import reverse
