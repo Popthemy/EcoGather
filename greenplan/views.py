@@ -8,11 +8,11 @@ from rest_framework.generics import GenericAPIView, ListCreateAPIView, RetrieveU
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly
 from .models import  Organizer, Address,Program, Event
 from .serializers import  CreateEventSerializer, OrganizerSerializer, \
     AddressSerializer,ProgramSerializer, EventSerializer
-from .permissions import IsAuthenticatedOrReadonly
+from .permissions import IsAdminOrReadonly
 
 # Create your views here.
 
@@ -88,8 +88,9 @@ class AddressDetailApiView(RetrieveUpdateDestroyAPIView):
 
 class ProgramApiView(GenericAPIView):
     serializer_class = ProgramSerializer
+    permission_classes = [IsAdminOrReadonly]
 
-    def get(self,request):
+    def get(self,request,*args, **kwargs):
         programs = Program.objects.all()
         serializer = self.get_serializer(programs, many=True)
 
@@ -100,16 +101,50 @@ class ProgramApiView(GenericAPIView):
         }
 
         return Response(data,status=status.HTTP_200_OK)
+    
+    def post(self,request,*args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        data = {
+            'status':'Success',
+            'message': 'Programs created.',
+            'data': serializer.data
+        }
+
+        return Response(data,status=status.HTTP_201_CREATED)
+
+
+class ProgramDetailApiView(RetrieveUpdateDestroyAPIView):
+    """Provide functionality:
+    get: for all users
+    put/patch and delete for admin users """
+
+    queryset = Program.objects.all()
+    serializer_class = ProgramSerializer
+    permission_classes = [IsAdminOrReadonly]
+
+
+    def destroy(self, request, *args, **kwargs):
+        """We shouldn't delete program that have events linked to them so we raise an error."""
+        
+        # pk = self.kwargs['pk']
+        # program = get_object_or_404(Program,pk=pk)
+        program = self.get_object()
+        print(f'event:{ program.events }')
+        if program.events.count() > 0:
+            return Response({'error':'Program is linked to an events. Unlink the event to delete this program.'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return super().destroy(request, *args, **kwargs)
+
+    
+
 
 
 
 
 class EventApiView(ListCreateAPIView):
-    permission_classes = [IsAuthenticatedOrReadonly]
-    filter_backends = [DjangoFilterBackend,filters.SearchFilter]
-    filterset_fields = ['title', 'program__title', 'city_or_state']
-    search_fields = ['title']
-
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_serializer_class(self):
         if self.request.method == 'POST':

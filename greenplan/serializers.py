@@ -67,17 +67,47 @@ class MiniEventSerializer(serializers.ModelSerializer):
 
 class ProgramSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    featured_event = MiniEventSerializer()
-    events = MiniEventSerializer(many=True)
+    featured_event = MiniEventSerializer(read_only=True)
+    featured_event_id = serializers.IntegerField(write_only=True,required=False)
+    events = MiniEventSerializer(many=True,read_only=True)
     program_event_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Program
         fields = ['id', 'title', 'program_event_count',
-                  'featured_event', 'events']
+                  'featured_event', 'featured_event_id','events']
+        
+    def validate_featured_event_id(self, value):
+        if value <= 0:
+            raise serializers.ValidationError(
+                'featured event id must be greater the 0 e.g 1,2,3')
+        return value
 
     def get_program_event_count(self, program):
         return program.events.count()
+    
+    def create(self, validated_data):
+        ''' Create a program we want to create based on the required field(title) first, 
+        then check if the featured-d is present and then add '''
+
+        featured_event_id = validated_data.pop('featured_event_id',None)
+        program = Program.objects.create(**validated_data)
+
+        if featured_event_id is None:
+            program.featured_event_id = featured_event_id
+            program.save()
+        return program
+    
+    def update(self, instance, validated_data):
+        """ Updating the program might involve removing its linked event or linking."""
+        featured_event_id = validated_data.pop('featured_event_id',None)
+        instance = super().update(instance, validated_data)
+
+        if featured_event_id is not None:
+            instance.featured_event_id = featured_event_id
+            instance.save()
+            
+        return instance
 
 
 class EventSerializer(serializers.ModelSerializer):

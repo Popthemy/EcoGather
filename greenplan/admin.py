@@ -103,11 +103,11 @@ class CustomFieldInline(admin.TabularInline):
 @admin.register(Template)
 class TemplateAdmin(admin.ModelAdmin):
     actions = ['clone_template']
-    fields = ['code', 'title', 'event_name', 'slug', 'description']
+    fields = ['code', 'title', 'event', 'slug', 'description']
     inlines = [CustomFieldInline]
-    list_display = ['code', 'title', 'event_name', 'description']
+    list_display = ['code', 'title', 'event', 'description']
     list_editable = ['title']
-    list_select_related = ['event_name']
+    list_select_related = ['event']
 
     @admin.action(description='Clone template')
     def clone_template(self, request, queryset):

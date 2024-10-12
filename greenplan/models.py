@@ -158,8 +158,8 @@ class Template(models.Model):
           Use alphanumeric characters and hyphens."
     )
     title = models.CharField(max_length=255)
-    event_name = models.ForeignKey(
-        Event, on_delete=models.CASCADE, related_name='template', null=True, blank=True)
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, related_name='templates', null=True, blank=True)
     slug = models.SlugField(unique=True, null=True, blank=True,
                             help_text="A slug is a URL-friendly version of the title. It should contain only letters, numbers, hyphens, and underscores. It will be used in URLs to identify this item."
                             )
@@ -173,7 +173,7 @@ class Template(models.Model):
         verbose_name_plural = "Templates"
 
     def __str__(self):
-        return f'{self.code} (Event: {self.event_name.title})'
+        return f'{self.code} (Event: {self.event.title})'
 
     def generate_unique_code(self):
         '''Generate unique code for event if not set so as to reduce case of integrity error'''
