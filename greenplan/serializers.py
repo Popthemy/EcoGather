@@ -2,7 +2,7 @@ from rest_framework import serializers
 from greenplan.models import Event, Program, Organizer, Address
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-
+from django.urls import reverse
 
 CustomUser = get_user_model()
 
@@ -71,10 +71,11 @@ class ProgramSerializer(serializers.ModelSerializer):
     featured_event_id = serializers.IntegerField(write_only=True,required=False)
     events = MiniEventSerializer(many=True,read_only=True)
     program_event_count = serializers.SerializerMethodField()
+    program_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Program
-        fields = ['id', 'title', 'program_event_count',
+        fields = ['id', 'title', 'program_event_count','program_url',
                   'featured_event', 'featured_event_id','events']
         
     def validate_featured_event_id(self, value):
@@ -85,6 +86,13 @@ class ProgramSerializer(serializers.ModelSerializer):
 
     def get_program_event_count(self, program):
         return program.events.count()
+    
+    def get_program_url(self,program):
+        '''url to a single program with the list of all its events.'''
+        
+        request = self.context['request']
+        url = reverse('programs-detail',kwargs={'pk':program.id})
+        return request.build_absolute_uri(url)
     
     def create(self, validated_data):
         ''' Create a program we want to create based on the required field(title) first, 
