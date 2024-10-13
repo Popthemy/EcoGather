@@ -79,7 +79,7 @@ class EventStatusFilter(admin.SimpleListFilter):
 class EventAdmin(admin.ModelAdmin):
     autocomplete_fields = ['program']
     prepopulated_fields = {'slug': ['title','code']}
-    fields = ['code', 'title',  'organizer', 'slug', 'program','is_private', 'description',
+    fields = ['id','code', 'title',  'organizer', 'slug', 'program','is_private', 'description',
               'start_datetime', 'end_datetime', 'venue', 'contact_email', 'contact_phone_number']
     list_display = [ 'code', 'title', 'organizer', 'event_status', 'program','is_private',
                     'venue', 'start_datetime', 'end_datetime']
@@ -87,6 +87,7 @@ class EventAdmin(admin.ModelAdmin):
     list_filter = [EventStatusFilter, 'program']
     list_select_related = ['organizer', 'program']
     search_fields = ['code', 'title']
+    readonly_fields = ('id',)
 
     @admin.display(ordering='start_datetime')
     def event_status(self, event):

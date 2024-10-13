@@ -102,21 +102,35 @@ class ProgramSerializer(serializers.ModelSerializer):
         program = Program.objects.create(**validated_data)
 
         if featured_event_id is None:
+            self.check_featured_event_program_clashes(instance=program,event_id=featured_event_id)
             program.featured_event_id = featured_event_id
             program.save()
         return program
     
     def update(self, instance, validated_data):
-        """ Updating the program might involve removing its linked event or linking."""
+        """ Updating the program might involve removing its linked event or linking event."""
         featured_event_id = validated_data.pop('featured_event_id',None)
         instance = super().update(instance, validated_data)
 
         if featured_event_id is not None:
+            self.check_featured_event_program_clashes(instance=instance,event_id=featured_event_id)
             instance.featured_event_id = featured_event_id
             instance.save()
             
         return instance
+    
+    def check_featured_event_program_clashes(self, instance:Program, event_id ):
+        '''Handle if there is a conflict:
+        An event from program Convention` shouldn't be made featured_event of program `Webinar`
+        This automatically makes sure a featured event belong to the progra '''
+        
+        event  = Event.objects.filter(pk=event_id).first()
 
+        if event.program != instance.title:
+            event.program_id = instance.id
+            event.save()
+        
+            
 
 class EventSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
@@ -163,3 +177,4 @@ class CreateEventSerializer(serializers.ModelSerializer):
             return event
 
         raise serializers.ValidationError('user or program are required')
+
