@@ -3,11 +3,12 @@ from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 from django.db.models import Q
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import GenericAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status,filters
 from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly
 from .models import  Organizer, Address,Program, Event
 from .serializers import  CreateEventSerializer, OrganizerSerializer, \
@@ -20,6 +21,8 @@ class OrganizerViewSet(ModelViewSet):
     serializer_class = OrganizerSerializer
     permission_classes = [IsAuthenticated]
     http_method_names = ['get', 'put', 'patch', 'delete']
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('username','type')
 
     def get_queryset(self):
         pk = self.kwargs.get('pk')
@@ -89,9 +92,12 @@ class AddressDetailApiView(RetrieveUpdateDestroyAPIView):
 class ProgramApiView(GenericAPIView):
     serializer_class = ProgramSerializer
     permission_classes = [IsAdminOrReadonly]
+    filter_backends = (filters.SearchFilter,DjangoFilterBackend)
+    filterset_fields = ('title','events__title')
+    search_fields = ('title','featured_event__title','events__title')
 
     def get(self,request,*args, **kwargs):
-        programs = Program.objects.all()
+        programs = self.filter_queryset(Program.objects.all())
         serializer = self.get_serializer(programs, many=True)
 
         data = {
@@ -140,14 +146,13 @@ class ProgramDetailApiView(RetrieveUpdateDestroyAPIView):
             return Response({'error':'Program is linked to an events. Unlink the event to delete this program.'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
         return super().destroy(request, *args, **kwargs)
 
-    
-
-
-
-
 
 class EventApiView(ListCreateAPIView):
+    """ provide endpoints get and post"""
     permission_classes = [IsAuthenticatedOrReadOnly]
+    filter_backends = (filters.SearchFilter,DjangoFilterBackend)
+    filterset_fields = ['title', 'program__title', 'city_or_state']
+    search_fields = ('title','program__title')
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -170,9 +175,10 @@ class EventApiView(ListCreateAPIView):
 
         # If no events found or user isn't authenticated
         return  qs.filter(is_private=False)
+    
 
     def get(self, request, *args, **kwargs):
-        events = self.get_queryset()
+        events = self.filter_queryset(self.get_queryset())
         total_events = events.count()
 
         serializer = self.get_serializer(events, many=True)
