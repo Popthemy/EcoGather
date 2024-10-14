@@ -33,10 +33,11 @@ class AddressSerializer(serializers.ModelSerializer):
 class OrganizerSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True, source='user_id')
     addresses = AddressSerializer(many=True, read_only=True)
+    organizer_events_count = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Organizer
-        fields = ['id', 'username', 'email', 'first_name', 'last_name',
+        fields = ['id', 'username', 'email', 'first_name', 'last_name','organizer_events_count',
                   'type', 'phone_number', 'bio', 'vision', 'mission', 'addresses']
 
     def create(self, validated_data):
@@ -45,8 +46,13 @@ class OrganizerSerializer(serializers.ModelSerializer):
 
         return Organizer.objects.create(user=user_instance, **validated_data)
 
+    def get_organizer_events_count(self, organizer):
+        return organizer.get_organizer_total_events()
+
+
 
 class MiniOrganizerSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Organizer
         fields = ['username', 'type']
@@ -144,16 +150,12 @@ class EventSerializer(serializers.ModelSerializer):
         view_name='organizers-detail', source='organizer'
         )
     event_status = serializers.SerializerMethodField()
-    organizer_events_count = serializers.SerializerMethodField()
     program = serializers.StringRelatedField()
 
     class Meta:
         model = Event
-        fields = ['id', 'code', 'title', 'slug', 'organizer', 'organizer_url', 'description', 'program', 'is_private',
-                      'venue', 'city_or_state', 'event_status', 'organizer_events_count', 'start_datetime', 'end_datetime', 'contact_email', 'contact_phone_number']
-
-    def get_organizer_events_count(self, event):
-        return event.get_organizer_total_events()
+        fields = ['id', 'code', 'title', 'slug', 'organizer','organizer_url', 'description','templates', 'program', 'is_private',
+                      'venue', 'city_or_state', 'event_status', 'start_datetime', 'end_datetime', 'contact_email', 'contact_phone_number']
 
     def get_event_status(self, event):
         return event.get_event_status()
@@ -163,7 +165,7 @@ class CreateEventSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Event
-        fields = ['code', 'title', 'slug', 'description', 'program',
+        fields = ['code', 'title', 'slug', 'description', 'program', 'is_private',
                   'venue', 'city_or_state', 'start_datetime', 'end_datetime', 'contact_email', 'contact_phone_number']
 
     def create(self, validated_data):

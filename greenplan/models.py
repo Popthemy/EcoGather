@@ -6,7 +6,7 @@ from django.utils import timezone, text
 from django.db import transaction
 from django.core.exceptions import ValidationError
 from myutils.models import BaseSocialMediaLink
-from .managers import OrganizerManager, AddressManager
+from .managers import OrganizerManager, AddressManager,EventManager
 # Create your models here.
 
 
@@ -42,6 +42,11 @@ class Organizer(BaseSocialMediaLink):
 
     def __str__(self) -> str:
         return f"{self.username} - {self.phone_number}"
+    
+    def get_organizer_total_events(self):
+        ''' Count the number of time an organizer has organized an event'''
+        return self.organizer.count()
+
 
 
 class Address(models.Model):
@@ -101,13 +106,14 @@ class Event(models.Model):
     contact_phone_number = models.CharField(
         max_length=20, null=True, blank=True)
     organizer = models.ForeignKey(
-        Organizer, on_delete=models.CASCADE)
+        Organizer, on_delete=models.CASCADE,related_name='organizer')
     slug = models.SlugField(unique=True, blank=True, null=True,
                             help_text="A slug is a URL-friendly version of the title. It should contain only letters, numbers, hyphens, and underscores. It will be used in URLs to identify this item."
                             )
     is_private = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    objects = EventManager()
 
     class Meta:
         ordering = ['start_datetime', '-updated_at', 'title']
@@ -133,9 +139,6 @@ class Event(models.Model):
         if self.start_datetime <= now <= self.end_datetime:
             return 'ONGOING'
         return 'PAST'
-
-    def get_organizer_total_events(self):
-        return Event.objects.filter(organizer=self.organizer).count()
 
     def save(self, *args, **kwargs) -> None:
         if not self.slug:

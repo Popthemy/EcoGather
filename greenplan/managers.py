@@ -12,3 +12,7 @@ class AddressManager(models.Manager):
 class ProgramManager(models.Manager):
     def get_queryset(self) -> models.QuerySet:
         return super().get_queryset().select_related('featured_event').prefetch_related('events')
+
+class EventManager(models.Manager):
+    def get_queryset(self) -> models.QuerySet:
+        return super().get_queryset().select_related('program','organizer').prefetch_related('templates')
