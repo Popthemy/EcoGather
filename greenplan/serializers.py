@@ -68,16 +68,17 @@ class MiniEventSerializer(serializers.ModelSerializer):
 class ProgramSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     featured_event = MiniEventSerializer(read_only=True)
-    featured_event_id = serializers.IntegerField(write_only=True,required=False)
-    events = MiniEventSerializer(many=True,read_only=True)
+    featured_event_id = serializers.IntegerField(
+        write_only=True, required=False)
+    events = MiniEventSerializer(many=True, read_only=True)
     program_event_count = serializers.SerializerMethodField()
     program_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Program
-        fields = ['id', 'title', 'program_event_count','program_url',
-                  'featured_event', 'featured_event_id','events']
-        
+        fields = ['id', 'title', 'program_event_count', 'program_url',
+                  'featured_event', 'featured_event_id', 'events']
+
     def validate_featured_event_id(self, value):
         if value <= 0:
             raise serializers.ValidationError(
@@ -86,59 +87,62 @@ class ProgramSerializer(serializers.ModelSerializer):
 
     def get_program_event_count(self, program):
         return program.events.count()
-    
-    def get_program_url(self,program):
+
+    def get_program_url(self, program):
         '''url to a single program with the list of all its events.'''
-        
+
         request = self.context['request']
-        url = reverse('programs-detail',kwargs={'pk':program.id})
+        url = reverse('programs-detail', kwargs={'pk': program.id})
         return request.build_absolute_uri(url)
-    
+
     def create(self, validated_data):
-        ''' Create a program we want to create based on the required field(title) first, 
+        ''' Create a program we want to create based on the required field(title) first,
         then check if the featured-d is present and then add '''
 
-        featured_event_id = validated_data.pop('featured_event_id',None)
+        featured_event_id = validated_data.pop('featured_event_id', None)
         program = Program.objects.create(**validated_data)
 
         if featured_event_id is None:
-            self.check_featured_event_program_clashes(instance=program,event_id=featured_event_id)
+            self.check_featured_event_program_clashes(
+                instance=program, event_id=featured_event_id)
             program.featured_event_id = featured_event_id
             program.save()
         return program
-    
+
     def update(self, instance, validated_data):
         """ Updating the program might involve removing its linked event or linking event."""
-        featured_event_id = validated_data.pop('featured_event_id',None)
+        featured_event_id = validated_data.pop('featured_event_id', None)
         instance = super().update(instance, validated_data)
 
         if featured_event_id is not None:
-            self.check_featured_event_program_clashes(instance=instance,event_id=featured_event_id)
+            self.check_featured_event_program_clashes(
+                instance=instance, event_id=featured_event_id)
             instance.featured_event_id = featured_event_id
             instance.save()
-            
+
         return instance
-    
-    def check_featured_event_program_clashes(self, instance:Program, event_id ):
+
+    def check_featured_event_program_clashes(self, instance: Program, event_id):
         '''Handle if there is a conflict:
         An event from program Convention` shouldn't be made featured_event of program `Webinar`
         This automatically makes sure a featured event belong to the progra '''
-        
-        event  = Event.objects.filter(pk=event_id).first()
+
+        event = Event.objects.filter(pk=event_id).first()
 
         if event.program != instance.title:
             event.program_id = instance.id
             event.save()
-        
-            
+
 
 class EventSerializer(serializers.ModelSerializer):
+    """Serializer for the Event model, including organizer and event status."""
+
     id = serializers.IntegerField(read_only=True)
     organizer = MiniOrganizerSerializer()
     organizer_url = serializers.HyperlinkedRelatedField(
         queryset=Organizer.objects.all(),
         view_name='organizers-detail', source='organizer'
-    )
+        )
     event_status = serializers.SerializerMethodField()
     organizer_events_count = serializers.SerializerMethodField()
     program = serializers.StringRelatedField()
@@ -146,7 +150,7 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = ['id', 'code', 'title', 'slug', 'organizer', 'organizer_url', 'description', 'program', 'is_private',
-                  'venue', 'city_or_state', 'event_status', 'organizer_events_count', 'start_datetime', 'end_datetime', 'contact_email', 'contact_phone_number']
+                      'venue', 'city_or_state', 'event_status', 'organizer_events_count', 'start_datetime', 'end_datetime', 'contact_email', 'contact_phone_number']
 
     def get_organizer_events_count(self, event):
         return event.get_organizer_total_events()
@@ -177,4 +181,3 @@ class CreateEventSerializer(serializers.ModelSerializer):
             return event
 
         raise serializers.ValidationError('user or program are required')
-

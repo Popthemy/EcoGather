@@ -8,21 +8,22 @@ from rest_framework.generics import GenericAPIView, ListCreateAPIView, RetrieveU
 
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
-from rest_framework import status,filters
-from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly
-from .models import  Organizer, Address,Program, Event
-from .serializers import  CreateEventSerializer, OrganizerSerializer, \
-    AddressSerializer,ProgramSerializer, EventSerializer
+from rest_framework import status, filters
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from .models import Organizer, Address, Program, Event
+from .serializers import CreateEventSerializer, OrganizerSerializer, \
+    AddressSerializer, ProgramSerializer, EventSerializer
 from .permissions import IsAdminOrReadonly
 
 # Create your views here.
+
 
 class OrganizerViewSet(ModelViewSet):
     serializer_class = OrganizerSerializer
     permission_classes = [IsAuthenticated]
     http_method_names = ['get', 'put', 'patch', 'delete']
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('username','type')
+    search_fields = ('username', 'type')
 
     def get_queryset(self):
         pk = self.kwargs.get('pk')
@@ -33,12 +34,13 @@ class OrganizerViewSet(ModelViewSet):
             if pk and organizer is not None:
                 return organizer
             return Organizer.objects.all()
-        
+
         organizer = Organizer.objects.filter(pk=user.id)
         if organizer is not None:
             return organizer
 
-        raise Http404('Organizer Not Found. Kindly create your organizer profile.')
+        raise Http404(
+            'Organizer Not Found. Kindly create your organizer profile.')
 
 
 class AddressApiView(ListCreateAPIView):
@@ -92,37 +94,37 @@ class AddressDetailApiView(RetrieveUpdateDestroyAPIView):
 class ProgramApiView(GenericAPIView):
     serializer_class = ProgramSerializer
     permission_classes = [IsAdminOrReadonly]
-    filter_backends = (filters.SearchFilter,DjangoFilterBackend)
-    filterset_fields = ('title','events__title')
-    search_fields = ('title','featured_event__title','events__title')
+    filter_backends = (filters.SearchFilter, DjangoFilterBackend)
+    filterset_fields = ('title', 'events__title')
+    search_fields = ('title', 'featured_event__title', 'events__title')
 
-    def get(self,request,*args, **kwargs):
+    def get(self, request, *args, **kwargs):
         programs = self.filter_queryset(Program.objects.all())
         serializer = self.get_serializer(programs, many=True)
 
         data = {
-            'status':'Success',
+            'status': 'Success',
             'message': 'Programs with all the events that belong to them retrieved.',
             'data': serializer.data
         }
 
-        return Response(data,status=status.HTTP_200_OK)
-    
-    def post(self,request,*args, **kwargs):
+        return Response(data, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
         data = {
-            'status':'Success',
+            'status': 'Success',
             'message': 'Programs created.',
             'data': serializer.data
         }
 
-        return Response(data,status=status.HTTP_201_CREATED)
-    
+        return Response(data, status=status.HTTP_201_CREATED)
+
     def get_serializer_context(self):
-        return {'request':self.request}
+        return {'request': self.request}
 
 
 class ProgramDetailApiView(RetrieveUpdateDestroyAPIView):
@@ -134,25 +136,24 @@ class ProgramDetailApiView(RetrieveUpdateDestroyAPIView):
     serializer_class = ProgramSerializer
     permission_classes = [IsAdminOrReadonly]
 
-
     def destroy(self, request, *args, **kwargs):
         """We shouldn't delete program that have events linked to them so we raise an error."""
-        
+
         # pk = self.kwargs['pk']
         # program = get_object_or_404(Program,pk=pk)
         program = self.get_object()
         print(f'event:{ program.events }')
         if program.events.count() > 0:
-            return Response({'error':'Program is linked to an events. Unlink the event to delete this program.'},status=status.HTTP_405_METHOD_NOT_ALLOWED)
+            return Response({'error': 'Program is linked to an events. Unlink the event to delete this program.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
         return super().destroy(request, *args, **kwargs)
 
 
-class EventApiView(ListCreateAPIView):
+class EventApiView(GenericAPIView):
     """ provide endpoints get and post"""
     permission_classes = [IsAuthenticatedOrReadOnly]
-    filter_backends = (filters.SearchFilter,DjangoFilterBackend)
-    filterset_fields = ['title', 'program__title', 'city_or_state']
-    search_fields = ('title','program__title')
+    filter_backends = (filters.SearchFilter, DjangoFilterBackend)
+    filterset_class = ['title', 'program__title', 'city_or_state']
+    search_fields = ('title', 'program__title')
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -162,23 +163,18 @@ class EventApiView(ListCreateAPIView):
     def get_queryset(self):
         # getting what is used for the filtering
         user = self.request.user
-        qs = Event.objects.all()
 
         # Admin sees all the events
         if user.is_staff:
-            return qs
+            return Event.objects.all()
 
-        # Regular authenticated users see only their events
-        if user.is_authenticated:
-            return  qs.filter(Q(organizer_id=user.pk) | Q(
-                is_private=False)).order_by('-is_private')
+        # Regular authenticated users see only their events and other people true event while unauthenticated see only public event
 
-        # If no events found or user isn't authenticated
-        return  qs.filter(is_private=False)
-    
+        return Event.objects.filter(Q(organizer_id=user.pk) | Q(
+            is_private=False)).order_by('-is_private')
 
     def get(self, request, *args, **kwargs):
-        events = self.filter_queryset(self.get_queryset())
+        events = self.get_queryset() #self.filter_queryset(self.get_queryset())
         total_events = events.count()
 
         serializer = self.get_serializer(events, many=True)
@@ -192,7 +188,7 @@ class EventApiView(ListCreateAPIView):
             }
 
             return Response(data, status=status.HTTP_200_OK)
-        return Response(data=('No Match'), status=status.HTTP_404_NOT_FOUND)
+        return Response(data={'status':'Success','message':'No event match for the filter'}, status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -210,9 +206,33 @@ class EventApiView(ListCreateAPIView):
             return Response(data, status=status.HTTP_201_CREATED)
 
         error_message = {'status': 'failed',
-                         'message': 'Event not created'}
+                         'message':'Event not created',
+                         'errors': serializer.errors}
         return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
 
     def get_serializer_context(self):
         return {'request': self.request}
+
+
+class EventDetailApiView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return EventSerializer
+        return CreateEventSerializer
+
+    def get_object(self):
+        user = self.request.user
+        pk = self.kwargs['pk']
+
+        if user.is_staff:
+            return get_object_or_404(Event,pk=pk)
+        event = Event.objects.filter(id=pk,organizer_id=user.id).first()
+
+        if event is None:
+            raise Http404('Invalid event detail')
+        return event
+
 

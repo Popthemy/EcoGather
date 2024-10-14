@@ -1,3 +1,4 @@
 prep_file
 myutils.seed.py
-greenplan/__pycache__/
+__pycache__/
+*.pyc

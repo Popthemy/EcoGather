@@ -16,4 +16,5 @@ urlpatterns = [
     path('programs/<int:pk>/',view=views.ProgramDetailApiView.as_view(),name='programs-detail'),
 
     path('events/', view=views.EventApiView.as_view(), name='events'),
+    path('events/<int:pk>/',view=views.EventDetailApiView.as_view(),name='events-detail'),
 ]
