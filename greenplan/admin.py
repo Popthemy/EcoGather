@@ -96,6 +96,7 @@ class EventAdmin(admin.ModelAdmin):
 
 
 class CustomFieldInline(admin.TabularInline):
+    '''Making sure a template have at least 1 field'''
     model = CustomField
     min_num = 1
 
@@ -112,7 +113,7 @@ class TemplateAdmin(admin.ModelAdmin):
 
     @admin.action(description='Clone template')
     def clone_template(self, request, queryset):
-        """Using the action to clone a template"""
+        """Using the action to clone a template, but empty template can't be cloned"""
 
         if queryset.exists():
             cloned_templates = []

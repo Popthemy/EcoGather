@@ -10,9 +10,9 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status, filters
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from .models import Organizer, Address, Program, Event
+from .models import Organizer, Address, Program, Event, Template
 from .serializers import CreateEventSerializer, OrganizerSerializer, \
-    AddressSerializer, ProgramSerializer, EventSerializer
+    AddressSerializer, ProgramSerializer, EventSerializer,MiniEventSerializer, TemplateSerializer,MiniTemplateSerializer
 from .permissions import IsAdminOrReadonly
 
 # Create your views here.
@@ -174,7 +174,7 @@ class EventApiView(GenericAPIView):
             is_private=False)).order_by('-is_private')
 
     def get(self, request, *args, **kwargs):
-        events = self.get_queryset() #self.filter_queryset(self.get_queryset())
+        events = self.get_queryset()  # self.filter_queryset(self.get_queryset())
         total_events = events.count()
 
         serializer = self.get_serializer(events, many=True)
@@ -188,7 +188,7 @@ class EventApiView(GenericAPIView):
             }
 
             return Response(data, status=status.HTTP_200_OK)
-        return Response(data={'status':'Success','message':'No event match for the filter'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(data={'status': 'Success', 'message': 'No event match for the filter'}, status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -206,7 +206,7 @@ class EventApiView(GenericAPIView):
             return Response(data, status=status.HTTP_201_CREATED)
 
         error_message = {'status': 'failed',
-                         'message':'Event not created',
+                         'message': 'Event not created',
                          'errors': serializer.errors}
         return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
 
@@ -216,7 +216,6 @@ class EventApiView(GenericAPIView):
 
 class EventDetailApiView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
-
 
     def get_serializer_class(self):
         if self.request.method == "GET":
@@ -228,11 +227,93 @@ class EventDetailApiView(RetrieveUpdateDestroyAPIView):
         pk = self.kwargs['pk']
 
         if user.is_staff:
-            return get_object_or_404(Event,pk=pk)
-        event = Event.objects.filter(id=pk,organizer_id=user.id).first()
+            return get_object_or_404(Event, pk=pk)
+        event = Event.objects.filter(id=pk, organizer_id=user.id).first()
 
         if event is None:
             raise Http404('Invalid event detail')
         return event
 
+
+class TemplateLibraryApiView(GenericAPIView):
+    '''This template view is for listing all template like a template library.'''
+    serializer_class = TemplateSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        ''' Our staff can view all template while others can view template linked to them or public event'''
+        user = self.request.user
+
+        if user.is_staff:
+            return Template.objects.all()
+
+        return Template.objects.filter(Q(event__organizer_id=user.id) | Q(event__is_private=False))
+
+    def get(self, request, *args, **kwargs):
+        qs = self.get_queryset()  # Template.objects.all()
+        serializer = self.get_serializer(qs, many=True)
+        data = {
+            "status": "success",
+            "message": " Template retrieved successfully",
+            'total_template': qs.count(),
+            "data": serializer.data
+        }
+
+        return Response(data, status=status.HTTP_201_CREATED)
+
+
+class EventTemplateApiView(GenericAPIView):
+    '''View to create and retrieve templates for a specific event.'''
+    serializer_class = TemplateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        '''Retrieve templates based on user role and event ID.'''
+        user = self.request.user
+        event_pk = self.kwargs['event_pk']
+
+        if user.is_staff:
+            return Template.objects.filter(event_id=event_pk)
+        return Template.objects.filter(event_id=event_pk,event__organizer_id = user.id)
+
+    def get(self, request, *args, **kwargs):
+        event_templates = self.get_queryset()
+        total_event_template = event_templates.count()
+
+        if total_event_template == 0 :
+            return Response({'status':'error',
+                             'message':'Event does not exist or you are not the organizer'},
+                             status=status.HTTP_404_NOT_FOUND)
+
+        # we want to limit the occurrence of the event to appear only once,
+        # we used a another template serializer and  get the event directly here.
+        event_pk = self.kwargs['event_pk']
+        event_data = get_object_or_404(Event,pk=event_pk)
+        event = MiniEventSerializer(event_data)
+        serializer = MiniTemplateSerializer(event_templates, many=True)
+
+        
+        data = {
+            "status": "success",
+            "message": " Event templates retrieved successfully",
+            'total_event_template': event_templates.count(),
+            'event_data':event.data,
+            "data": serializer.data
+        }
+        return Response(data, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        data = {
+            "status": "success",
+            "message": " Template created successfully",
+            "data": serializer.data
+        }
+
+        return Response(data, status=status.HTTP_201_CREATED)
+
+    def get_serializer_context(self):
+        return {'user': self.request.user, 'event_pk': self.kwargs['event_pk']}
 

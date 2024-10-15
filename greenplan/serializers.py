@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from greenplan.models import Event, Program, Organizer, Address
+from greenplan.models import Program, Organizer, Address, Event, Template
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -37,7 +37,7 @@ class OrganizerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Organizer
-        fields = ['id', 'username', 'email', 'first_name', 'last_name','organizer_events_count',
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'organizer_events_count',
                   'type', 'phone_number', 'bio', 'vision', 'mission', 'addresses']
 
     def create(self, validated_data):
@@ -50,7 +50,6 @@ class OrganizerSerializer(serializers.ModelSerializer):
         return organizer.get_organizer_total_events()
 
 
-
 class MiniOrganizerSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -61,11 +60,12 @@ class MiniOrganizerSerializer(serializers.ModelSerializer):
 class MiniEventSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     event_status = serializers.SerializerMethodField()
+    organizer = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         model = Event
-        fields = ['id', 'title', 'event_status',
-                  'venue']
+        fields = ['id', 'title', 'event_status', 'organizer',
+                  'venue', 'is_private']
 
     def get_event_status(self, event):
         return event.get_event_status()
@@ -89,6 +89,7 @@ class ProgramSerializer(serializers.ModelSerializer):
         if value <= 0:
             raise serializers.ValidationError(
                 'featured event id must be greater the 0 e.g 1,2,3')
+        get_object_or_404(Event, pk=value)
         return value
 
     def get_program_event_count(self, program):
@@ -154,7 +155,7 @@ class EventSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Event
-        fields = ['id', 'code', 'title', 'slug', 'organizer','organizer_url', 'description','templates', 'program', 'is_private',
+        fields = ['id', 'code', 'title', 'slug', 'organizer', 'organizer_url', 'description', 'templates', 'program', 'is_private',
                       'venue', 'city_or_state', 'event_status', 'start_datetime', 'end_datetime', 'contact_email', 'contact_phone_number']
 
     def get_event_status(self, event):
@@ -183,3 +184,45 @@ class CreateEventSerializer(serializers.ModelSerializer):
             return event
 
         raise serializers.ValidationError('user or program are required')
+
+
+class TemplateSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    event = MiniEventSerializer(read_only=True)
+
+
+    class Meta:
+        model = Template
+        fields = ['id', 'code', 'title', 'event',
+            'event_id','slug', 'description']
+
+    def create(self, validated_data):
+        '''Create a template with an event, we should make sure that the user is the organizer of the event before creation'''
+        user = self.context['user']
+        event_pk = self.context['event_pk']
+
+        if event_pk <= 0:
+            raise serializers.ValidationError(
+                'Event id must be positive e.g 1,2,3')
+
+        if not user.is_staff:
+            event = Event.objects.filter(id=event_pk)
+            if not event.exists():
+                raise serializers.ValidationError('Invalid event id')
+            if not event.filter(organizer_id=user.id).exists():
+                raise serializers.ValidationError(
+                    'You are not the organizer of this event ')
+
+        template = Template.objects.create(
+            event_id=event_pk,
+            **validated_data
+        )
+
+        return template
+
+
+class MiniTemplateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Template
+        fields = ['id','code','title', 'custom_field', 'slug','description']
+

@@ -17,4 +17,6 @@ urlpatterns = [
 
     path('events/', view=views.EventApiView.as_view(), name='events'),
     path('events/<int:pk>/',view=views.EventDetailApiView.as_view(),name='events-detail'),
+    path('templates/',view=views.TemplateLibraryApiView.as_view(),name='templates'),
+    path('events/<int:event_pk>/templates/',view=views.EventTemplateApiView.as_view(),name='event_create_templates'),
 ]

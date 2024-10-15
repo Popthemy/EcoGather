@@ -6,7 +6,7 @@ from django.utils import timezone, text
 from django.db import transaction
 from django.core.exceptions import ValidationError
 from myutils.models import BaseSocialMediaLink
-from .managers import OrganizerManager, AddressManager,EventManager
+from .managers import OrganizerManager, AddressManager, EventManager
 # Create your models here.
 
 
@@ -42,11 +42,10 @@ class Organizer(BaseSocialMediaLink):
 
     def __str__(self) -> str:
         return f"{self.username} - {self.phone_number}"
-    
+
     def get_organizer_total_events(self):
         ''' Count the number of time an organizer has organized an event'''
         return self.organizer.count()
-
 
 
 class Address(models.Model):
@@ -106,7 +105,7 @@ class Event(models.Model):
     contact_phone_number = models.CharField(
         max_length=20, null=True, blank=True)
     organizer = models.ForeignKey(
-        Organizer, on_delete=models.CASCADE,related_name='organizer')
+        Organizer, on_delete=models.CASCADE, related_name='organizer')
     slug = models.SlugField(unique=True, blank=True, null=True,
                             help_text="A slug is a URL-friendly version of the title. It should contain only letters, numbers, hyphens, and underscores. It will be used in URLs to identify this item."
                             )
@@ -176,7 +175,7 @@ class Template(models.Model):
         verbose_name_plural = "Templates"
 
     def __str__(self):
-        return f'{self.code} (Event: {self.event.title})'
+        return f'{self.code} (Event: {self.event.title if self.event else None})'
 
     def generate_unique_code(self):
         '''Generate unique code for event if not set so as to reduce case of integrity error'''
@@ -190,21 +189,20 @@ class Template(models.Model):
         with transaction.atomic():
             if self.custom_field.exists():
                 new_template = Template.objects.create(
-                    title=f'{self.title } (copy)',
-                    event_name=self.event_name,
+                    title=f'{self.title } (cloned)',
+                    # event_name=self.event_name,
                     code=self.generate_unique_code()
                 )
 
-                for custom_field in self.custom_field.all():
-                    CustomField.objects.create(
-                        template=new_template,
-                        label=custom_field.label,
-                        content=custom_field.content,
-                        start_time=custom_field.start_time,
-                        end_time=custom_field.end_time
+                custom_fields = [CustomField(
+                    template=new_template,
+                    label=field.label,
+                    content=field.content,
+                    start_time=field.start_time,
+                    end_time=field.end_time)
+                    for field in self.custom_field.all()]
 
-                    )
-
+                CustomField.objects.bulk_create(custom_fields)
                 return new_template
         return None
 
