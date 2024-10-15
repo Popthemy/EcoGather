@@ -1,4 +1,5 @@
 prep_file
 myutils.seed.py
+migrations/
 __pycache__/
 *.pyc
