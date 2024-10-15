@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from greenplan.models import Program, Organizer, Address, Event, Template
+from greenplan.models import Program, Organizer, Address, Event, Template,CustomField
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -185,19 +185,23 @@ class CreateEventSerializer(serializers.ModelSerializer):
 
         raise serializers.ValidationError('user or program are required')
 
+class MiniCustomFieldSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomField
+        fields = ['id','label','content'] 
 
 class TemplateSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     event = MiniEventSerializer(read_only=True)
-
-
+    custom_fields = MiniCustomFieldSerializer(many=True, read_only=True, source='custom_field')
+    
     class Meta:
         model = Template
-        fields = ['id', 'code', 'title', 'event',
-            'event_id','slug', 'description']
+        fields = ['id', 'code', 'title','event' ,'custom_fields' ,'slug', 'description']
 
     def create(self, validated_data):
         '''Create a template with an event, we should make sure that the user is the organizer of the event before creation'''
+        
         user = self.context['user']
         event_pk = self.context['event_pk']
 
@@ -224,5 +228,5 @@ class TemplateSerializer(serializers.ModelSerializer):
 class MiniTemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Template
-        fields = ['id','code','title', 'custom_field', 'slug','description']
+        fields = ['id','code','title', 'custom_field']
 
