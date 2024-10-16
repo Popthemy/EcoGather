@@ -1,19 +1,25 @@
-from typing import Any
 from django.contrib import admin, messages
 from django.db.models.aggregates import Count
 from django.db.models.query import QuerySet
+from django.contrib.auth import get_user_model
 from django.http import HttpRequest
 from django.utils import timezone
 from django.utils.html import format_html, urlencode
 from django.urls import reverse
-from greenplan.models import Event, Template, CustomField, Program, Organizer,Address
+from greenplan.models import Event, Template, CustomField, Program, Organizer, Address
 # Register your models here.
+
+
+User = get_user_model()
+
 
 @admin.register(Address)
 class AddressAdmin(admin.ModelAdmin):
-    fields= ('organizer','street_number','street_name','city','state','zip_code','country')
-    list_display = ('id','organizer','street_number','street_name','city','state','country')
-    search_fields = ('city','state','country')
+    fields = ('organizer', 'street_number', 'street_name',
+              'city', 'state', 'zip_code', 'country')
+    list_display = ('id', 'organizer', 'street_number',
+                    'street_name', 'city', 'state', 'country')
+    search_fields = ('city', 'state', 'country')
 
 
 @admin.register(Organizer)
@@ -28,7 +34,7 @@ class OrganizerAdmin(admin.ModelAdmin):
 class ProgramAdmin(admin.ModelAdmin):
 
     fields = ['title', 'featured_event']
-    list_display = ['title', 'featured_event', 'event_count']
+    list_display = ['id', 'title', 'featured_event', 'event_count']
     list_select_related = ['featured_event']
     search_fields = ['title__icontains']
 
@@ -78,21 +84,19 @@ class EventStatusFilter(admin.SimpleListFilter):
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     autocomplete_fields = ['program']
-    prepopulated_fields = {'slug': ['title','code']}
-    fields = ['id','code', 'title',  'organizer', 'slug', 'program','is_private', 'description',
+    prepopulated_fields = {'slug': ['title', 'code']}
+    fields = ['code', 'title',  'organizer', 'slug', 'program', 'is_private', 'description',
               'start_datetime', 'end_datetime', 'venue', 'contact_email', 'contact_phone_number']
-    list_display = [ 'code', 'title', 'organizer', 'event_status', 'program','is_private',
+    list_display = ['id', 'code', 'title', 'organizer', 'event_status', 'program', 'is_private',
                     'venue', 'start_datetime', 'end_datetime']
-    list_editable = ['title', 'organizer','is_private', 'venue']
+    list_editable = ['title', 'organizer', 'is_private', 'venue']
     list_filter = [EventStatusFilter, 'program']
     list_select_related = ['organizer', 'program']
     search_fields = ['code', 'title']
-    readonly_fields = ('id',)
 
     @admin.display(ordering='start_datetime')
     def event_status(self, event):
         return event.get_event_status()
-
 
 
 class CustomFieldInline(admin.TabularInline):
@@ -101,26 +105,27 @@ class CustomFieldInline(admin.TabularInline):
     min_num = 1
 
 
-
 @admin.register(Template)
 class TemplateAdmin(admin.ModelAdmin):
     actions = ['clone_template']
-    fields = ['code', 'title', 'event', 'slug', 'description']
+    fields = ['code', 'title', 'event','owner', 'slug', 'description']
     inlines = [CustomFieldInline]
-    list_display = ['code', 'title', 'event', 'description']
+    list_display = ['id', 'code', 'title', 'event','owner', 'description']
     list_editable = ['title']
     list_select_related = ['event']
 
     @admin.action(description='Clone template')
     def clone_template(self, request, queryset):
-        """Using the action to clone a template, but empty template can't be cloned"""
+        """Using the action to clone a template, but empty template can't be cloned
+        Empty template means template without no custom fields"""
 
         if queryset.exists():
             cloned_templates = []
             for template in queryset:
                 # Ensure that the template has custom fields before cloning
-                if template.custom_field.exists():
-                    new_template = template.clone()
+                if template.custom_fields.exists():
+                    user = Organizer.objects.get(user_id=request.user.id)
+                    new_template = template.clone(user=user)
                     cloned_templates.append(new_template)
                     self.message_user(
                         request,

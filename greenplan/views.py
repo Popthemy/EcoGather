@@ -4,15 +4,15 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.generics import GenericAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView
+from rest_framework.generics import GenericAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status, filters
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from .models import Organizer, Address, Program, Event, Template
+from .models import Organizer, Address, Program, Event, Template, CustomField
 from .serializers import CreateEventSerializer, OrganizerSerializer, \
-    AddressSerializer, ProgramSerializer, EventSerializer, MiniEventSerializer, TemplateSerializer, MiniTemplateSerializer
+    AddressSerializer, ProgramSerializer, EventSerializer, MiniEventSerializer, TemplateSerializer, MiniTemplateSerializer, CustomFieldSerializer
 from .permissions import IsAdminOrReadonly
 
 # Create your views here.
@@ -330,8 +330,8 @@ class EventTemplateDetailApiView(RetrieveUpdateDestroyAPIView):
         template_pk = self.kwargs['pk']
 
         if user.is_staff:
-            return Template.objects.filter(id=template_pk,event_id=event_pk).first()
-        return Template.objects.filter(id=template_pk, event_id=event_pk,event__organizer_id=user.id).first()
+            return Template.objects.filter(id=template_pk, event_id=event_pk).first()
+        return Template.objects.filter(id=template_pk, event_id=event_pk, event__organizer_id=user.id).first()
 
     def get(self, request, *args, **kwargs):
         event_templates = self.get_object()
@@ -348,4 +348,45 @@ class EventTemplateDetailApiView(RetrieveUpdateDestroyAPIView):
             "data": serializer.data
         }
         return Response(data, status=status.HTTP_200_OK)
+
+
+class CustomFieldApiView(ListCreateAPIView):
+    '''Retrieves all custom fields for a specific template.'''
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    serializer_class = CustomFieldSerializer
+
+    def get_queryset(self):
+        template_pk = self.kwargs['template_pk']
+        user = self.request.user
+
+        if user.is_staff:
+            return CustomField.objects.filter(template_id=template_pk)
+
+        return CustomField.objects.filter(
+            Q(template_id=template_pk) & Q(
+                template__event__organizer_id=user.id) | Q(template__event__is_private=False)
+        )
+
+    def get(self, request, *args, **kwargs):
+        # 1, 9,4,10,13
+        qs = self.get_queryset()
+        serializer = self.get_serializer(qs, many=True)
+        template_pk = self.kwargs['template_pk']
+        event = Event.objects.filter(templates=template_pk).first()
+        event_serializer = MiniEventSerializer(event)
+
+
+        data = {
+            "status": "success",
+            "message": " Custom FIelds for the template retrieved successfully",
+            "event_data": event_serializer.data,
+            "data": serializer.data
+        }
+        return Response(data, status=status.HTTP_200_OK)
+    
+    def get_serializer_context(self):
+        return {
+            'template_pk': self.kwargs['template_pk'],
+            'user': self.request.user,
+        }
 

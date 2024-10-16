@@ -20,4 +20,6 @@ urlpatterns = [
     path('templates/',view=views.TemplateLibraryApiView.as_view(),name='templates'),
     path('events/<int:event_pk>/templates/',view=views.EventTemplateApiView.as_view(),name='event_templates'),
     path('events/<int:event_pk>/templates/<int:pk>/',view=views.EventTemplateDetailApiView.as_view(),name='event_templates_detail'),
+    path('templates/<int:template_pk>/custom_fields/',view=views.CustomFieldApiView.as_view(),name='template_custom_fields'),
+
 ]

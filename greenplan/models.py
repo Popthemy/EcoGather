@@ -153,6 +153,9 @@ class Event(models.Model):
 
 
 class Template(models.Model):
+    owner = models.ForeignKey(
+        Organizer, null=True,on_delete=models.CASCADE, related_name='template_owner')
+
     code = models.CharField(
         max_length=50,
         unique=True,
@@ -184,13 +187,16 @@ class Template(models.Model):
         code = character + digit
         return ''.join(code)
 
-    def clone(self, new_template=None):
+    def clone(self,user, new_template=None):
+        '''This help template to be reused, user an decide to clone their template 
+        or another users template provided it is available.'''
 
         with transaction.atomic():
-            if self.custom_field.exists():
+            if self.custom_fields.exists():
                 new_template = Template.objects.create(
                     title=f'{self.title } (cloned)',
-                    # event_name=self.event_name,
+                    event=None,
+                    owner=user,
                     code=self.generate_unique_code()
                 )
 
@@ -200,7 +206,7 @@ class Template(models.Model):
                     content=field.content,
                     start_time=field.start_time,
                     end_time=field.end_time)
-                    for field in self.custom_field.all()]
+                    for field in self.custom_fields.all()]
 
                 CustomField.objects.bulk_create(custom_fields)
                 return new_template
@@ -232,14 +238,14 @@ class CustomField(models.Model):
 
     """Custom Field data sample:
 
-        label: Precensional Hymn EBH 20
+        label: Precessional Hymn EBH 20
         content: Song Lead by the Choir
         Start Time: 7:30 AM
         End Time: 7:50 AM
     """
 
     template = models.ForeignKey(
-        Template, on_delete=models.CASCADE, related_name='custom_field')
+        Template, on_delete=models.CASCADE, related_name='custom_fields')
     label = models.CharField(max_length=255)
     content = models.TextField()
     start_time = models.TimeField(null=True, blank=True)

@@ -188,12 +188,12 @@ class CreateEventSerializer(serializers.ModelSerializer):
 class MiniCustomFieldSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomField
-        fields = ['id','label','content'] 
+        fields = ['id','label','content']
 
 class TemplateSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     event = MiniEventSerializer(read_only=True)
-    custom_fields = MiniCustomFieldSerializer(many=True, read_only=True, source='custom_field')
+    custom_fields = MiniCustomFieldSerializer(many=True, read_only=True)
     
     class Meta:
         model = Template
@@ -201,7 +201,6 @@ class TemplateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         '''Create a template with an event, we should make sure that the user is the organizer of the event before creation'''
-        
         user = self.context['user']
         event_pk = self.context['event_pk']
 
@@ -228,5 +227,26 @@ class TemplateSerializer(serializers.ModelSerializer):
 class MiniTemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Template
-        fields = ['id','code','title', 'custom_field']
+        fields = ['id','code','title', 'custom_fields']
 
+
+class CustomFieldSerializer(serializers.ModelSerializer):
+    '''Serializer for template custom fields'''
+
+    templates = MiniTemplateSerializer(read_only=True,many=True)
+
+    class Meta:
+        model = CustomField
+        fields = ['id','templates','label','content','start_time','end_time']
+
+
+    def create(self, validated_data):
+        user = self.context['user']
+        template_pk = self.context['template_pk']
+
+        # before  i create template for an event i should be the organizer or an admin
+        template = Template.objects.filter(id=template_pk,event__organizer_id=user.id)
+        if template is None:
+            raise serializers.ValidationError("You are not the owner of the event this template is linked.")
+        return CustomField.objects.create(template_id=template_pk,**validated_data)
+        
