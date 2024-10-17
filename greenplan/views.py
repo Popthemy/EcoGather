@@ -13,7 +13,7 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from .models import Organizer, Address, Program, Event, Template, CustomField
 from .serializers import CreateEventSerializer, OrganizerSerializer, \
     AddressSerializer, ProgramSerializer, EventSerializer, MiniEventSerializer, TemplateSerializer, MiniTemplateSerializer, CustomFieldSerializer
-from .permissions import IsAdminOrReadonly
+from .permissions import IsAdminOrReadonly,IsOrganizerOrAdmin
 
 # Create your views here.
 
@@ -238,19 +238,19 @@ class EventDetailApiView(RetrieveUpdateDestroyAPIView):
 class TemplateLibraryApiView(GenericAPIView):
     '''This template view is for listing all template like a template library.'''
     serializer_class = TemplateSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         ''' Our staff can view all template while others can view template linked to them or public event'''
         user = self.request.user
+        print(user)
 
         if user.is_staff:
             return Template.objects.all()
 
-        return Template.objects.filter(Q(event__organizer_id=user.id) | Q(event__is_private=False))
+        return  Template.objects.filter(Q(owner_id=user.id) | Q(event__is_private=False) | Q(event__isnull=True))
 
     def get(self, request, *args, **kwargs):
-        qs = self.get_queryset()  # Template.objects.all()
+        qs = self.get_queryset()
         serializer = self.get_serializer(qs, many=True)
         data = {
             "status": "success",
@@ -265,7 +265,9 @@ class TemplateLibraryApiView(GenericAPIView):
 class EventTemplateApiView(GenericAPIView):
     '''View to create and retrieve templates for a specific event.'''
     serializer_class = TemplateSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    
 
     def get_queryset(self):
         '''Retrieve templates based on user role and event ID.'''
