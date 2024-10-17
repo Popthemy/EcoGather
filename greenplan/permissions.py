@@ -21,6 +21,4 @@ class IsOrganizerOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         '''Allow organizer and staff to perform edit and other methods'''
         user = request.user
-        print(f"from permission {obj.organizer.user == user}")
-
         return  user.is_staff  or obj.organizer.user == user

@@ -222,7 +222,7 @@ class EventDetailApiView(RetrieveUpdateDestroyAPIView):
     def get_permissions(self):
         request = self.request
         if request.method in ['PUT', 'PATCH', 'DELETE']:
-            self.permission_classes.append(IsOrganizerOrReadOnly) 
+            self.permission_classes = [IsOrganizerOrReadOnly]
         return super().get_permissions()
 
     def get_serializer_class(self):
@@ -241,7 +241,7 @@ class EventDetailApiView(RetrieveUpdateDestroyAPIView):
 
         if not event.is_private:
             return event
-        raise Http404("You don't have permission to view this object")
+        raise Http404("You don't have permission to view this Event.")
 
 
 class TemplateLibraryApiView(GenericAPIView):
@@ -249,9 +249,8 @@ class TemplateLibraryApiView(GenericAPIView):
     serializer_class = TemplateSerializer
 
     def get_queryset(self):
-        ''' Our staff can view all template while others can view template linked to them or public event'''
+        ''' Staff can view all template while others can view template linked to them or public event'''
         user = self.request.user
-        print(user)
 
         if user.is_staff:
             return Template.objects.all()
@@ -260,6 +259,7 @@ class TemplateLibraryApiView(GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         qs = self.get_queryset()
+
         serializer = self.get_serializer(qs, many=True)
         data = {
             "status": "success",
@@ -272,24 +272,24 @@ class TemplateLibraryApiView(GenericAPIView):
 
 
 class EventTemplateApiView(GenericAPIView):
-    '''View to create and retrieve templates for a specific event.'''
+    '''View to create and retrieve (list_createview) templates for a specific event.'''
     serializer_class = TemplateSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_permissions(self):
-        request = self.request
-        if request and self.request.method in ['post', 'put', 'patch', 'delete']:
-            return [IsOrganizerOrReadOnly]
+        '''Allow only staff and organizer to create template for an event'''
+        if self.request.method == 'POST':
+            self.permission_classes = [IsOrganizerOrReadOnly]
         return super().get_permissions()
 
     def get_queryset(self):
-        '''Retrieve templates based on user role and event ID.'''
+        '''Retrieve templates based on organizer of the event or the event is  public.'''
         user = self.request.user
         event_pk = self.kwargs['event_pk']
 
         if user.is_staff:
             return Template.objects.filter(event_id=event_pk)
-        return Template.objects.filter(event_id=event_pk, event__organizer_id=user.id)
+        return Template.objects.filter(Q( owner_id=user.id, event_id=event_pk) | Q(event_id=event_pk ,event__is_private=False))
 
     def get(self, request, *args, **kwargs):
         event_templates = self.get_queryset()

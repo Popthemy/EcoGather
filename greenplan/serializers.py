@@ -200,7 +200,9 @@ class TemplateSerializer(serializers.ModelSerializer):
         fields = ['id', 'code', 'title','event' ,'custom_fields' ,'slug', 'description']
 
     def create(self, validated_data):
-        '''Create a template with an event, we should make sure that the user is the organizer of the event before creation'''
+        '''Create a template with an event, we should make sure that the user is the 
+        organizer of the event before creation'''
+        
         user = self.context['user']
         event_pk = self.context['event_pk']
 
