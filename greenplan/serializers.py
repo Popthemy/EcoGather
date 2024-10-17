@@ -194,7 +194,7 @@ class TemplateSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     event = MiniEventSerializer(read_only=True)
     custom_fields = MiniCustomFieldSerializer(many=True, read_only=True)
-    
+
     class Meta:
         model = Template
         fields = ['id', 'code', 'title','event' ,'custom_fields' ,'slug', 'description']
@@ -202,7 +202,7 @@ class TemplateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         '''Create a template with an event, we should make sure that the user is the 
         organizer of the event before creation'''
-        
+
         user = self.context['user']
         event_pk = self.context['event_pk']
 
@@ -211,10 +211,12 @@ class TemplateSerializer(serializers.ModelSerializer):
                 'Event id must be positive e.g 1,2,3')
 
         if not user.is_staff:
-            event = Event.objects.filter(id=event_pk)
-            if not event.exists():
-                raise serializers.ValidationError('Invalid event id')
-            if not event.filter(organizer_id=user.id).exists():
+            event = get_object_or_404(Event,pk=event_pk)
+            # event = Event.objects.filter(id=event_pk)
+            # if not event.exists():
+            #     raise serializers.ValidationError('Invalid event id')
+            print(event,event.organizer.user, event.organizer.user != user)
+            if event.organizer.user != user:
                 raise serializers.ValidationError(
                     'You are not the organizer of this event ')
 

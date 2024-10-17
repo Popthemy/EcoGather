@@ -5,10 +5,10 @@ from django.http import Http404
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import GenericAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
-
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status, filters
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from .models import Organizer, Address, Program, Event, Template, CustomField
 from .serializers import CreateEventSerializer, OrganizerSerializer, \
@@ -241,7 +241,8 @@ class EventDetailApiView(RetrieveUpdateDestroyAPIView):
 
         if not event.is_private:
             return event
-        raise Http404("You don't have permission to view this Event.")
+        raise PermissionDenied(
+            "You don't have permission to access this Event.")
 
 
 class TemplateLibraryApiView(GenericAPIView):
@@ -285,23 +286,24 @@ class EventTemplateApiView(GenericAPIView):
     def get_queryset(self):
         '''Retrieve templates based on organizer of the event or the event is  public.'''
         user = self.request.user
-        event_pk = self.kwargs['event_pk']
 
-        if user.is_staff:
-            return Template.objects.filter(event_id=event_pk)
-        return Template.objects.filter(Q( owner_id=user.id, event_id=event_pk) | Q(event_id=event_pk ,event__is_private=False))
+        event_pk = self.kwargs['event_pk']
+        event = get_object_or_404(Event, pk=event_pk)
+
+        if user.is_staff or (event.organizer.user == user):
+            return event.templates.all()
+
+        if not event.is_private:
+            return event.templates.all()
+        # Since the event is private then the template shouldn't be revealed
+        raise PermissionDenied("You don't have permission to access templates for this event.")
+
 
     def get(self, request, *args, **kwargs):
         event_templates = self.get_queryset()
+
         total_event_template = event_templates.count()
 
-        if total_event_template == 0:
-            return Response({'status': 'error',
-                             'message': 'Event does not exist or you are not the organizer'},
-                            status=status.HTTP_404_NOT_FOUND)
-
-        # we want to limit the occurrence of the event to appear only once,
-        # we used a another template serializer and  get the event directly here.
         event_pk = self.kwargs['event_pk']
         event_data = get_object_or_404(Event, pk=event_pk)
         event = MiniEventSerializer(event_data)
@@ -315,6 +317,8 @@ class EventTemplateApiView(GenericAPIView):
             "data": serializer.data
         }
         return Response(data, status=status.HTTP_200_OK)
+        # raise PermissionDenied(
+        #     "You don't have permission to access templates for this event.")
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -336,7 +340,13 @@ class EventTemplateDetailApiView(RetrieveUpdateDestroyAPIView):
     'Retrieve a specific template for a specific event. methods: get, update, delete'
 
     serializer_class = TemplateSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_permissions(self):
+        """ Allow admin or organizer to perform full actions"""
+        if self.request.method in ['PUT', 'PATCH', 'DELETE']:
+            self.permission_classes = [IsOrganizerOrReadOnly]
+        return super().get_permissions()
 
     def get_object(self):
         '''Retrieve templates based on user role and template ID.'''
@@ -346,7 +356,7 @@ class EventTemplateDetailApiView(RetrieveUpdateDestroyAPIView):
 
         if user.is_staff:
             return Template.objects.filter(id=template_pk, event_id=event_pk).first()
-        return Template.objects.filter(id=template_pk, event_id=event_pk, event__organizer_id=user.id).first()
+        return Template.objects.filter(Q(owner_id=user.id, id=template_pk, event_id=event_pk) | Q(id=template_pk, event_id=event_pk, event__is_private=False)).first()
 
     def get(self, request, *args, **kwargs):
         event_templates = self.get_object()

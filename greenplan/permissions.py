@@ -1,5 +1,7 @@
 from rest_framework import permissions
 
+from greenplan.models import Event, Template
+
 
 class IsAdminOrReadonly(permissions.BasePermission):
     '''allow admin to perform operation such as post,patch,put,delete'''
@@ -20,5 +22,13 @@ class IsOrganizerOrReadOnly(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         '''Allow organizer and staff to perform edit and other methods'''
+
         user = request.user
-        return  user.is_staff  or obj.organizer.user == user
+
+        if isinstance(obj,Event):
+            organizer = obj.organizer.user
+        if isinstance(obj,Template):
+            organizer = obj.owner.user
+
+        return  user.is_staff  or organizer == user
+
