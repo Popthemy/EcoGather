@@ -13,7 +13,7 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from .models import Organizer, Address, Program, Event, Template, CustomField
 from .serializers import CreateEventSerializer, OrganizerSerializer, \
     AddressSerializer, ProgramSerializer, EventSerializer, MiniEventSerializer, TemplateSerializer, MiniTemplateSerializer, CustomFieldSerializer
-from .permissions import IsAdminOrReadonly,IsOrganizerOrAdmin
+from .permissions import IsAdminOrReadonly, IsOrganizerOrReadOnly
 
 # Create your views here.
 
@@ -168,7 +168,8 @@ class EventApiView(GenericAPIView):
         if user.is_staff:
             return Event.objects.all()
 
-        # Regular authenticated users see only their events and other people true event while unauthenticated see only public event
+        # Regular authenticated users see only their events and other people true event
+        # while unauthenticated see only public event
 
         return Event.objects.filter(Q(organizer_id=user.pk) | Q(
             is_private=False)).order_by('-is_private')
@@ -215,7 +216,14 @@ class EventApiView(GenericAPIView):
 
 
 class EventDetailApiView(RetrieveUpdateDestroyAPIView):
+    '''This view allows get for everyone while restricting update only to admin and organizer '''
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_permissions(self):
+        request = self.request
+        if request.method in ['PUT', 'PATCH', 'DELETE']:
+            self.permission_classes.append(IsOrganizerOrReadOnly) 
+        return super().get_permissions()
 
     def get_serializer_class(self):
         if self.request.method == "GET":
@@ -226,13 +234,14 @@ class EventDetailApiView(RetrieveUpdateDestroyAPIView):
         user = self.request.user
         pk = self.kwargs['pk']
 
-        if user.is_staff:
-            return get_object_or_404(Event, pk=pk)
-        event = Event.objects.filter(id=pk, organizer_id=user.id).first()
+        event = get_object_or_404(Event, pk=pk)
 
-        if event is None:
-            raise Http404('Invalid event detail')
-        return event
+        if event.organizer.user == user or user.is_staff:
+            return event
+
+        if not event.is_private:
+            return event
+        raise Http404("You don't have permission to view this object")
 
 
 class TemplateLibraryApiView(GenericAPIView):
@@ -247,7 +256,7 @@ class TemplateLibraryApiView(GenericAPIView):
         if user.is_staff:
             return Template.objects.all()
 
-        return  Template.objects.filter(Q(owner_id=user.id) | Q(event__is_private=False) | Q(event__isnull=True))
+        return Template.objects.filter(Q(owner_id=user.id) | Q(event__is_private=False) | Q(event__isnull=True))
 
     def get(self, request, *args, **kwargs):
         qs = self.get_queryset()
@@ -267,7 +276,11 @@ class EventTemplateApiView(GenericAPIView):
     serializer_class = TemplateSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
-    
+    def get_permissions(self):
+        request = self.request
+        if request and self.request.method in ['post', 'put', 'patch', 'delete']:
+            return [IsOrganizerOrReadOnly]
+        return super().get_permissions()
 
     def get_queryset(self):
         '''Retrieve templates based on user role and event ID.'''
@@ -377,7 +390,6 @@ class CustomFieldApiView(ListCreateAPIView):
         event = Event.objects.filter(templates=template_pk).first()
         event_serializer = MiniEventSerializer(event)
 
-
         data = {
             "status": "success",
             "message": " Custom FIelds for the template retrieved successfully",
@@ -385,10 +397,9 @@ class CustomFieldApiView(ListCreateAPIView):
             "data": serializer.data
         }
         return Response(data, status=status.HTTP_200_OK)
-    
+
     def get_serializer_context(self):
         return {
             'template_pk': self.kwargs['template_pk'],
             'user': self.request.user,
         }
-
