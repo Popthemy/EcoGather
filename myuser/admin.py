@@ -5,6 +5,8 @@ from myuser.models import CustomUser
 
 @admin.register(CustomUser)
 class CustomUserAdmin(admin.ModelAdmin):
-  class Meta:
-    model = CustomUser
-    fields = '__all__'
+    list_display = ['id', 'email', 'first_name', 'last_name']
+
+    class Meta:
+        model = CustomUser
+        fields = '__all__'

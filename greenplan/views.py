@@ -296,8 +296,8 @@ class EventTemplateApiView(GenericAPIView):
         if not event.is_private:
             return event.templates.all()
         # Since the event is private then the template shouldn't be revealed
-        raise PermissionDenied("You don't have permission to access templates for this event.")
-
+        raise PermissionDenied(
+            "You don't have permission to access templates for this event.")
 
     def get(self, request, *args, **kwargs):
         event_templates = self.get_queryset()
@@ -317,8 +317,6 @@ class EventTemplateApiView(GenericAPIView):
             "data": serializer.data
         }
         return Response(data, status=status.HTTP_200_OK)
-        # raise PermissionDenied(
-        #     "You don't have permission to access templates for this event.")
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -336,7 +334,7 @@ class EventTemplateApiView(GenericAPIView):
         return {'user': self.request.user, 'event_pk': self.kwargs['event_pk']}
 
 
-class EventTemplateDetailApiView(RetrieveUpdateDestroyAPIView):
+class EventTemplateDetailApiView(GenericAPIView):
     'Retrieve a specific template for a specific event. methods: get, update, delete'
 
     serializer_class = TemplateSerializer
@@ -348,23 +346,25 @@ class EventTemplateDetailApiView(RetrieveUpdateDestroyAPIView):
             self.permission_classes = [IsOrganizerOrReadOnly]
         return super().get_permissions()
 
-    def get_object(self):
+    def get_queryset(self):
         '''Retrieve templates based on user role and template ID.'''
         user = self.request.user
         event_pk = self.kwargs['event_pk']
         template_pk = self.kwargs['pk']
+        event = get_object_or_404(Event, pk=event_pk)
 
-        if user.is_staff:
-            return Template.objects.filter(id=template_pk, event_id=event_pk).first()
-        return Template.objects.filter(Q(owner_id=user.id, id=template_pk, event_id=event_pk) | Q(id=template_pk, event_id=event_pk, event__is_private=False)).first()
+        if user.is_staff or event.organizer.user == user:
+            return get_object_or_404(Template, pk=template_pk)
+
+        if not event.is_private:
+            return get_object_or_404(Template, pk=template_pk)
+
+        # Since the event is private then the template shouldn't be revealed
+        raise PermissionDenied(
+            "You don't have permission to access templates for this event.")
 
     def get(self, request, *args, **kwargs):
-        event_templates = self.get_object()
-
-        if event_templates is None:
-            return Response({'status': 'error',
-                             'message': 'Template does not exist'},
-                            status=status.HTTP_404_NOT_FOUND)
+        event_templates = self.get_queryset()
 
         serializer = self.get_serializer(event_templates)
         data = {
@@ -373,6 +373,52 @@ class EventTemplateDetailApiView(RetrieveUpdateDestroyAPIView):
             "data": serializer.data
         }
         return Response(data, status=status.HTTP_200_OK)
+
+    def put(self, request, *args, **kwargs):
+        instance = self.get_queryset()
+
+        serializer = self.get_serializer(
+            instance, data=request.data, partial=False)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        data = {
+            "status": "success",
+            "message": " Template fully updated successfully",
+            "data": serializer.data
+        }
+        return Response(data=data, status=status.HTTP_200_OK)
+
+    def patch(self, request, *args, **kwargs):
+        instance = self.get_queryset()
+        serializer = self.get_serializer(
+            instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        data = {
+            "status": "success",
+            "message": " Template partailly updated successfully",
+            "data": serializer.data
+        }
+        return Response(data=data, status=status.HTTP_200_OK)
+
+    def delete(self, request, *args, **kwargs):
+        template = self.get_queryset()
+        event_pk = self.kwargs['event_pk']
+        user = self.request.user
+
+        event = get_object_or_404(Event, pk=event_pk)
+        if not user.is_staff:
+            if event.organizer.user != user:
+                raise PermissionDenied(
+                    'You are not the organizer of this event ')
+
+        template.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def get_serializer_context(self):
+        return {'user': self.request.user, 'event_pk': self.kwargs['event_pk']}
 
 
 class CustomFieldApiView(ListCreateAPIView):
@@ -387,9 +433,12 @@ class CustomFieldApiView(ListCreateAPIView):
         if user.is_staff:
             return CustomField.objects.filter(template_id=template_pk)
 
+        # return CustomField.objects.filter()
+
+
         return CustomField.objects.filter(
             Q(template_id=template_pk) & Q(
-                template__event__organizer_id=user.id) | Q(template__event__is_private=False)
+                template__event__organizer_user=user.user) | Q(template_id=template_pk) &  Q(template__event__is_private=False)
         )
 
     def get(self, request, *args, **kwargs):
@@ -397,7 +446,8 @@ class CustomFieldApiView(ListCreateAPIView):
         qs = self.get_queryset()
         serializer = self.get_serializer(qs, many=True)
         template_pk = self.kwargs['template_pk']
-        event = Event.objects.filter(templates=template_pk).first()
+
+        event = get_object_or_404(Event, templates=template_pk)
         event_serializer = MiniEventSerializer(event)
 
         data = {

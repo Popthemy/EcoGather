@@ -24,7 +24,8 @@ class IsOrganizerOrReadOnly(permissions.BasePermission):
         '''Allow organizer and staff to perform edit and other methods'''
 
         user = request.user
-
+        
+        organizer = None
         if isinstance(obj,Event):
             organizer = obj.organizer.user
         if isinstance(obj,Template):

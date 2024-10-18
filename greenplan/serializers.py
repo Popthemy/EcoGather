@@ -199,33 +199,45 @@ class TemplateSerializer(serializers.ModelSerializer):
         model = Template
         fields = ['id', 'code', 'title','event' ,'custom_fields' ,'slug', 'description']
 
-    def create(self, validated_data):
-        '''Create a template with an event, we should make sure that the user is the 
-        organizer of the event before creation'''
-
-        user = self.context['user']
-        event_pk = self.context['event_pk']
-
+    def check_user_and_event_return_event(self,user,event_pk):
         if event_pk <= 0:
             raise serializers.ValidationError(
                 'Event id must be positive e.g 1,2,3')
 
+        event = get_object_or_404(Event,pk=event_pk)
         if not user.is_staff:
-            event = get_object_or_404(Event,pk=event_pk)
-            # event = Event.objects.filter(id=event_pk)
-            # if not event.exists():
-            #     raise serializers.ValidationError('Invalid event id')
-            print(event,event.organizer.user, event.organizer.user != user)
             if event.organizer.user != user:
                 raise serializers.ValidationError(
                     'You are not the organizer of this event ')
+        return event
+
+
+    def create(self, validated_data):
+        '''Create a template with an event, we should make sure that the user is the
+        organizer of the event before creation'''
+
+        user = self.context['user']
+        pk = self.context['event_pk']
+
+        event = self.check_user_and_event_return_event(user=user,event_pk=pk)
 
         template = Template.objects.create(
-            event_id=event_pk,
+            owner_id = event.organizer.user.id,
+            event_id=pk,
             **validated_data
         )
-
         return template
+    
+    def update(self, instance, validated_data):
+
+        user = self.context['user']
+        pk = self.context['event_pk']
+        event = self.check_user_and_event_return_event(user=user,event_pk=pk)
+        # template = Template.objects.filter(id=instance.id)
+        # template.code
+
+        return super().update(instance, validated_data)
+
 
 
 class MiniTemplateSerializer(serializers.ModelSerializer):

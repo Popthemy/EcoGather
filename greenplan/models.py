@@ -154,7 +154,7 @@ class Event(models.Model):
 
 class Template(models.Model):
     owner = models.ForeignKey(
-        Organizer, null=True,on_delete=models.CASCADE, related_name='template_owner')
+        Organizer,on_delete=models.CASCADE, related_name='template_owner')
 
     code = models.CharField(
         max_length=50,

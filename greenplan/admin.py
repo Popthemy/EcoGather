@@ -108,9 +108,9 @@ class CustomFieldInline(admin.TabularInline):
 @admin.register(Template)
 class TemplateAdmin(admin.ModelAdmin):
     actions = ['clone_template']
-    fields = ['code', 'title', 'event','owner', 'slug', 'description']
+    fields = ['code', 'title', 'event', 'owner', 'slug', 'description']
     inlines = [CustomFieldInline]
-    list_display = ['id', 'code', 'title', 'event','owner', 'description']
+    list_display = ['id', 'code', 'title', 'event', 'owner', 'description']
     list_editable = ['title']
     list_select_related = ['event']
 
@@ -162,3 +162,4 @@ class CustomFieldAdmin(admin.ModelAdmin):
 
     list_editable = ['label', 'content', 'start_time', 'end_time']
     list_select_related = ['template']
+    search_fields = ['template']
