@@ -433,10 +433,9 @@ class CustomFieldApiView(ListCreateAPIView):
         if user.is_staff:
             return CustomField.objects.filter(template_id=template_pk)
 
-    
         return CustomField.objects.filter(
             (Q(template_id=template_pk) & Q(
-                template__event__organizer_id=user.id)) | (Q(template_id=template_pk) &  Q(template__event__is_private=False))
+                template__event__organizer_id=user.id)) | (Q(template_id=template_pk) & Q(template__event__is_private=False))
         )
 
     def get(self, request, *args, **kwargs):
@@ -448,17 +447,19 @@ class CustomFieldApiView(ListCreateAPIView):
         user = self.request.user
         event = get_object_or_404(Event, templates=template_pk)
         if event.is_private is True and event.organizer.user != user:
-            raise PermissionDenied('You are not allowed to access this template fields.')
-        
+            raise PermissionDenied(
+                'You are not allowed to access this template fields.')
+
         event_serializer = MiniEventSerializer(event)
         data = {
             "status": "success",
             "message": " Custom fields for the template retrieved successfully",
+            'total_custom_fields_for_template': qs.count(),
             "event_data": event_serializer.data,
+
             "data": serializer.data
         }
         return Response(data, status=status.HTTP_200_OK)
-
 
     def get_serializer_context(self):
         return {
@@ -466,3 +467,55 @@ class CustomFieldApiView(ListCreateAPIView):
             'user': self.request.user,
         }
 
+
+class CustomFieldDetailApiView(RetrieveUpdateDestroyAPIView):
+    '''View to get ,edit and delete a custom fields'''
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    serializer_class = CustomFieldSerializer
+
+    def get_queryset(self):
+        template_pk = self.kwargs['template_pk']
+        pk = self.kwargs['pk']
+        user = self.request.user
+
+        if user.is_staff:
+            return CustomField.objects.filter(id=pk, template_id=template_pk).first()
+
+        return CustomField.objects.filter(id=pk, template_id=template_pk).filter(
+            (Q(
+                template__event__organizer_id=user.id)) | Q(template__event__is_private=False)).first()
+
+    def get(self, request, *args, **kwargs):
+        custom_field = self.get_queryset()
+        serializer = self.get_serializer(custom_field)
+        data = {
+            "status": "success",
+            "message": " Templates custom field retrieved successfully",
+            "data": serializer.data
+        }
+        return Response(data, status=status.HTTP_200_OK)
+
+    def put(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_queryset()
+        serializer = self.get_serializer(
+            instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        data = {
+            "status": "success",
+            "message": " Templates custom field was updated successfully",
+            "data": serializer.data
+        }
+        return Response(data, status=status.HTTP_200_OK)
+
+    def patch(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        return self.put(request, *args, **kwargs)
+
+    def get_serializer_context(self):
+        return {
+            'template_pk': self.kwargs['template_pk'],
+            'user': self.request.user,
+        }

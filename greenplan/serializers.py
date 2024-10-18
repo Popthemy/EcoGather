@@ -239,7 +239,6 @@ class TemplateSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
-
 class MiniTemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Template
@@ -249,12 +248,11 @@ class MiniTemplateSerializer(serializers.ModelSerializer):
 class CustomFieldSerializer(serializers.ModelSerializer):
     '''Serializer for template custom fields'''
 
-    templates = MiniTemplateSerializer(read_only=True,many=True)
+    template =serializers.StringRelatedField(read_only=True) #MiniTemplateSerializer(read_only=True)
 
     class Meta:
         model = CustomField
-        fields = ['id','templates','label','content','start_time','end_time']
-
+        fields = ['id','template','label','content','start_time','end_time']
 
     def create(self, validated_data):
         user = self.context['user']
