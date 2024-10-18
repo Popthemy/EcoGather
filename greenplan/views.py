@@ -433,33 +433,36 @@ class CustomFieldApiView(ListCreateAPIView):
         if user.is_staff:
             return CustomField.objects.filter(template_id=template_pk)
 
-        # return CustomField.objects.filter()
-
-
+    
         return CustomField.objects.filter(
-            Q(template_id=template_pk) & Q(
-                template__event__organizer_user=user.user) | Q(template_id=template_pk) &  Q(template__event__is_private=False)
+            (Q(template_id=template_pk) & Q(
+                template__event__organizer_id=user.id)) | (Q(template_id=template_pk) &  Q(template__event__is_private=False))
         )
 
     def get(self, request, *args, **kwargs):
         # 1, 9,4,10,13
         qs = self.get_queryset()
         serializer = self.get_serializer(qs, many=True)
+
         template_pk = self.kwargs['template_pk']
-
+        user = self.request.user
         event = get_object_or_404(Event, templates=template_pk)
+        if event.is_private is True and event.organizer.user != user:
+            raise PermissionDenied('You are not allowed to access this template fields.')
+        
         event_serializer = MiniEventSerializer(event)
-
         data = {
             "status": "success",
-            "message": " Custom FIelds for the template retrieved successfully",
+            "message": " Custom fields for the template retrieved successfully",
             "event_data": event_serializer.data,
             "data": serializer.data
         }
         return Response(data, status=status.HTTP_200_OK)
+
 
     def get_serializer_context(self):
         return {
             'template_pk': self.kwargs['template_pk'],
             'user': self.request.user,
         }
+

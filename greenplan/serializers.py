@@ -260,9 +260,18 @@ class CustomFieldSerializer(serializers.ModelSerializer):
         user = self.context['user']
         template_pk = self.context['template_pk']
 
-        # before  i create template for an event i should be the organizer or an admin
-        template = Template.objects.filter(id=template_pk,event__organizer_id=user.id)
-        if template is None:
-            raise serializers.ValidationError("You are not the owner of the event this template is linked.")
+        event = get_object_or_404(Event, templates=template_pk)
+        if not user.is_staff or event.organizer.user != user:
+            raise serializers.ValidationError('You are not allowed to add field to this template. NOT ORGANIZER')
+
         return CustomField.objects.create(template_id=template_pk,**validated_data)
-        
+    
+    def update(self, instance, validated_data):
+        user = self.context['user']
+        template_pk = self.context['template_pk']
+
+        event = get_object_or_404(Event, templates=template_pk)
+        if not user.is_staff or event.organizer.user != user:
+            raise serializers.ValidationError('You are not allowed to add field to this template. NOT ORGANIZER')
+
+        return super().update(instance, validated_data)
