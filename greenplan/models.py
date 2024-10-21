@@ -93,13 +93,13 @@ class Event(models.Model):
         unique=True,
         help_text="Enter a unique code name for this event. e.g ACADA2024."
     )
-    
+
     title = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     program = models.ForeignKey(
         Program, on_delete=models.PROTECT, related_name='events', null=True)
-    venue = models.CharField(max_length=255)
-    city_or_state = models.CharField(max_length=255)
+    venue = models.CharField(max_length=255,help_text="Exact location where the event is taking place e.g The Great hall,Lautech")
+    city = models.CharField(max_length=255,help_text="City or state the event could be taking place e.g Ogbomoso")
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
     contact_email = models.EmailField(null=True, blank=True)

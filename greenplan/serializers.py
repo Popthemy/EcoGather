@@ -149,7 +149,7 @@ class CreateEventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = ['code', 'title', 'slug', 'description', 'program', 'is_private',
-                  'venue', 'city_or_state', 'start_datetime', 'end_datetime', 'contact_email', 'contact_phone_number']
+                  'venue', 'city', 'start_datetime', 'end_datetime', 'contact_email', 'contact_phone_number']
 
     def create(self, validated_data):
         user = self.context['request'].user
@@ -276,7 +276,7 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = ['id', 'code', 'title', 'slug', 'organizer', 'organizer_url', 'description', 'templates', 'program', 'is_private',
-                      'venue', 'city_or_state', 'event_status', 'start_datetime', 'end_datetime', 'contact_email', 'contact_phone_number']
+                      'venue', 'city', 'event_status', 'start_datetime', 'end_datetime', 'contact_email', 'contact_phone_number']
 
     def get_event_status(self, event):
         return event.get_event_status()

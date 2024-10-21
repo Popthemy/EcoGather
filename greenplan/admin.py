@@ -86,7 +86,7 @@ class EventAdmin(admin.ModelAdmin):
     autocomplete_fields = ['program']
     prepopulated_fields = {'slug': ['title', 'code']}
     fields = ['code', 'title',  'organizer', 'slug', 'program', 'is_private', 'description',
-              'start_datetime', 'end_datetime', 'venue', 'contact_email', 'contact_phone_number']
+              'start_datetime', 'end_datetime', 'venue','city', 'contact_email', 'contact_phone_number']
     list_display = ['id', 'code', 'title', 'organizer', 'event_status', 'program', 'is_private',
                     'venue', 'start_datetime', 'end_datetime']
     list_editable = ['title', 'organizer', 'is_private', 'venue']
