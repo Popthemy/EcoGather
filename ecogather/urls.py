@@ -26,5 +26,4 @@ urlpatterns = [
     path('playground/', include('myutils.urls')),
     path('api/', include('greenplan.urls')),
     path('users/', include('myuser.urls')),
-    # path('__debug/', include('debug_toolbar.urls')),
 ] + debug_toolbar_urls()

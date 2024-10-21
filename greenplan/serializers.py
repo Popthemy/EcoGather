@@ -141,25 +141,7 @@ class ProgramSerializer(serializers.ModelSerializer):
             event.save()
 
 
-class EventSerializer(serializers.ModelSerializer):
-    """Serializer for the Event model, including organizer and event status."""
 
-    id = serializers.IntegerField(read_only=True)
-    organizer = MiniOrganizerSerializer()
-    organizer_url = serializers.HyperlinkedRelatedField(
-        queryset=Organizer.objects.all(),
-        view_name='organizers-detail', source='organizer'
-        )
-    event_status = serializers.SerializerMethodField()
-    program = serializers.StringRelatedField()
-
-    class Meta:
-        model = Event
-        fields = ['id', 'code', 'title', 'slug', 'organizer', 'organizer_url', 'description', 'templates', 'program', 'is_private',
-                      'venue', 'city_or_state', 'event_status', 'start_datetime', 'end_datetime', 'contact_email', 'contact_phone_number']
-
-    def get_event_status(self, event):
-        return event.get_event_status()
 
 
 class CreateEventSerializer(serializers.ModelSerializer):
@@ -190,10 +172,42 @@ class MiniCustomFieldSerializer(serializers.ModelSerializer):
         model = CustomField
         fields = ['id','label','content']
 
+
+class CustomFieldSerializer(serializers.ModelSerializer):
+    '''Serializer for template custom fields'''
+
+    class Meta:
+        model = CustomField
+        fields = ['id','template','label','content','start_time','end_time']
+
+    def create(self, validated_data):
+        user = self.context['user']
+        template_pk = self.context['template_pk']
+
+        event = get_object_or_404(Event, templates=template_pk)
+        if not user.is_staff or event.organizer.user != user:
+            raise serializers.ValidationError('You are not allowed to add field to this template. NOT ORGANIZER')
+
+        return CustomField.objects.create(template_id=template_pk,**validated_data)
+    
+    def update(self, instance, validated_data):
+        user = self.context['user']
+        template_pk = self.context['template_pk']
+
+        event = get_object_or_404(Event, templates=template_pk)
+
+        if  not user.is_staff and event.organizer.user != user:
+            raise serializers.ValidationError('You are not allowed to add field to this template. NOT ORGANIZER')
+
+        return super().update(instance, validated_data)
+
+
+
+
 class TemplateSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    event = MiniEventSerializer(read_only=True)
-    custom_fields = MiniCustomFieldSerializer(many=True, read_only=True)
+    # event = MiniEventSerializer(read_only=True)
+    custom_fields = CustomFieldSerializer(many=True, read_only=True)
 
     class Meta:
         model = Template
@@ -245,31 +259,24 @@ class MiniTemplateSerializer(serializers.ModelSerializer):
         fields = ['id','code','title', 'custom_fields']
 
 
-class CustomFieldSerializer(serializers.ModelSerializer):
-    '''Serializer for template custom fields'''
+class EventSerializer(serializers.ModelSerializer):
+    """Serializer for the Event model, including organizer and event status.
+    an event is organizer by an organizer, an event has more than one template ,each template can have many fields"""
 
-    template =serializers.StringRelatedField(read_only=True) #MiniTemplateSerializer(read_only=True)
+    id = serializers.IntegerField(read_only=True)
+    organizer = MiniOrganizerSerializer()
+    organizer_url = serializers.HyperlinkedRelatedField(
+        queryset=Organizer.objects.all(),
+        view_name='organizers-detail', source='organizer'
+        )
+    event_status = serializers.SerializerMethodField()
+    program = serializers.StringRelatedField()
+    templates = TemplateSerializer(many=True)
 
     class Meta:
-        model = CustomField
-        fields = ['id','template','label','content','start_time','end_time']
+        model = Event
+        fields = ['id', 'code', 'title', 'slug', 'organizer', 'organizer_url', 'description', 'templates', 'program', 'is_private',
+                      'venue', 'city_or_state', 'event_status', 'start_datetime', 'end_datetime', 'contact_email', 'contact_phone_number']
 
-    def create(self, validated_data):
-        user = self.context['user']
-        template_pk = self.context['template_pk']
-
-        event = get_object_or_404(Event, templates=template_pk)
-        if not user.is_staff or event.organizer.user != user:
-            raise serializers.ValidationError('You are not allowed to add field to this template. NOT ORGANIZER')
-
-        return CustomField.objects.create(template_id=template_pk,**validated_data)
-    
-    def update(self, instance, validated_data):
-        user = self.context['user']
-        template_pk = self.context['template_pk']
-
-        event = get_object_or_404(Event, templates=template_pk)
-        if not user.is_staff or event.organizer.user != user:
-            raise serializers.ValidationError('You are not allowed to add field to this template. NOT ORGANIZER')
-
-        return super().update(instance, validated_data)
+    def get_event_status(self, event):
+        return event.get_event_status()

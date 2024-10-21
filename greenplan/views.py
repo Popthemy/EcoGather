@@ -114,7 +114,6 @@ class ProgramApiView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-
         data = {
             'status': 'Success',
             'message': 'Programs created.',
@@ -142,7 +141,6 @@ class ProgramDetailApiView(RetrieveUpdateDestroyAPIView):
         # pk = self.kwargs['pk']
         # program = get_object_or_404(Program,pk=pk)
         program = self.get_object()
-        print(f'event:{ program.events }')
         if program.events.count() > 0:
             return Response({'error': 'Program is linked to an events. Unlink the event to delete this program.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
         return super().destroy(request, *args, **kwargs)
@@ -193,23 +191,16 @@ class EventApiView(GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            serializer = serializer.save()
-            serializer = EventSerializer(
-                serializer, context={'request': request})
-
-            data = {
-                "status": "success",
-                "message": " Event Created successfully",
-                "data": serializer.data
-            }
-
-            return Response(data, status=status.HTTP_201_CREATED)
-
-        error_message = {'status': 'failed',
-                         'message': 'Event not created',
-                         'errors': serializer.errors}
-        return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        serializer = serializer.save()
+        serializer = EventSerializer(
+            serializer, context={'request': request})
+        data = {
+            "status": "success",
+            "message": " Event Created successfully",
+            "data": serializer.data
+        }
+        return Response(data, status=status.HTTP_201_CREATED)
 
     def get_serializer_context(self):
         return {'request': self.request}
@@ -304,16 +295,16 @@ class EventTemplateApiView(GenericAPIView):
 
         total_event_template = event_templates.count()
 
-        event_pk = self.kwargs['event_pk']
-        event_data = get_object_or_404(Event, pk=event_pk)
-        event = MiniEventSerializer(event_data)
+        # event_pk = self.kwargs['event_pk']
+        # event_data = get_object_or_404(Event, pk=event_pk)
+        # event = MiniEventSerializer(event_data)
         serializer = MiniTemplateSerializer(event_templates, many=True)
 
         data = {
             "status": "success",
             "message": " Event templates retrieved successfully",
             'total_event_template': event_templates.count(),
-            'event_data': event.data,
+            # 'event_data': event.data,
             "data": serializer.data
         }
         return Response(data, status=status.HTTP_200_OK)
@@ -327,7 +318,6 @@ class EventTemplateApiView(GenericAPIView):
             "message": " Template created successfully",
             "data": serializer.data
         }
-
         return Response(data, status=status.HTTP_201_CREATED)
 
     def get_serializer_context(self):
@@ -409,10 +399,9 @@ class EventTemplateDetailApiView(GenericAPIView):
         user = self.request.user
 
         event = get_object_or_404(Event, pk=event_pk)
-        if not user.is_staff:
-            if event.organizer.user != user:
-                raise PermissionDenied(
-                    'You are not the organizer of this event ')
+        if not user.is_staff and event.organizer.user != user:
+            raise PermissionDenied(
+                'You are not the organizer of this event ')
 
         template.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -446,6 +435,7 @@ class CustomFieldApiView(ListCreateAPIView):
         template_pk = self.kwargs['template_pk']
         user = self.request.user
         event = get_object_or_404(Event, templates=template_pk)
+
         if event.is_private is True and event.organizer.user != user:
             raise PermissionDenied(
                 'You are not allowed to access this template fields.')
@@ -456,7 +446,6 @@ class CustomFieldApiView(ListCreateAPIView):
             "message": " Custom fields for the template retrieved successfully",
             'total_custom_fields_for_template': qs.count(),
             "event_data": event_serializer.data,
-
             "data": serializer.data
         }
         return Response(data, status=status.HTTP_200_OK)
@@ -468,25 +457,27 @@ class CustomFieldApiView(ListCreateAPIView):
         }
 
 
-class CustomFieldDetailApiView(RetrieveUpdateDestroyAPIView):
-    '''View to get ,edit and delete a custom fields'''
+class CustomFieldDetailApiView(GenericAPIView):
+    '''View to get ,edit and delete a custom fields based on role only user and staff can perform full operations'''
     permission_classes = [IsAuthenticatedOrReadOnly]
     serializer_class = CustomFieldSerializer
 
-    def get_queryset(self):
+    def get_object(self):
         template_pk = self.kwargs['template_pk']
         pk = self.kwargs['pk']
         user = self.request.user
 
         if user.is_staff:
             return CustomField.objects.filter(id=pk, template_id=template_pk).first()
-
-        return CustomField.objects.filter(id=pk, template_id=template_pk).filter(
+        custom_field = CustomField.objects.filter(id=pk, template_id=template_pk).filter(
             (Q(
                 template__event__organizer_id=user.id)) | Q(template__event__is_private=False)).first()
+        if not custom_field:
+            raise Http404('Custom field not found')
+        return custom_field
 
     def get(self, request, *args, **kwargs):
-        custom_field = self.get_queryset()
+        custom_field = self.get_object()
         serializer = self.get_serializer(custom_field)
         data = {
             "status": "success",
@@ -497,7 +488,7 @@ class CustomFieldDetailApiView(RetrieveUpdateDestroyAPIView):
 
     def put(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
-        instance = self.get_queryset()
+        instance = self.get_object()
         serializer = self.get_serializer(
             instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
@@ -513,6 +504,19 @@ class CustomFieldDetailApiView(RetrieveUpdateDestroyAPIView):
     def patch(self, request, *args, **kwargs):
         kwargs['partial'] = True
         return self.put(request, *args, **kwargs)
+    
+    def delete(self, request, *args, **kwargs):
+        custom_field = self.get_object()
+        template_pk = self.kwargs['template_pk']
+        user = self.request.user
+
+        event = get_object_or_404(Event, templates=template_pk)
+        if not user.is_staff and event.organizer.user != user:
+            raise PermissionDenied(
+                'You are not the organizer of the event this field is linked to.')
+
+        custom_field.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def get_serializer_context(self):
         return {

@@ -157,9 +157,9 @@ class CustomFieldAdmin(admin.ModelAdmin):
     fields = ['template', 'label',
               'content', 'start_time', 'end_time']
 
-    list_display = ['template', 'label',
+    list_display = ['id','template', 'label',
                     'content', 'start_time', 'end_time']
 
     list_editable = ['label', 'content', 'start_time', 'end_time']
     list_select_related = ['template']
-    search_fields = ['template']
+    search_fields = ['label']

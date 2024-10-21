@@ -93,6 +93,7 @@ class Event(models.Model):
         unique=True,
         help_text="Enter a unique code name for this event. e.g ACADA2024."
     )
+    
     title = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
     program = models.ForeignKey(
