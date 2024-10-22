@@ -6,7 +6,7 @@ from django.http import HttpRequest
 from django.utils import timezone
 from django.utils.html import format_html
 from django.urls import reverse
-from greenplan.models import Event, Template, CustomField, Program, Organizer, OrganizerImage, Address
+from greenplan.models import Event, EventImage, Template, CustomField, Program, Organizer, OrganizerImage, Address
 # Register your models here.
 
 
@@ -32,8 +32,8 @@ class OrganizerAdmin(admin.ModelAdmin):
 
 @admin.register(OrganizerImage)
 class OrganizerImageAdmin(admin.ModelAdmin):
-    fields = ('organizer', 'image_url', 'type')
-    list_display = ('organizer', 'type', 'image_url', 'get_image_url')
+    fields = ('organizer', 'image_url', 'priority')
+    list_display = ('organizer', 'priority', 'image_url', 'get_image_url')
 
     def get_image_url(self, organizer_image):
         '''Render the image directly in the admin panel and styling'''
@@ -66,6 +66,17 @@ class ProgramAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(event_count=Count('events'))
+
+
+@admin.register(EventImage)
+class EventImageAdmin(admin.ModelAdmin):
+    fields = ('event', 'image_url', 'priority')
+    list_display = ('event', 'priority', 'image_url', 'get_image_url')
+
+    def get_image_url(self, event_image):
+        '''Render the image directly in the admin panel and styling'''
+        return format_html(f"<img src='{event_image.image_url.url}' alt='{event_image.event.title}'style='max-width=50px; max-height=50px;  \
+                           width: 40px; height: 40px; border-radius: 50%; object-fit: contain; object-position: right;'>")
 
 
 class EventStatusFilter(admin.SimpleListFilter):

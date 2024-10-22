@@ -142,8 +142,6 @@ class ProgramSerializer(serializers.ModelSerializer):
 
 
 
-
-
 class CreateEventSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -202,8 +200,6 @@ class CustomFieldSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
-
-
 class TemplateSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     # event = MiniEventSerializer(read_only=True)
@@ -247,8 +243,6 @@ class TemplateSerializer(serializers.ModelSerializer):
         user = self.context['user']
         pk = self.context['event_pk']
         event = self.check_user_and_event_return_event(user=user,event_pk=pk)
-        # template = Template.objects.filter(id=instance.id)
-        # template.code
 
         return super().update(instance, validated_data)
 

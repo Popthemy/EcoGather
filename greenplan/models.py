@@ -50,25 +50,31 @@ class Organizer(BaseSocialMediaLink):
 
 
 class OrganizerImage(models.Model):
-    MAIN = 'MAIN'
-    SUB = "SUB"
-    NEUTRAL = "NEUTRAL"
+    HIGH = 'A'
+    MEDIUM = 'B'
+    LOW = 'C'
 
-    IMAGE_CHOICE = (
-        (MAIN, 'main'), (SUB, 'sub'), (NEUTRAL, 'neutral')
+    PRIORITY_CHOICES = (
+        (HIGH, 'High Priority'),
+        (MEDIUM, 'Medium Priority'),
+        (LOW, 'Low Priority')
     )
 
     organizer = models.ForeignKey(
         Organizer, on_delete=models.CASCADE, related_name='images')
     image_url = models.ImageField(
-        null=True, blank=True, upload_to='organizers/', default='default_organizer.png')
-    type = models.CharField(
-        max_length=20, choices=IMAGE_CHOICE, default=NEUTRAL)
+        null=True, blank=True, upload_to='organizers/', default='default_organizer.png',
+        help_text='Images can be about what you do.')
+
+    priority = models.CharField(
+        max_length=1, choices=PRIORITY_CHOICES, default=MEDIUM,
+        help_text='Priority for display order.'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['type', 'updated_at', 'organizer']
+        ordering = ['priority', 'updated_at']
 
     def save(self, *args, **kwargs):
         if self.image_url == '':
@@ -76,7 +82,7 @@ class OrganizerImage(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self) -> str:
-        return f"{self.organizer.username} {self.type} image"
+        return f"{self.organizer.username} {self.get_priority_display()} image"
 
 
 class Address(models.Model):
@@ -184,6 +190,46 @@ class Event(models.Model):
                 counter += 1
             self.slug = slug
         super().save(*args, **kwargs)
+
+
+class EventImage(models.Model):
+    """ Event can have more than one image for visual.
+    Images can be a flyer or from previously held similar events. """
+
+    HIGH = 'A'
+    MEDIUM = 'B'
+    LOW = 'C'
+
+    PRIORITY_CHOICES = (
+        (HIGH, 'High Priority'),
+        (MEDIUM, 'Medium Priority'),
+        (LOW, 'Low Priority')
+    )
+
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, related_name='images'
+    )
+    image_url = models.ImageField(
+        null=True, blank=True, upload_to='events/', default='default_event.png',
+        help_text='Images can be a flyer or from previously held similar events.'
+    )
+    priority = models.CharField(
+        max_length=1, choices=PRIORITY_CHOICES, default=MEDIUM,
+        help_text='Priority for display order.'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['priority', 'updated_at']
+    
+    def save(self,*args, **kwargs):
+        if self.image_url == '':
+            self.image_url = 'default_event.png'
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.event.title} - Priority: {self.get_priority_display()} image"
 
 
 class Template(models.Model):
