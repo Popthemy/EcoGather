@@ -1,10 +1,16 @@
 from rest_framework import serializers
-from greenplan.models import Program, Organizer, Address, Event, Template,CustomField
+from greenplan.models import Program, Organizer, Address, Event, Template, CustomField, OrganizerImage
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 
 CustomUser = get_user_model()
+
+
+class MiniOrganizerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Organizer
+        fields = ['username', 'type']
 
 
 class AddressSerializer(serializers.ModelSerializer):
@@ -30,6 +36,16 @@ class AddressSerializer(serializers.ModelSerializer):
         return Address.objects.create(organizer_id=organizer.pk, **validated_data)
 
 
+class OrganizerImageSerializer(serializers.ModelSerializer):
+    ''' Display organizer images '''
+    id = serializers.IntegerField(read_only=True)
+    organizer = MiniOrganizerSerializer(read_only=True)
+
+    class Meta:
+        model = OrganizerImage
+        fields = ['id', 'organizer', 'priority', 'image_url']
+
+
 class OrganizerSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True, source='user_id')
     addresses = AddressSerializer(many=True, read_only=True)
@@ -49,12 +65,6 @@ class OrganizerSerializer(serializers.ModelSerializer):
     def get_organizer_events_count(self, organizer):
         return organizer.get_organizer_total_events()
 
-
-class MiniOrganizerSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Organizer
-        fields = ['username', 'type']
 
 
 class MiniEventSerializer(serializers.ModelSerializer):
@@ -141,7 +151,6 @@ class ProgramSerializer(serializers.ModelSerializer):
             event.save()
 
 
-
 class CreateEventSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -165,10 +174,11 @@ class CreateEventSerializer(serializers.ModelSerializer):
 
         raise serializers.ValidationError('user or program are required')
 
+
 class MiniCustomFieldSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomField
-        fields = ['id','label','content']
+        fields = ['id', 'label', 'content']
 
 
 class CustomFieldSerializer(serializers.ModelSerializer):
@@ -176,7 +186,8 @@ class CustomFieldSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomField
-        fields = ['id','template','label','content','start_time','end_time']
+        fields = ['id', 'template', 'label',
+                  'content', 'start_time', 'end_time']
 
     def create(self, validated_data):
         user = self.context['user']
@@ -184,18 +195,20 @@ class CustomFieldSerializer(serializers.ModelSerializer):
 
         event = get_object_or_404(Event, templates=template_pk)
         if not user.is_staff or event.organizer.user != user:
-            raise serializers.ValidationError('You are not allowed to add field to this template. NOT ORGANIZER')
+            raise serializers.ValidationError(
+                'You are not allowed to add field to this template. NOT ORGANIZER')
 
-        return CustomField.objects.create(template_id=template_pk,**validated_data)
-    
+        return CustomField.objects.create(template_id=template_pk, **validated_data)
+
     def update(self, instance, validated_data):
         user = self.context['user']
         template_pk = self.context['template_pk']
 
         event = get_object_or_404(Event, templates=template_pk)
 
-        if  not user.is_staff and event.organizer.user != user:
-            raise serializers.ValidationError('You are not allowed to add field to this template. NOT ORGANIZER')
+        if not user.is_staff and event.organizer.user != user:
+            raise serializers.ValidationError(
+                'You are not allowed to add field to this template. NOT ORGANIZER')
 
         return super().update(instance, validated_data)
 
@@ -207,20 +220,20 @@ class TemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Template
-        fields = ['id', 'code', 'title','event' ,'custom_fields' ,'slug', 'description']
+        fields = ['id', 'code', 'title', 'event',
+                  'custom_fields', 'slug', 'description']
 
-    def check_user_and_event_return_event(self,user,event_pk):
+    def check_user_and_event_return_event(self, user, event_pk):
         if event_pk <= 0:
             raise serializers.ValidationError(
                 'Event id must be positive e.g 1,2,3')
 
-        event = get_object_or_404(Event,pk=event_pk)
+        event = get_object_or_404(Event, pk=event_pk)
         if not user.is_staff:
             if event.organizer.user != user:
                 raise serializers.ValidationError(
                     'You are not the organizer of this event ')
         return event
-
 
     def create(self, validated_data):
         '''Create a template with an event, we should make sure that the user is the
@@ -229,20 +242,20 @@ class TemplateSerializer(serializers.ModelSerializer):
         user = self.context['user']
         pk = self.context['event_pk']
 
-        event = self.check_user_and_event_return_event(user=user,event_pk=pk)
+        event = self.check_user_and_event_return_event(user=user, event_pk=pk)
 
         template = Template.objects.create(
-            owner_id = event.organizer.user.id,
+            owner_id=event.organizer.user.id,
             event_id=pk,
             **validated_data
         )
         return template
-    
+
     def update(self, instance, validated_data):
 
         user = self.context['user']
         pk = self.context['event_pk']
-        event = self.check_user_and_event_return_event(user=user,event_pk=pk)
+        event = self.check_user_and_event_return_event(user=user, event_pk=pk)
 
         return super().update(instance, validated_data)
 
@@ -250,7 +263,7 @@ class TemplateSerializer(serializers.ModelSerializer):
 class MiniTemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Template
-        fields = ['id','code','title', 'custom_fields']
+        fields = ['id', 'code', 'title', 'custom_fields']
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -262,7 +275,7 @@ class EventSerializer(serializers.ModelSerializer):
     organizer_url = serializers.HyperlinkedRelatedField(
         queryset=Organizer.objects.all(),
         view_name='organizers-detail', source='organizer'
-        )
+    )
     event_status = serializers.SerializerMethodField()
     program = serializers.StringRelatedField()
     templates = TemplateSerializer(many=True)
@@ -270,7 +283,7 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = ['id', 'code', 'title', 'slug', 'organizer', 'organizer_url', 'description', 'templates', 'program', 'is_private',
-                      'venue', 'city', 'event_status', 'start_datetime', 'end_datetime', 'contact_email', 'contact_phone_number']
+                  'venue', 'city', 'event_status', 'start_datetime', 'end_datetime', 'contact_email', 'contact_phone_number']
 
     def get_event_status(self, event):
         return event.get_event_status()

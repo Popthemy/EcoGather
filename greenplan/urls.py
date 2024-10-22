@@ -1,5 +1,5 @@
 from django.urls import path,include
-from greenplan import views
+from greenplan import views,image_views as im_views
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
@@ -22,5 +22,8 @@ urlpatterns = [
     path('events/<int:event_pk>/templates/<int:pk>/',view=views.EventTemplateDetailApiView.as_view(),name='event_templates_detail'),
     path('templates/<int:template_pk>/custom_fields/',view=views.CustomFieldApiView.as_view(),name='template_custom_fields'),
     path('templates/<int:template_pk>/custom_fields/<int:pk>/',view=views.CustomFieldDetailApiView.as_view(),name='template_custom_fields_detail'),
+
+    #images 
+    path('organizer_images/', im_views.ListOrganizerImageApiView.as_view(), name='all_organizer_images'),
 
 ]
