@@ -10,7 +10,6 @@ from .managers import OrganizerManager, AddressManager, EventManager
 # Create your models here.
 
 
-
 class Organizer(BaseSocialMediaLink):
     """ Similar to the profile model in apps"""
 
@@ -45,32 +44,36 @@ class Organizer(BaseSocialMediaLink):
         return f"{self.username} - {self.phone_number}"
 
     def get_organizer_total_events(self):
-        ''' Count the number of time an organizer has organized an event'''
-        return self.organizer.count()
+        ''' Count the number of time an organizer has organized an event , 
+        the event model has a related_name of the organizer set to events'''
+        return self.events.count()
+
 
 class OrganizerImage(models.Model):
-    MAIN ='MAIN'
+    MAIN = 'MAIN'
     SUB = "SUB"
-    NEUTRAL = "SUB"
+    NEUTRAL = "NEUTRAL"
 
-    IMAGE_CHOICE =(
-        (MAIN,'main'),(SUB,'sub'), (NEUTRAL,'neutral')
+    IMAGE_CHOICE = (
+        (MAIN, 'main'), (SUB, 'sub'), (NEUTRAL, 'neutral')
     )
 
-    organizer = models.ForeignKey(Organizer, on_delete=models.CASCADE,related_name='images')
-    image_url = models.ImageField(null=True,blank=True,upload_to='organizers/',default='default_organizer.png')
-    type = models.CharField( max_length=20,choices=IMAGE_CHOICE,default=NEUTRAL)
+    organizer = models.ForeignKey(
+        Organizer, on_delete=models.CASCADE, related_name='images')
+    image_url = models.ImageField(
+        null=True, blank=True, upload_to='organizers/', default='default_organizer.png')
+    type = models.CharField(
+        max_length=20, choices=IMAGE_CHOICE, default=NEUTRAL)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['type','updated_at','organizer']
+        ordering = ['type', 'updated_at', 'organizer']
 
-    def save(self,*args, **kwargs):
+    def save(self, *args, **kwargs):
         if self.image_url == '':
             self.image_url = 'default_organizer.png'
         super().save(*args, **kwargs)
-
 
     def __str__(self) -> str:
         return f"{self.organizer.username} {self.type} image"
@@ -126,15 +129,17 @@ class Event(models.Model):
     description = models.TextField(null=True, blank=True)
     program = models.ForeignKey(
         Program, on_delete=models.PROTECT, related_name='events', null=True)
-    venue = models.CharField(max_length=255,help_text="Exact location where the event is taking place e.g The Great hall,Lautech")
-    city = models.CharField(max_length=255,help_text="City or state the event could be taking place e.g Ogbomoso")
+    venue = models.CharField(
+        max_length=255, help_text="Exact location where the event is taking place e.g The Great hall,Lautech")
+    city = models.CharField(
+        max_length=255, help_text="City or state the event could be taking place e.g Ogbomoso")
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
     contact_email = models.EmailField(null=True, blank=True)
     contact_phone_number = models.CharField(
         max_length=20, null=True, blank=True)
     organizer = models.ForeignKey(
-        Organizer, on_delete=models.CASCADE, related_name='organizer')
+        Organizer, on_delete=models.CASCADE, related_name='events')
     slug = models.SlugField(unique=True, blank=True, null=True,
                             help_text="A slug is a URL-friendly version of the title. It should contain only letters, numbers, hyphens, and underscores. It will be used in URLs to identify this item."
                             )
@@ -183,7 +188,7 @@ class Event(models.Model):
 
 class Template(models.Model):
     owner = models.ForeignKey(
-        Organizer,on_delete=models.CASCADE, related_name='template_owner')
+        Organizer, on_delete=models.CASCADE, related_name='owned_templates')
 
     code = models.CharField(
         max_length=50,
@@ -216,7 +221,7 @@ class Template(models.Model):
         code = character + digit
         return ''.join(code)
 
-    def clone(self,user, new_template=None):
+    def clone(self, user, new_template=None):
         '''This help template to be reused, user an decide to clone their template 
         or another users template provided it is available.'''
 
