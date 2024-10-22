@@ -4,9 +4,9 @@ from django.db.models.query import QuerySet
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest
 from django.utils import timezone
-from django.utils.html import format_html, urlencode
+from django.utils.html import format_html
 from django.urls import reverse
-from greenplan.models import Event, Template, CustomField, Program, Organizer, Address
+from greenplan.models import Event, Template, CustomField, Program, Organizer, OrganizerImage, Address
 # Register your models here.
 
 
@@ -28,6 +28,17 @@ class OrganizerAdmin(admin.ModelAdmin):
     class Meta:
         model = Organizer
         fields = "__all__"
+
+
+@admin.register(OrganizerImage)
+class OrganizerImageAdmin(admin.ModelAdmin):
+    fields = ('organizer', 'image_url', 'type')
+    list_display = ('organizer', 'type', 'image_url','get_image_url')
+
+    def get_image_url(self,organizer_image):
+        '''Render the image directly in the admin panel'''
+        return format_html(f"<img src='{organizer_image.image_url.url}' alt='{organizer_image.organizer.username}' style='max-width=50px; max-height=50px;'>")
+
 
 
 @admin.register(Program)
@@ -86,7 +97,7 @@ class EventAdmin(admin.ModelAdmin):
     autocomplete_fields = ['program']
     prepopulated_fields = {'slug': ['title', 'code']}
     fields = ['code', 'title',  'organizer', 'slug', 'program', 'is_private', 'description',
-              'start_datetime', 'end_datetime', 'venue','city', 'contact_email', 'contact_phone_number']
+              'start_datetime', 'end_datetime', 'venue', 'city', 'contact_email', 'contact_phone_number']
     list_display = ['id', 'code', 'title', 'organizer', 'event_status', 'program', 'is_private',
                     'venue', 'start_datetime', 'end_datetime']
     list_editable = ['title', 'organizer', 'is_private', 'venue']
@@ -157,7 +168,7 @@ class CustomFieldAdmin(admin.ModelAdmin):
     fields = ['template', 'label',
               'content', 'start_time', 'end_time']
 
-    list_display = ['id','template', 'label',
+    list_display = ['id', 'template', 'label',
                     'content', 'start_time', 'end_time']
 
     list_editable = ['label', 'content', 'start_time', 'end_time']

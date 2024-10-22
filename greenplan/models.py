@@ -10,6 +10,7 @@ from .managers import OrganizerManager, AddressManager, EventManager
 # Create your models here.
 
 
+
 class Organizer(BaseSocialMediaLink):
     """ Similar to the profile model in apps"""
 
@@ -46,6 +47,33 @@ class Organizer(BaseSocialMediaLink):
     def get_organizer_total_events(self):
         ''' Count the number of time an organizer has organized an event'''
         return self.organizer.count()
+
+class OrganizerImage(models.Model):
+    MAIN ='MAIN'
+    SUB = "SUB"
+    NEUTRAL = "SUB"
+
+    IMAGE_CHOICE =(
+        (MAIN,'main'),(SUB,'sub'), (NEUTRAL,'neutral')
+    )
+
+    organizer = models.ForeignKey(Organizer, on_delete=models.CASCADE,related_name='images')
+    image_url = models.ImageField(null=True,blank=True,upload_to='organizers/',default='default_organizer.png')
+    type = models.CharField( max_length=20,choices=IMAGE_CHOICE,default=NEUTRAL)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['type','updated_at','organizer']
+
+    def save(self,*args, **kwargs):
+        if self.image_url == '':
+            self.image_url = 'default_organizer.png'
+        super().save(*args, **kwargs)
+
+
+    def __str__(self) -> str:
+        return f"{self.organizer.username} {self.type} image"
 
 
 class Address(models.Model):

@@ -18,6 +18,10 @@ from django.contrib import admin
 from django.urls import path,include
 from debug_toolbar.toolbar import debug_toolbar_urls
 
+# Adding images fun
+from django.conf import settings
+from django.conf.urls.static import static
+
 admin.site.site_title = 'Green Admin'
 admin.site.site_header = 'EcoGather: A Greener Way to Event Planning'
 
@@ -27,3 +31,6 @@ urlpatterns = [
     path('api/', include('greenplan.urls')),
     path('users/', include('myuser.urls')),
 ] + debug_toolbar_urls()
+
+#addimg imagr url
+urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
