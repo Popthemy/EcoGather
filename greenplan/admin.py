@@ -22,8 +22,15 @@ class AddressAdmin(admin.ModelAdmin):
     search_fields = ('city', 'state', 'country')
 
 
+class OrganizerImageInline(admin.TabularInline):
+    model = OrganizerImage
+    extra = 2
+
+
 @admin.register(Organizer)
 class OrganizerAdmin(admin.ModelAdmin):
+    inlines = [OrganizerImageInline]
+    search_fields = ['username__icontains', 'first_name__icontains','email__exact']
 
     class Meta:
         model = Organizer
@@ -32,8 +39,10 @@ class OrganizerAdmin(admin.ModelAdmin):
 
 @admin.register(OrganizerImage)
 class OrganizerImageAdmin(admin.ModelAdmin):
+    autocomplete_fields = ['organizer']
     fields = ('organizer', 'image_url', 'priority')
     list_display = ('organizer', 'priority', 'image_url', 'get_image_url')
+    search_fields = ['organizer']
 
     def get_image_url(self, organizer_image):
         '''Render the image directly in the admin panel and styling'''
@@ -68,15 +77,6 @@ class ProgramAdmin(admin.ModelAdmin):
         return super().get_queryset(request).annotate(event_count=Count('events'))
 
 
-@admin.register(EventImage)
-class EventImageAdmin(admin.ModelAdmin):
-    fields = ('event', 'image_url', 'priority')
-    list_display = ('event', 'priority', 'image_url', 'get_image_url')
-
-    def get_image_url(self, event_image):
-        '''Render the image directly in the admin panel and styling'''
-        return format_html(f"<img src='{event_image.image_url.url}' alt='{event_image.event.title}'style='max-width=50px; max-height=50px;  \
-                           width: 40px; height: 40px; border-radius: 50%; object-fit: contain; object-position: right;'>")
 
 
 class EventStatusFilter(admin.SimpleListFilter):
@@ -103,12 +103,27 @@ class EventStatusFilter(admin.SimpleListFilter):
         return queryset
 
 
+@admin.register(EventImage)
+class EventImageAdmin(admin.ModelAdmin):
+    fields = ('event', 'image_url', 'priority')
+    list_display = ('event', 'priority', 'image_url', 'get_image_url')
+
+    def get_image_url(self, event_image):
+        '''Render the image directly in the admin panel and styling'''
+        return format_html(f"<img src='{event_image.image_url.url}' alt='{event_image.event.title}'style='max-width=50px; max-height=50px;  \
+                           width: 40px; height: 40px; border-radius: 50%; object-fit: contain; object-position: right;'>")
+
+class EventImageInline(admin.TabularInline):
+    model = EventImage
+    extra = 2
+
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     autocomplete_fields = ['program']
     prepopulated_fields = {'slug': ['title', 'code']}
     fields = ['code', 'title',  'organizer', 'slug', 'program', 'is_private', 'description',
               'start_datetime', 'end_datetime', 'venue', 'city', 'contact_email', 'contact_phone_number']
+    inlines = [EventImageInline]
     list_display = ['id', 'code', 'title', 'organizer', 'event_status', 'program', 'is_private',
                     'venue', 'start_datetime', 'end_datetime']
     list_editable = ['title', 'organizer', 'is_private', 'venue']
