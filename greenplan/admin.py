@@ -30,7 +30,8 @@ class OrganizerImageInline(admin.TabularInline):
 @admin.register(Organizer)
 class OrganizerAdmin(admin.ModelAdmin):
     inlines = [OrganizerImageInline]
-    search_fields = ['username__icontains', 'first_name__icontains','email__exact']
+    search_fields = ['username__icontains',
+                     'first_name__icontains', 'email__exact']
 
     class Meta:
         model = Organizer
@@ -77,8 +78,6 @@ class ProgramAdmin(admin.ModelAdmin):
         return super().get_queryset(request).annotate(event_count=Count('events'))
 
 
-
-
 class EventStatusFilter(admin.SimpleListFilter):
     title = 'event_status'
     parameter_name = 'event_status'
@@ -111,11 +110,13 @@ class EventImageAdmin(admin.ModelAdmin):
     def get_image_url(self, event_image):
         '''Render the image directly in the admin panel and styling'''
         return format_html(f"<img src='{event_image.image_url.url}' alt='{event_image.event.title}'style='max-width=50px; max-height=50px;  \
-                           width: 40px; height: 40px; border-radius: 50%; object-fit: contain; object-position: right;'>")
+                           width: 40px; height: 40px; border-radius: 50%; object-fit: contain; object-position: center;'>")
+
 
 class EventImageInline(admin.TabularInline):
     model = EventImage
     extra = 2
+
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):

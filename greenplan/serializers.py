@@ -45,6 +45,31 @@ class OrganizerImageSerializer(serializers.ModelSerializer):
         model = OrganizerImage
         fields = ['id', 'organizer', 'priority', 'image_url']
 
+    def validate_org_id(self, organizer_id):
+        ''' Validate the user who is trying to add image,
+        the person must be staff or the current logged in user. 
+        Raise if the organizer id doesn't match the currently logged in user and is not a staff'''
+
+        user = self.context['user']
+
+        if not user.is_staff and user.id != organizer_id:
+            raise serializers.ValidationError(
+                'You are trying to add image for another Organizer, but you can only add image for yourself.')
+
+    def create(self, validated_data):
+        '''Create new image for organizer with the attached id.'''
+        organizer_pk = self.context['organizer_pk']
+
+        self.validate_org_id(organizer_id=organizer_pk)
+
+        organizer = OrganizerImage()
+        organizer.organizer_id = organizer_pk
+        organizer.priority = validated_data.get('priority') or OrganizerImage.priority.default
+        organizer.image_url = validated_data.get(
+            'image_url') or OrganizerImage.image_url.field.default
+        organizer.save()
+        return organizer
+
 
 class OrganizerSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only=True, source='user_id')
@@ -64,7 +89,6 @@ class OrganizerSerializer(serializers.ModelSerializer):
 
     def get_organizer_events_count(self, organizer):
         return organizer.get_organizer_total_events()
-
 
 
 class MiniEventSerializer(serializers.ModelSerializer):

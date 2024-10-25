@@ -77,7 +77,7 @@ class OrganizerImage(models.Model):
         ordering = ['priority', 'updated_at']
 
     def save(self, *args, **kwargs):
-        if self.image_url == '':
+        if self.image_url is None:
             self.image_url = 'default_organizer.png'
         super().save(*args, **kwargs)
 
