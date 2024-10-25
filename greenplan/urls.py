@@ -23,8 +23,9 @@ urlpatterns = [
     path('templates/<int:template_pk>/custom_fields/<int:pk>/',view=views.CustomFieldDetailApiView.as_view(),name='template_custom_fields_detail'),
 
     #images
-    path('organizers/images/', im_views.ListOrganizerImageApiView.as_view(), name='all_organizer_images'),
-    path('organizers/<uuid:organizer_pk>/images/',im_views.OrganizerImageApiView.as_view(),name='create_organizer_image'),
+    path('organizers/images/', im_views.ListOrganizerImageApiView.as_view(), name='all_organizers_images'),
+    path('organizers/<uuid:organizer_pk>/images/',im_views.OrganizerImageApiView.as_view(),name='organizer_images'),
+    path('organizers/<uuid:organizer_pk>/images/<int:pk>/', im_views.OrganizerImageDetailApiView.as_view(),name='organizer_image_details'),
 
     
     path('',include(router.urls)),

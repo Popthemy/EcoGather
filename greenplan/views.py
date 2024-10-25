@@ -341,6 +341,7 @@ class EventTemplateDetailApiView(GenericAPIView):
         user = self.request.user
         event_pk = self.kwargs['event_pk']
         template_pk = self.kwargs['pk']
+        
         event = get_object_or_404(Event, pk=event_pk)
 
         if user.is_staff or event.organizer.user == user:

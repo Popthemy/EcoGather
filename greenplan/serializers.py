@@ -1,8 +1,11 @@
-from rest_framework import serializers
-from greenplan.models import Program, Organizer, Address, Event, Template, CustomField, OrganizerImage
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils.html import format_html
+
+from rest_framework import serializers
+from greenplan.models import Program, Organizer, Address, Event, Template, CustomField, OrganizerImage
+
 
 CustomUser = get_user_model()
 
@@ -38,6 +41,7 @@ class AddressSerializer(serializers.ModelSerializer):
 
 class OrganizerImageSerializer(serializers.ModelSerializer):
     ''' Display organizer images '''
+
     id = serializers.IntegerField(read_only=True)
     organizer = MiniOrganizerSerializer(read_only=True)
 
@@ -64,11 +68,24 @@ class OrganizerImageSerializer(serializers.ModelSerializer):
 
         organizer = OrganizerImage()
         organizer.organizer_id = organizer_pk
-        organizer.priority = validated_data.get('priority') or OrganizerImage.priority.default
+        organizer.priority = validated_data.get(
+            'priority') or OrganizerImage.priority.default
         organizer.image_url = validated_data.get(
             'image_url') or OrganizerImage.image_url.field.default
         organizer.save()
         return organizer
+
+    def update(self, instance, validated_data):
+        '''Only the organizer or staff can edit their image detail'''
+
+        organizer_pk = self.context['organizer_pk']
+
+        self.validate_org_id(organizer_id=organizer_pk)
+
+        if 'image_url' in validated_data and validated_data['image_url'] is None:
+            validated_data['image_url'] = instance.image_url
+
+        return super().update(instance, validated_data)
 
 
 class OrganizerSerializer(serializers.ModelSerializer):

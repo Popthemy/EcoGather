@@ -47,7 +47,7 @@ class OrganizerImageAdmin(admin.ModelAdmin):
 
     def get_image_url(self, organizer_image):
         '''Render the image directly in the admin panel and styling'''
-        return format_html(f"<img src='{organizer_image.image_url.url}' alt='{organizer_image.organizer.username}'style='max-width=50px; max-height=50px;  \
+        return format_html(f"<img src='{organizer_image.image_url.url}' alt='{organizer_image.organizer.username}' style='max-width=50px; max-height=50px;  \
                            width: 40px; height: 40px; border-radius: 50%; object-fit: contain; object-position: right;'>")
 
 
