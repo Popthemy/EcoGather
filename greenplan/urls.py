@@ -25,9 +25,10 @@ urlpatterns = [
     #images
     path('organizers/images/', im_views.ListOrganizerImageApiView.as_view(), name='all_organizers_images'),
     path('organizers/<uuid:organizer_pk>/images/',im_views.OrganizerImageApiView.as_view(),name='organizer_images'),
-    path('organizers/<uuid:organizer_pk>/images/<int:pk>/', im_views.OrganizerImageDetailApiView.as_view(),name='organizer_image_details'),
+    path('organizers/<uuid:organizer_pk>/images/<int:pk>/', im_views.OrganizerImageDetailApiView.as_view(),name='organizer_image_detail'),
     path('events/images/',im_views.ListEvenImageApiView.as_view(),name='all_events_images'),
     path('events/<int:event_pk>/images/',im_views.EventImageApiView.as_view(),name='event_images'),
+    path('events/<int:event_pk>/images/<int:pk>/',im_views.EventImageDetailApiView.as_view(),name='event_image_detail'),
 
     path('',include(router.urls)),
 
