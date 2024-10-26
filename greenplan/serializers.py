@@ -66,14 +66,14 @@ class OrganizerImageSerializer(serializers.ModelSerializer):
 
         self.validate_org_id(organizer_id=organizer_pk)
 
-        organizer = OrganizerImage()
-        organizer.organizer_id = organizer_pk
-        organizer.priority = validated_data.get(
+        instance = OrganizerImage()
+        instance.organizer_id = organizer_pk
+        instance.priority = validated_data.get(
             'priority') or OrganizerImage.priority.default
-        organizer.image_url = validated_data.get(
+        instance.image_url = validated_data.get(
             'image_url') or OrganizerImage.image_url.field.default
-        organizer.save()
-        return organizer
+        instance.save()
+        return instance
 
     def update(self, instance, validated_data):
         '''Only the organizer or staff can edit their image detail'''
@@ -341,38 +341,34 @@ class EventImageSerializer(serializers.ModelSerializer):
         model = EventImage
         fields = ['id', 'event', 'priority', 'image_url']
 
-    def validate_org_id(self, event_id):
-        ''' Validate the user who is trying to add image,
-        the person must be staff or the current logged in user. 
-        Raise if the organizer id doesn't match the currently logged in user and is not a staff'''
-
+    def validate_event_owner(self,event_id):
+        '''Check if the current user is a staff or the organizer of an event.'''
         user = self.context['user']
+        event = get_object_or_404(Event, id=event_id)
 
-        if not user.is_staff and user.id != event_id:
+        if not user.is_staff and event.organizer.user != user:
             raise serializers.ValidationError(
-                'You are trying to add image for another Organizer, but you can only add image for yourself.')
+                'You are trying to add image to someone else event, but you can only add image for your event.')
 
     def create(self, validated_data):
         '''Create new image for organizer with the attached id.'''
-        organizer_pk = self.context['organizer_pk']
+        event_pk = self.context['event_pk']
+        self.validate_event_owner(event_id=event_pk)
 
-        self.validate_org_id(organizer_id=organizer_pk)
-
-        organizer = OrganizerImage()
-        organizer.organizer_id = organizer_pk
-        organizer.priority = validated_data.get(
-            'priority') or OrganizerImage.priority.default
-        organizer.image_url = validated_data.get(
-            'image_url') or OrganizerImage.image_url.field.default
-        organizer.save()
-        return organizer
+        instance = EventImage()
+        instance.event_id = event_pk
+        instance.priority = validated_data.get(
+            'priority') or EventImage.priority.default
+        instance.image_url = validated_data.get(
+            'image_url') or EventImage.image_url.field.default
+        instance.save()
+        return instance
 
     def update(self, instance, validated_data):
-        '''Only the organizer or staff can edit their image detail'''
+        '''Only the organizer or staff can edit their event image detail'''
 
-        organizer_pk = self.context['organizer_pk']
-
-        self.validate_org_id(organizer_id=organizer_pk)
+        event_pk = self.context['event_pk']
+        self.validate_event_owner(event_id=event_pk)
 
         if 'image_url' in validated_data and validated_data['image_url'] is None:
             validated_data['image_url'] = instance.image_url
