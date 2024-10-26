@@ -26,7 +26,7 @@ urlpatterns = [
     path('organizers/images/', im_views.ListOrganizerImageApiView.as_view(), name='all_organizers_images'),
     path('organizers/<uuid:organizer_pk>/images/',im_views.OrganizerImageApiView.as_view(),name='organizer_images'),
     path('organizers/<uuid:organizer_pk>/images/<int:pk>/', im_views.OrganizerImageDetailApiView.as_view(),name='organizer_image_details'),
-
+    path('events/images/',im_views.ListEvenImageApiView.as_view(),name='all_events_images'),
     
     path('',include(router.urls)),
 

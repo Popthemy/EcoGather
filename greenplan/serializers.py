@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 
 from rest_framework import serializers
-from greenplan.models import Program, Organizer, Address, Event, Template, CustomField, OrganizerImage
+from greenplan.models import Program, Organizer, Address, Event, Template, CustomField, OrganizerImage, EventImage
 
 
 CustomUser = get_user_model()
@@ -328,3 +328,53 @@ class EventSerializer(serializers.ModelSerializer):
 
     def get_event_status(self, event):
         return event.get_event_status()
+
+
+
+class EventImageSerializer(serializers.ModelSerializer):
+    ''' Display event images '''
+
+    id = serializers.IntegerField(read_only=True)
+    event = MiniEventSerializer(read_only=True)
+
+    class Meta:
+        model = EventImage
+        fields = ['id', 'event', 'priority', 'image_url']
+
+    def validate_org_id(self, event_id):
+        ''' Validate the user who is trying to add image,
+        the person must be staff or the current logged in user. 
+        Raise if the organizer id doesn't match the currently logged in user and is not a staff'''
+
+        user = self.context['user']
+
+        if not user.is_staff and user.id != event_id:
+            raise serializers.ValidationError(
+                'You are trying to add image for another Organizer, but you can only add image for yourself.')
+
+    def create(self, validated_data):
+        '''Create new image for organizer with the attached id.'''
+        organizer_pk = self.context['organizer_pk']
+
+        self.validate_org_id(organizer_id=organizer_pk)
+
+        organizer = OrganizerImage()
+        organizer.organizer_id = organizer_pk
+        organizer.priority = validated_data.get(
+            'priority') or OrganizerImage.priority.default
+        organizer.image_url = validated_data.get(
+            'image_url') or OrganizerImage.image_url.field.default
+        organizer.save()
+        return organizer
+
+    def update(self, instance, validated_data):
+        '''Only the organizer or staff can edit their image detail'''
+
+        organizer_pk = self.context['organizer_pk']
+
+        self.validate_org_id(organizer_id=organizer_pk)
+
+        if 'image_url' in validated_data and validated_data['image_url'] is None:
+            validated_data['image_url'] = instance.image_url
+
+        return super().update(instance, validated_data)
