@@ -6,8 +6,6 @@ router = DefaultRouter()
 router.register('organizers',viewset=views.OrganizerViewSet,basename='organizers')
 
 
-
-
 urlpatterns = [
     path('organizers/<uuid:organizer_pk>/addresses/', view=views.AddressApiView.as_view(), name='addresses'),
     path('organizers/<uuid:organizer_pk>/addresses/<int:pk>/', view=views.AddressDetailApiView.as_view(), name='address_detail'),

@@ -330,7 +330,6 @@ class EventSerializer(serializers.ModelSerializer):
         return event.get_event_status()
 
 
-
 class EventImageSerializer(serializers.ModelSerializer):
     ''' Display event images '''
 
@@ -341,7 +340,7 @@ class EventImageSerializer(serializers.ModelSerializer):
         model = EventImage
         fields = ['id', 'event', 'priority', 'image_url']
 
-    def validate_event_owner(self,event_id):
+    def validate_event_owner(self, event_id):
         '''Check if the current user is a staff or the organizer of an event.'''
         user = self.context['user']
         event = get_object_or_404(Event, id=event_id)

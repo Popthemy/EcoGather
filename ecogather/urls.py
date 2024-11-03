@@ -25,12 +25,20 @@ from django.conf.urls.static import static
 admin.site.site_title = 'Green Admin'
 admin.site.site_header = 'EcoGather: A Greener Way to Event Planning'
 
+
+# Version 1 URLs
+urlpatterns_v1 = [
+    path('users/', include('myuser.urls')),
+    path('', include('greenplan.urls')),
+]
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('playground/', include('myutils.urls')),
-    path('api/', include('greenplan.urls')),
-    path('users/', include('myuser.urls')),
+    path('api/v1/', include(urlpatterns_v1)),
 ] + debug_toolbar_urls()
 
-#addimg imagr url
-urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
+
+if settings.DEBUG:
+    #adding image url only in production
+    urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
