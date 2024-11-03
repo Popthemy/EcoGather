@@ -6,6 +6,7 @@ from django.utils import timezone, text
 from django.db import transaction
 from django.core.exceptions import ValidationError
 from myutils.models import BaseSocialMediaLink
+from .validators import validate_file_size
 from .managers import OrganizerManager, AddressManager, EventManager
 # Create your models here.
 
@@ -64,6 +65,7 @@ class OrganizerImage(models.Model):
         Organizer, on_delete=models.CASCADE, related_name='images')
     image_url = models.ImageField(
         null=True, blank=True, upload_to='organizers/', default='default_organizer.png',
+        validators=[validate_file_size],
         help_text='Images can be about what you do.')
 
     priority = models.CharField(
@@ -211,6 +213,7 @@ class EventImage(models.Model):
     )
     image_url = models.ImageField(
         null=True, blank=True, upload_to='events/', default='default_event.png',
+        validators=[validate_file_size],
         help_text='Images can be a flyer or from previously held similar events.'
     )
     priority = models.CharField(
