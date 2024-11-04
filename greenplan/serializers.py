@@ -162,7 +162,7 @@ class MiniProgramSerializer(serializers.ModelSerializer):
         featured_event_id = validated_data.pop('featured_event_id', None)
         program = Program.objects.create(**validated_data)
 
-        if featured_event_id is None:
+        if featured_event_id is not None:
             self.check_featured_event_program_clashes(
                 instance=program, event_id=featured_event_id)
             program.featured_event_id = featured_event_id
