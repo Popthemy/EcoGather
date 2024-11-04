@@ -12,7 +12,7 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from .models import Organizer, Address, Program, Event, Template, CustomField
 from .serializers import CreateEventSerializer, OrganizerSerializer, \
-    AddressSerializer, ProgramSerializer, EventSerializer, MiniEventSerializer, TemplateSerializer, MiniTemplateSerializer, CustomFieldSerializer
+    AddressSerializer, ProgramSerializer, MiniProgramSerializer ,EventSerializer, MiniEventSerializer, TemplateSerializer, MiniTemplateSerializer, CustomFieldSerializer
 from .permissions import IsAdminOrReadonly, IsOrganizerOrReadOnly
 
 # Create your views here.
@@ -96,11 +96,11 @@ class ProgramApiView(GenericAPIView):
     Only Admin is allowed to create new program.'''
 
     queryset = Program.objects.all()
-    serializer_class = ProgramSerializer
+    serializer_class = MiniProgramSerializer
     permission_classes = [IsAdminOrReadonly]
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
-    filterset_fields = ('title', 'events__title')
-    search_fields = ('title', 'featured_event__title', 'events__title')
+    filterset_fields = ('title',)
+    search_fields = ('title', 'featured_event__title')
 
     def get(self, request, *args, **kwargs):
         programs = self.filter_queryset(self.get_queryset())
@@ -133,17 +133,17 @@ class ProgramApiView(GenericAPIView):
 class ProgramDetailApiView(RetrieveUpdateDestroyAPIView):
     """Provide functionality:
     get: for all users
-    put/patch and delete for admin users """
+    put/patch and delete for admin"""
 
-    queryset = Program.objects.all()
     serializer_class = ProgramSerializer
     permission_classes = [IsAdminOrReadonly]
+
+    def get_object(self):
+        return get_object_or_404(Program,pk=self.kwargs['pk'])
 
     def destroy(self, request, *args, **kwargs):
         """We shouldn't delete program that have events linked to them so we raise an error."""
 
-        # pk = self.kwargs['pk']
-        # program = get_object_or_404(Program,pk=pk)
         program = self.get_object()
         if program.events.count() > 0:
             return Response({'error': 'Program is linked to an events. Unlink the event to delete this program.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)

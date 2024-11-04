@@ -121,22 +121,23 @@ class MiniEventSerializer(serializers.ModelSerializer):
     def get_event_status(self, event):
         return event.get_event_status()
 
+class MiniProgramSerializer(serializers.ModelSerializer):
+    '''Responsible for creating the a new program by Admin '''
 
-class ProgramSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     featured_event = MiniEventSerializer(read_only=True)
     featured_event_id = serializers.IntegerField(
-        write_only=True, required=False)
-    events = MiniEventSerializer(many=True, read_only=True)
+        write_only=True, required=False) #for creating
     program_event_count = serializers.SerializerMethodField()
     program_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Program
         fields = ['id', 'title', 'program_event_count', 'program_url',
-                  'featured_event', 'featured_event_id', 'events']
+                  'featured_event','featured_event_id']
 
     def validate_featured_event_id(self, value):
+        '''Check if the event id is grater than zero and if it exists'''
         if value <= 0:
             raise serializers.ValidationError(
                 'featured event id must be greater the 0 e.g 1,2,3')
@@ -144,6 +145,7 @@ class ProgramSerializer(serializers.ModelSerializer):
         return value
 
     def get_program_event_count(self, program):
+        '''Total number of events linked to a program'''
         return program.events.count()
 
     def get_program_url(self, program):
@@ -166,6 +168,33 @@ class ProgramSerializer(serializers.ModelSerializer):
             program.featured_event_id = featured_event_id
             program.save()
         return program
+    
+    def check_featured_event_program_clashes(self, instance: Program, event_id):
+        '''Handle if there is a conflict:
+        An event from program Convention` shouldn't be made featured_event of program `Webinar`
+        This automatically makes sure a featured event belong to the program '''
+
+        event = Event.objects.filter(pk=event_id).first()
+
+        if event.program != instance.title:
+            event.program_id = instance.id
+            event.save()
+
+class ProgramSerializer(serializers.ModelSerializer):
+    ''' Handles update and delete '''
+    id = serializers.IntegerField(read_only=True)
+    featured_event = MiniEventSerializer(read_only=True)
+    events = MiniEventSerializer(many=True, read_only=True)
+    program_event_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Program
+        fields = ['id', 'title', 'program_event_count',
+                  'featured_event', 'events']
+
+    def get_program_event_count(self, program):
+        '''Total number of events linked to a program'''
+        return program.events.count()
 
     def update(self, instance, validated_data):
         """ Updating the program might involve removing its linked event or linking event."""
@@ -177,13 +206,12 @@ class ProgramSerializer(serializers.ModelSerializer):
                 instance=instance, event_id=featured_event_id)
             instance.featured_event_id = featured_event_id
             instance.save()
-
         return instance
 
     def check_featured_event_program_clashes(self, instance: Program, event_id):
         '''Handle if there is a conflict:
         An event from program Convention` shouldn't be made featured_event of program `Webinar`
-        This automatically makes sure a featured event belong to the progra '''
+        This automatically makes sure a featured event belong to the program '''
 
         event = Event.objects.filter(pk=event_id).first()
 
