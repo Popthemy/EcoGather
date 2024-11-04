@@ -92,6 +92,10 @@ class AddressDetailApiView(RetrieveUpdateDestroyAPIView):
 
 
 class ProgramApiView(GenericAPIView):
+    '''This program view give the list of event group into their types.
+    Only Admin is allowed to create new program.'''
+
+    queryset = Program.objects.all()
     serializer_class = ProgramSerializer
     permission_classes = [IsAdminOrReadonly]
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
@@ -99,7 +103,7 @@ class ProgramApiView(GenericAPIView):
     search_fields = ('title', 'featured_event__title', 'events__title')
 
     def get(self, request, *args, **kwargs):
-        programs = self.filter_queryset(Program.objects.all())
+        programs = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(programs, many=True)
 
         data = {

@@ -27,7 +27,7 @@ admin.site.site_header = 'EcoGather: A Greener Way to Event Planning'
 
 
 # Version 1 URLs
-urlpatterns_v1 = [
+first_version = [
     path('users/', include('myuser.urls')),
     path('', include('greenplan.urls')),
 ]
@@ -35,7 +35,7 @@ urlpatterns_v1 = [
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('playground/', include('myutils.urls')),
-    path('api/v1/', include(urlpatterns_v1)),
+    path('api/v1/', include(first_version)),
 ] + debug_toolbar_urls()
 
 
