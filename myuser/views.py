@@ -58,7 +58,7 @@ class LoginView(GenericAPIView):
                 'data': serializer.data
             }
             return Response(data=data, status=status.HTTP_200_OK)
-        
+
         return Response(data={
             'status': 'Error',
             'message': 'Login Unsuccessful',
@@ -71,8 +71,6 @@ class LoginView(GenericAPIView):
 
         user = authenticate(
             request=self.request, username=email, password=password)
-        print(user)
-     
         return user
 
 

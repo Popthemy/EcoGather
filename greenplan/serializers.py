@@ -141,7 +141,9 @@ class MiniProgramSerializer(serializers.ModelSerializer):
         if value <= 0:
             raise serializers.ValidationError(
                 'featured event id must be greater the 0 e.g 1,2,3')
-        get_object_or_404(Event, pk=value)
+
+        if not Event.objects.filter(id=value).exists():
+            raise serializers.ValidationError(f'Event with id: {value} does not exist')
         return value
 
     def get_program_event_count(self, program):
@@ -184,20 +186,32 @@ class ProgramSerializer(serializers.ModelSerializer):
     ''' Handles update and delete '''
     id = serializers.IntegerField(read_only=True)
     featured_event = MiniEventSerializer(read_only=True)
+    featured_event_id = serializers.IntegerField(
+        write_only=True, required=False) 
     events = MiniEventSerializer(many=True, read_only=True)
     program_event_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Program
         fields = ['id', 'title', 'program_event_count',
-                  'featured_event', 'events']
+                  'featured_event','featured_event_id', 'events']
+
+    def validate_featured_event_id(self, value):
+        '''Check if the event id is grater than zero and if it exists'''
+        if value <= 0:
+            raise serializers.ValidationError(
+                'featured event id must be greater the 0 e.g 1,2,3')
+        
+        if not Event.objects.filter(id=value).exists():
+            raise serializers.ValidationError(f'Event with id: {value} does not exist')
+        return value
 
     def get_program_event_count(self, program):
         '''Total number of events linked to a program'''
         return program.events.count()
 
     def update(self, instance, validated_data):
-        """ Updating the program might involve removing its linked event or linking event."""
+        """ Updating the program might involve removing its linked event or linking new event."""
         featured_event_id = validated_data.pop('featured_event_id', None)
         instance = super().update(instance, validated_data)
 
