@@ -55,3 +55,7 @@ class LoginSerializer(serializers.Serializer):
                 raise serializers.ValidationError('Invalid Password!')
             raise serializers.ValidationError('Invalid Email!')
         raise serializers.ValidationError('Email or Password are required!')
+
+
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField()

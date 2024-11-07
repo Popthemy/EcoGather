@@ -5,11 +5,11 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenRefreshView as BaseTokenRefreshView, TokenBlacklistView as BaseTokenBlacklistView
-from rest_framework_simplejwt.serializers import TokenBlacklistSerializer
 from rest_framework_simplejwt.exceptions import TokenError
-
+from rest_framework_simplejwt.tokens import RefreshToken
 from myutils.reusable_func import get_jwt_tokens
-from .serializers import UserSerializer, LoginSerializer
+
+from .serializers import UserSerializer, LoginSerializer, LogoutSerializer
 from .permissions import IsAnonymous
 
 # Create your views here.
@@ -83,21 +83,22 @@ class TokenRefreshView(BaseTokenRefreshView):
     pass
 
 
-class LogoutView(BaseTokenBlacklistView):
-    serializer_class = TokenBlacklistSerializer
+class LogoutView(GenericAPIView):
+    '''Log out a user through refresh token blacklist does not log them out immediately 
+    until the access token has expired and they should login to get new tokens.'''
+
+    serializer_class = LogoutSerializer
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        refresh_token = request.data.get('refresh')
 
         try:
-            serializer = self.serializer_class(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            data = {
-                'status': 'Success',
-                'message': f'{request.user}, you have logged out successful, we will miss you.😭',
-            }
-            return Response(data=data, status=status.HTTP_200_OK)
+            refresh_token = request.data.get('refresh')
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response({"status": "Success", "message": "Logout successful 😋"}, status=status.HTTP_200_OK)
 
         except TokenError as e:
-            data = {'status': 'error', 'message': str(e)}
-            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"status": "Error", "message": "Logout failed", "details": str(e)}, status=status.HTTP_400_BAD_REQUEST)
