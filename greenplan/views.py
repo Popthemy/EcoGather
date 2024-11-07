@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework import status, filters
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+
 from .models import Organizer, Address, Program, Event, Template, CustomField
 from .serializers import CreateEventSerializer, OrganizerSerializer, \
     AddressSerializer, ProgramSerializer, MiniProgramSerializer ,EventSerializer, MiniEventSerializer, TemplateSerializer, MiniTemplateSerializer, CustomFieldSerializer
@@ -19,6 +20,8 @@ from .permissions import IsAdminOrReadonly, IsOrganizerOrReadOnly
 
 
 class OrganizerViewSet(ModelViewSet):
+    '''This endpoint doesn't allow `POST` because it a new organizer is create when a new user is created by a signal'''
+    
     serializer_class = OrganizerSerializer
     permission_classes = [IsAuthenticated]
     http_method_names = ['get', 'put', 'patch', 'delete']
