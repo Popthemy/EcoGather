@@ -44,26 +44,27 @@ class LoginView(GenericAPIView):
     def post(self, request):
         serializer = self.serializer_class(
             data=request.data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        user = self.login_user(serializer.validated_data)
+        if serializer.is_valid():
+            user = self.login_user(serializer.validated_data)
 
-        if user is not None:
-            serializer = UserSerializer(user)
-            token = get_jwt_tokens(user)
+            if user is not None:
+                print(f'!!!!!!! I am the user{user}')
+                serializer = UserSerializer(user)
+                token = get_jwt_tokens(user)
 
-            data = {
-                'status': 'Success',
-                'message': 'Welcome back👋',
-                'token': token,
-                'data': serializer.data
-            }
-            return Response(data=data, status=status.HTTP_200_OK)
+                data = {
+                    'status': 'Success',
+                    'message': 'Welcome back👋',
+                    'token': token,
+                    'data': serializer.data
+                }
+                return Response(data=data, status=status.HTTP_200_OK)
 
         return Response(data={
             'status': 'Error',
             'message': 'Login Unsuccessful',
             'data': serializer.errors},
-            status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            status=status.HTTP_401_UNAUTHORIZED)
 
     def login_user(self, validated_data):
         email = validated_data['email']
@@ -71,6 +72,8 @@ class LoginView(GenericAPIView):
 
         user = authenticate(
             request=self.request, username=email, password=password)
+        print(f'!!!!!!!login user{user}')
+
         return user
 
 
