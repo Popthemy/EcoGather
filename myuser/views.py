@@ -1,12 +1,13 @@
-from django.shortcuts import render
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenRefreshView as BaseTokenRefreshView, TokenBlacklistView as BaseTokenBlacklistView
 from rest_framework_simplejwt.serializers import TokenBlacklistSerializer
 from rest_framework_simplejwt.exceptions import TokenError
+
 from myutils.reusable_func import get_jwt_tokens
 from .serializers import UserSerializer, LoginSerializer
 from .permissions import IsAnonymous
@@ -84,6 +85,7 @@ class TokenRefreshView(BaseTokenRefreshView):
 
 class LogoutView(BaseTokenBlacklistView):
     serializer_class = TokenBlacklistSerializer
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
 
@@ -98,4 +100,4 @@ class LogoutView(BaseTokenBlacklistView):
 
         except TokenError as e:
             data = {'status': 'error', 'message': str(e)}
-            return Response(data, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
