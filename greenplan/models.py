@@ -25,8 +25,8 @@ class Organizer(BaseSocialMediaLink):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, primary_key=True, on_delete=models.CASCADE)
     username = models.CharField(max_length=100, unique=True)
-    first_name = models.CharField(max_length=255, null=True, blank=True)
-    last_name = models.CharField(max_length=255, null=True, blank=True)
+    first_name = models.CharField(max_length=255,blank=True)
+    last_name = models.CharField(max_length=255,blank=True)
     email = models.EmailField()
     phone_number = models.CharField(max_length=20)
     type = models.TextField(

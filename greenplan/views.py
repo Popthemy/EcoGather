@@ -15,7 +15,6 @@ from .models import Organizer, Address, Program, Event, Template, CustomField
 from .serializers import CreateEventSerializer, OrganizerSerializer, \
     AddressSerializer, ProgramSerializer, MiniProgramSerializer ,EventSerializer, MiniEventSerializer, TemplateSerializer, MiniTemplateSerializer, CustomFieldSerializer
 from .permissions import IsAdminOrReadonly, IsOrganizerOrReadOnly
-
 # Create your views here.
 
 
@@ -36,11 +35,14 @@ class OrganizerViewSet(ModelViewSet):
         if user.is_staff:
             organizer = Organizer.objects.filter(pk=pk)
             if pk and organizer is not None:
-                # print(f'@@@@@@ admin request admin:{user.id} , request id {pk}')
+                print(f'@@@@@@  admin request -> admin:{user.id} , request id {pk}')
                 return organizer
             return Organizer.objects.all()
+
+        print(f'!!!! Ordinary user request -> user:{user.id} , request id: {pk}')
+        if pk and pk != str(user.id): #for details view error
+            raise Http404('Organizer Not Found. Kindly create your organizer profile.')
         
-        # print(f'!!!! Ord user request user:{user.id} , request id: {pk}')
         organizer = Organizer.objects.filter(pk=user.id)
         if organizer is not None:
             return organizer

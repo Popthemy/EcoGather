@@ -97,11 +97,26 @@ class OrganizerSerializer(serializers.ModelSerializer):
         model = Organizer
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'organizer_events_count',
                   'type', 'phone_number', 'bio', 'vision', 'mission', 'addresses']
+    
+    def get_validated_user(self):
+        '''validate the user and return user object'''
+        user = self.context['request'].user
+
+        if not isinstance(user, CustomUser):
+            raise serializers.ValidationError('Invalid user objects')
+
+        user_instance = CustomUser.objects.filter(pk=user.id).first()
+        if user_instance is None:
+            raise serializers.ValidationError('Invalid user')
+        return user_instance
+
 
     def create(self, validated_data):
-        user = self.context['request'].user
-        user_instance = get_object_or_404(CustomUser, pk=user.id)
+        '''create an organizer with the validated user
+        ???? Not to be used because it will result into an integrity error, 
+        new organizer is created by default when organizer is created'''
 
+        user_instance = self.get_validated_user()
         return Organizer.objects.create(user=user_instance, **validated_data)
 
     def get_organizer_events_count(self, organizer):
