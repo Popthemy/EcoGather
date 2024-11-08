@@ -10,8 +10,8 @@ User = get_user_model()
 def create_organizer_profile_from_new_user(sender, instance, created, **kwargs):
     """A user sign in and get assigned a profile"""
     if created:
-        new_user = instance
-        Organizer.objects.create(user=new_user, email=new_user.email)
+        username_placeholder = instance.email.split('@')[0]
+        Organizer.objects.create(user=instance, email=instance.email, username=f"{username_placeholder}")
 
 
 @receiver(post_save, sender=Organizer)

@@ -29,15 +29,18 @@ class OrganizerViewSet(ModelViewSet):
     search_fields = ('username', 'type')
 
     def get_queryset(self):
+        '''none user can't see someone else id'''
         pk = self.kwargs.get('pk')
         user = self.request.user
 
         if user.is_staff:
             organizer = Organizer.objects.filter(pk=pk)
             if pk and organizer is not None:
+                # print(f'@@@@@@ admin request admin:{user.id} , request id {pk}')
                 return organizer
             return Organizer.objects.all()
-
+        
+        # print(f'!!!! Ord user request user:{user.id} , request id: {pk}')
         organizer = Organizer.objects.filter(pk=user.id)
         if organizer is not None:
             return organizer
