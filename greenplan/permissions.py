@@ -1,15 +1,16 @@
 from rest_framework import permissions
 
-from greenplan.models import Event, Template,Organizer
+from greenplan.models import Event, Template, Organizer, Address
 
 
 class IsAdminOrReadonly(permissions.BasePermission):
     '''allow admin to perform operation such as post,patch,put,delete'''
 
     def has_permission(self, request, view):
-        if  request.method and request.method not in permissions.SAFE_METHODS:
-            return bool(request.user.is_authenticated and request.user.is_staff )
+        if request.method and request.method not in permissions.SAFE_METHODS:
+            return bool(request.user.is_authenticated and request.user.is_staff)
         return True
+
 
 class IsOrganizerOrReadOnly(permissions.BasePermission):
     '''Allows organizer or staff to update and delete object'''
@@ -24,14 +25,18 @@ class IsOrganizerOrReadOnly(permissions.BasePermission):
         '''Allow organizer and staff to perform edit and other methods'''
 
         user = request.user
-        
-        organizer = None
-        if isinstance(obj,Organizer):
-            organizer = obj.user
-        if isinstance(obj,Event):
-            organizer = obj.organizer.user
-        if isinstance(obj,Template):
-            organizer = obj.owner.user
-        
-        return  user.is_staff  or organizer == user
 
+        organizer = None
+        if isinstance(obj, Organizer):
+            organizer = obj.user
+            # print(f' #$#$# This is an organizer object: {obj.user} {user}')
+
+        if isinstance(obj, Address):
+            print(f' #$#$# This is an address object: {obj.organizer.user} {user}')
+            organizer = obj.organizer.user
+        if isinstance(obj, Event):
+            organizer = obj.organizer.user
+        if isinstance(obj, Template):
+            organizer = obj.owner.user
+
+        return user.is_staff or organizer == user

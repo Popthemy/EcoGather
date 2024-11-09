@@ -13,7 +13,7 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 
 from .models import Organizer, Address, Program, Event, Template, CustomField
 from .serializers import CreateEventSerializer, OrganizerSerializer, \
-    AddressSerializer, ProgramSerializer, MiniProgramSerializer ,EventSerializer, MiniEventSerializer, TemplateSerializer, MiniTemplateSerializer, CustomFieldSerializer
+    AddressSerializer, ProgramSerializer, MiniProgramSerializer, EventSerializer, MiniEventSerializer, TemplateSerializer, MiniTemplateSerializer, CustomFieldSerializer
 from .permissions import IsAdminOrReadonly, IsOrganizerOrReadOnly
 # Create your views here.
 
@@ -43,7 +43,8 @@ class OrganizerViewSet(ModelViewSet):
             print(f'@@@@@@  admin request -> admin:{user.id}')
             return Organizer.objects.all()
 
-        print(f'!!!! Ordinary user request -> user: {user.id} , request id: {pk}')
+        print(
+            f'!!!! Ordinary user request -> user: {user.id} , request id: {pk}')
 
         # this will act as the detail view for admin user , also list for non-admin
         id = pk if pk else user.id
@@ -58,17 +59,19 @@ class OrganizerViewSet(ModelViewSet):
 class AddressApiView(ListCreateAPIView):
 
     serializer_class = AddressSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsOrganizerOrReadOnly, )
 
     def get_queryset(self):
-        user = self.request.user
-        pk = self.kwargs.get('pk')
-
-        if user.is_staff and pk:
-            return Address.objects.filter(organizer_id=pk)
-        return Address.objects.filter(organizer_id=user.id)
+        pk = self.kwargs.get('organizer_pk')
+        address = Address.objects.filter(organizer_id=pk)
+        if not address:
+            raise Http404('No addresses for this organizer yet!')
+        return address
 
     def post(self, request, *args, **kwargs):
+        address = self.get_queryset()
+        self.check_object_permissions(request, address)
+
         serializer = self.serializer_class(
             data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
@@ -151,7 +154,7 @@ class ProgramDetailApiView(RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAdminOrReadonly]
 
     def get_object(self):
-        return get_object_or_404(Program,pk=self.kwargs['pk'])
+        return get_object_or_404(Program, pk=self.kwargs['pk'])
 
     def destroy(self, request, *args, **kwargs):
         """We shouldn't delete program that have events linked to them so we raise an error."""
@@ -357,7 +360,7 @@ class EventTemplateDetailApiView(GenericAPIView):
         user = self.request.user
         event_pk = self.kwargs['event_pk']
         template_pk = self.kwargs['pk']
-        
+
         event = get_object_or_404(Event, pk=event_pk)
 
         if user.is_staff or event.organizer.user == user:
@@ -521,7 +524,7 @@ class CustomFieldDetailApiView(GenericAPIView):
     def patch(self, request, *args, **kwargs):
         kwargs['partial'] = True
         return self.put(request, *args, **kwargs)
-    
+
     def delete(self, request, *args, **kwargs):
         custom_field = self.get_object()
         template_pk = self.kwargs['template_pk']
