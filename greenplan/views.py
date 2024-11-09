@@ -45,7 +45,8 @@ class OrganizerViewSet(ModelViewSet):
 
         print(f'!!!! Ordinary user request -> user: {user.id} , request id: {pk}')
 
-        id = pk if pk else user.id # this will act as the detail view for admin user , also list for non-admin
+        # this will act as the detail view for admin user , also list for non-admin
+        id = pk if pk else user.id
         organizer = Organizer.objects.filter(pk=id)
         if organizer is not None:
             return organizer
