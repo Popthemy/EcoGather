@@ -1,6 +1,6 @@
 from rest_framework import permissions
 
-from greenplan.models import Event, Template
+from greenplan.models import Event, Template,Organizer
 
 
 class IsAdminOrReadonly(permissions.BasePermission):
@@ -26,10 +26,12 @@ class IsOrganizerOrReadOnly(permissions.BasePermission):
         user = request.user
         
         organizer = None
+        if isinstance(obj,Organizer):
+            organizer = obj.user
         if isinstance(obj,Event):
             organizer = obj.organizer.user
         if isinstance(obj,Template):
             organizer = obj.owner.user
-
+        
         return  user.is_staff  or organizer == user
 

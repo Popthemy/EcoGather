@@ -19,31 +19,34 @@ from .permissions import IsAdminOrReadonly, IsOrganizerOrReadOnly
 
 
 class OrganizerViewSet(ModelViewSet):
-    '''This endpoint doesn't allow `POST` because new organizer is created when a new user is created by a signal'''
-    
+    '''This endpoint doesn't allow `POST` because new organizer is created when a new user is created by a signal.
+    Anonymous user should be able to view the organizer but not allowed to perform other action. 
+    Only the real organizer or admin can perform edit operations'''
+
     serializer_class = OrganizerSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
     http_method_names = ['get', 'put', 'patch', 'delete']
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username', 'type')
 
+    def get_permissions(self):
+        request = self.request
+        if request.method in ['PUT', 'PATCH', 'DELETE']:
+            self.permission_classes = [IsOrganizerOrReadOnly]
+        return super().get_permissions()
+
     def get_queryset(self):
-        '''none user can't see someone else id'''
         pk = self.kwargs.get('pk')
         user = self.request.user
 
-        if user.is_staff:
-            organizer = Organizer.objects.filter(pk=pk)
-            if pk and organizer is not None:
-                print(f'@@@@@@  admin request -> admin:{user.id} , request id {pk}')
-                return organizer
+        if user.is_staff and not pk:
+            print(f'@@@@@@  admin request -> admin:{user.id}')
             return Organizer.objects.all()
 
-        print(f'!!!! Ordinary user request -> user:{user.id} , request id: {pk}')
-        if pk and pk != str(user.id): #for details view error
-            raise Http404('Organizer Not Found. Kindly create your organizer profile.')
-        
-        organizer = Organizer.objects.filter(pk=user.id)
+        print(f'!!!! Ordinary user request -> user: {user.id} , request id: {pk}')
+
+        id = pk if pk else user.id # this will act as the detail view for admin user , also list for non-admin
+        organizer = Organizer.objects.filter(pk=id)
         if organizer is not None:
             return organizer
 
