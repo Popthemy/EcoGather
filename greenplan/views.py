@@ -19,7 +19,7 @@ from .permissions import IsAdminOrReadonly, IsOrganizerOrReadOnly
 
 
 class OrganizerViewSet(ModelViewSet):
-    '''This endpoint doesn't allow `POST` because it a new organizer is create when a new user is created by a signal'''
+    '''This endpoint doesn't allow `POST` because new organizer is created when a new user is created by a signal'''
     
     serializer_class = OrganizerSerializer
     permission_classes = [IsAuthenticated]
