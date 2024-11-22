@@ -6,6 +6,10 @@ router = DefaultRouter()
 router.register('organizers',viewset=views.OrganizerViewSet,basename='organizers')
 
 
+""" Variable like `organizer_pk`, event_pk if changed can cause permission not to be functional.
+    Check the permissions before changing """
+
+
 urlpatterns = [
     path('organizers/<uuid:organizer_pk>/addresses/', view=views.AddressApiView.as_view(), name='addresses'),
     path('organizers/<uuid:organizer_pk>/addresses/<int:pk>/', view=views.AddressDetailApiView.as_view(), name='address-detail'),
