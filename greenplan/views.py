@@ -57,21 +57,15 @@ class OrganizerViewSet(ModelViewSet):
 
 
 class AddressApiView(ListCreateAPIView):
-
     serializer_class = AddressSerializer
     permission_classes = (IsOrganizerOrReadOnly, )
 
     def get_queryset(self):
         pk = self.kwargs.get('organizer_pk')
         address = Address.objects.filter(organizer_id=pk)
-        if not address:
-            raise Http404('No addresses for this organizer yet!')
         return address
 
     def post(self, request, *args, **kwargs):
-        address = self.get_queryset()
-        self.check_object_permissions(request, address)
-
         serializer = self.serializer_class(
             data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
@@ -91,19 +85,13 @@ class AddressApiView(ListCreateAPIView):
 
 class AddressDetailApiView(RetrieveUpdateDestroyAPIView):
     serializer_class = AddressSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsOrganizerOrReadOnly, )
 
     def get_object(self):
         pk = self.kwargs['pk']
-        user = self.request.user
-        address = Address.objects.filter(pk=pk)
-
-        if user.is_staff:
-            return address.first()
-        address = address.filter(organizer__email=user.email).first()
-        if address is None:
-            raise Http404('Address Not Found')
-        return address
+        org_pk = self.kwargs.get('organizer_pk')
+    
+        return get_object_or_404(Address,pk=pk,organizer__user_id=org_pk)
 
 
 class ProgramApiView(GenericAPIView):

@@ -31,12 +31,43 @@ class IsOrganizerOrReadOnly(permissions.BasePermission):
             organizer = obj.user
             # print(f' #$#$# This is an organizer object: {obj.user} {user}')
 
-        if isinstance(obj, Address):
-            print(f' #$#$# This is an address object: {obj.organizer.user} {user}')
+        if  isinstance(obj, Address) :
+            ''' used obj[0] incase of list view to get a single view to try it with'''
+            print('&&& from permission is organizer or read only &&&')
             organizer = obj.organizer.user
+
         if isinstance(obj, Event):
             organizer = obj.organizer.user
+
         if isinstance(obj, Template):
             organizer = obj.owner.user
+
+        return bool(user.is_staff or organizer == user)
+
+class IsOrganizerOwnerOrReadOnly(permissions.BasePermission):
+    """
+        Allows other users to view objects, but restricts creation to owners or admins.
+        Owner is the person that the current object we are viewing belongs to.
+    """
+
+    def has_permission(self, request, view):
+
+        if request.method not in permissions.SAFE_METHODS:
+            if 'organizer_pk' in view.kwargs:
+                org_pk = view.kwargs.get('organizer_pk')
+                user = request.user
+
+                return user.is_staff or user.id == org_pk
+
+        return True # the safe method everyone has permission to them
+    
+    def has_object_permission(self, request, view, obj):
+        '''this will only work if an object exist already'''
+
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        user = request.user
+        organizer = obj.organizer.user
 
         return user.is_staff or organizer == user
