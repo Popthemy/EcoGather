@@ -14,7 +14,7 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from .models import Organizer, Address, Program, Event, Template, CustomField
 from .serializers import CreateEventSerializer, OrganizerSerializer, \
     AddressSerializer, ProgramSerializer, MiniProgramSerializer, EventSerializer, MiniEventSerializer, TemplateSerializer, MiniTemplateSerializer, CustomFieldSerializer
-from .permissions import IsAdminOrReadonly, IsOrganizerOrReadOnly
+from .permissions import IsAdminOrReadonly, IsOrganizerOrReadOnly,IsOrganizerOwnerOrReadOnly
 # Create your views here.
 
 
@@ -40,11 +40,11 @@ class OrganizerViewSet(ModelViewSet):
         user = self.request.user
 
         if user.is_staff and not pk:
-            print(f'@@@@@@  admin request -> admin:{user.id}')
+            # print(f'@@@@@@  admin request -> admin:{user.id}')
             return Organizer.objects.all()
 
-        print(
-            f'!!!! Ordinary user request -> user: {user.id} , request id: {pk}')
+        # print(
+        #     f'!!!! Ordinary user request -> user: {user.id} , request id: {pk}')
 
         # this will act as the detail view for admin user , also list for non-admin
         id = pk if pk else user.id
@@ -57,18 +57,32 @@ class OrganizerViewSet(ModelViewSet):
 
 
 class AddressApiView(ListCreateAPIView):
+    ''' Method: Get and Post 
+     {
+        "street_number": 15,
+        "street_name": "Ahmadu Bello",
+        "city": "Kano",
+        "state": "Abuja",
+        "country": "Nigeria"
+    }'''
+
     serializer_class = AddressSerializer
-    permission_classes = (IsOrganizerOrReadOnly, )
+    permission_classes = (IsOrganizerOwnerOrReadOnly, )
 
     def get_queryset(self):
-        pk = self.kwargs.get('organizer_pk')
-        address = Address.objects.filter(organizer_id=pk)
-        return address
+        org_pk = self.kwargs.get('organizer_pk')
+
+        addresses = Address.objects.filter(organizer_id=org_pk)
+
+        if not addresses:
+            raise Http404("Address not found for the user")
+
+        return addresses
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(
-            data=request.data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True) # raise 400
         serializer.save()
 
         data = {
@@ -80,19 +94,18 @@ class AddressApiView(ListCreateAPIView):
         return Response(data=data, status=status.HTTP_201_CREATED)
 
     def get_serializer_context(self):
-        return {'request': self.request}
+        return {'request': self.request,'addresses_owner': self.kwargs.get('organizer_pk') }
 
 
 class AddressDetailApiView(RetrieveUpdateDestroyAPIView):
     serializer_class = AddressSerializer
-    permission_classes = (IsOrganizerOrReadOnly, )
+    permission_classes = (IsOrganizerOwnerOrReadOnly,)
 
     def get_object(self):
         pk = self.kwargs['pk']
         org_pk = self.kwargs.get('organizer_pk')
-    
-        return get_object_or_404(Address,pk=pk,organizer__user_id=org_pk)
 
+        return get_object_or_404(Address, pk=pk, organizer__user_id=org_pk)
 
 class ProgramApiView(GenericAPIView):
     '''This program view give the list of event group into their types.
