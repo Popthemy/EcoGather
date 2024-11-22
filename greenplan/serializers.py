@@ -34,9 +34,21 @@ class AddressSerializer(serializers.ModelSerializer):
         fields = ['id', 'organizer', 'street_number', 'street_name',
                   'city', 'state', 'zip_code', 'country']
 
+    def validate_organizer_id(self, org_id):
+        '''Check if the organizer exist'''
+        if not Organizer.objects.filter(pk=org_id).first():
+            raise serializers.ValidationError('Invalid ID')
+
     def create(self, validated_data):
-        organizer = self.context['request'].user
-        return Address.objects.create(organizer_id=organizer.pk, **validated_data)
+        addr_owner = self.context['request'].user
+
+        addr_owner_pk = self.context['addresses_owner'] # id in the url
+        if not addr_owner.is_staff: #addresses_owner
+            addr_owner_pk = addr_owner.pk # current user_id of not admin
+
+        self.validate_organizer_id(org_id=addr_owner_pk)
+
+        return Address.objects.create(organizer_id=addr_owner_pk, **validated_data)
 
 
 class OrganizerImageSerializer(serializers.ModelSerializer):
