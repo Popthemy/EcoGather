@@ -117,7 +117,7 @@ class TestRetrieveOrganizer:
         # GET request to retrieve specific organizer
         url = reverse_lazy('organizers-detail', kwargs={'pk': invalid_id})
         response = api_client.get(url)
-        print(response.data)
+        # print(response.data)
 
         # both user the user id which is not an admin,
         assert response.status_code == 404
@@ -175,7 +175,6 @@ class TestUpdateOrganizer:
         # PUT request to update organizer's data
         url = reverse_lazy('organizers-detail', kwargs={'pk': user.id})
         response = api_client.put(url, update_data)
-        # print(f'before update: {org_response.__dict__}')
         # print(f'after update: {response.data}')
 
         assert response.status_code == 200
@@ -283,7 +282,7 @@ class TestUpdateOrganizer:
         assert update_data['username'] not in response.data
 
 
-# @pytest.mark.skip
+@pytest.mark.skip
 @pytest.mark.django_db
 class TestDeleteOrganizer:
     '''

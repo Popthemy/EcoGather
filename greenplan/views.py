@@ -9,12 +9,13 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status, filters
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from .models import Organizer, Address, Program, Event, Template, CustomField
 from .serializers import CreateEventSerializer, OrganizerSerializer, \
     AddressSerializer, ProgramSerializer, MiniProgramSerializer, EventSerializer, MiniEventSerializer, TemplateSerializer, MiniTemplateSerializer, CustomFieldSerializer
 from .permissions import IsAdminOrReadonly, IsOrganizerOrReadOnly,IsOrganizerOwnerOrReadOnly
+from .task import all_event_organizer_email
 # Create your views here.
 
 
@@ -168,6 +169,7 @@ class ProgramDetailApiView(RetrieveUpdateDestroyAPIView):
 
 class EventApiView(GenericAPIView):
     """ provide endpoints get and post"""
+
     permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     filterset_class = ['title', 'program__title', 'city_or_state']
@@ -179,6 +181,11 @@ class EventApiView(GenericAPIView):
         return EventSerializer
 
     def get_queryset(self):
+
+        ### RUNNING CELERY TASK
+        task = all_event_organizer_email.delay()
+        print(f'task.id:{task.id}')
+        
         # getting what is used for the filtering
         user = self.request.user
 
