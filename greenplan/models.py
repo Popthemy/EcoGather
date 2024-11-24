@@ -127,6 +127,7 @@ class Program(models.Model):
 
 
 class Event(models.Model):
+
     code = models.CharField(
         max_length=50,
         unique=True,

@@ -12,8 +12,8 @@ class IsAdminOrReadonly(permissions.BasePermission):
         return True
 
 
-class IsOrganizerOrReadOnly(permissions.BasePermission):
-    '''Allows organizer or staff to update and delete object'''
+class IsOwnerOrReadOnly(permissions.BasePermission):
+    '''Allows organizer(owner) or staff to update and delete object'''
 
     def has_permission(self, request, view):
         '''Allow everyone to see an event and only staff can perform all action'''
@@ -26,18 +26,16 @@ class IsOrganizerOrReadOnly(permissions.BasePermission):
 
         user = request.user
 
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
         organizer = None
         if isinstance(obj, Organizer):
             organizer = obj.user
             # print(f' #$#$# This is an organizer object: {obj.user} {user}')
 
-        if  isinstance(obj, Address) :
-            ''' used obj[0] incase of list view to get a single view to try it with'''
-            print('&&& from permission is organizer or read only &&&')
-            organizer = obj.organizer.user
-
-        if isinstance(obj, Event):
-            organizer = obj.organizer.user
+        # if isinstance(obj, Event):
+        #     organizer = obj.organizer.user
 
         if isinstance(obj, Template):
             organizer = obj.owner.user

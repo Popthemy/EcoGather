@@ -1,4 +1,3 @@
-
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 from django.db.models import Q
@@ -13,7 +12,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import Organizer, Address, Program, Event, Template, CustomField
 from .serializers import CreateEventSerializer, OrganizerSerializer, \
     AddressSerializer, ProgramSerializer, MiniProgramSerializer, EventSerializer, MiniEventSerializer, TemplateSerializer, MiniTemplateSerializer, CustomFieldSerializer
-from .permissions import IsAdminOrReadonly, IsOrganizerOrReadOnly,IsOrganizerOwnerOrReadOnly
+from .permissions import IsAdminOrReadonly, IsOwnerOrReadOnly,IsOrganizerOwnerOrReadOnly
 from .tasks import all_event_organizer_email
 # Create your views here.
 
@@ -24,16 +23,10 @@ class OrganizerViewSet(ModelViewSet):
     Only the real organizer or admin can perform edit operations'''
 
     serializer_class = OrganizerSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = (IsOwnerOrReadOnly, )
     http_method_names = ['get', 'put', 'patch', 'delete']
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username', 'type')
-
-    def get_permissions(self):
-        request = self.request
-        if request.method in ['PUT', 'PATCH', 'DELETE']:
-            self.permission_classes = [IsOrganizerOrReadOnly]
-        return super().get_permissions()
 
     def get_queryset(self):
         pk = self.kwargs.get('pk')
@@ -106,6 +99,7 @@ class AddressDetailApiView(RetrieveUpdateDestroyAPIView):
         org_pk = self.kwargs.get('organizer_pk')
 
         return get_object_or_404(Address, pk=pk, organizer__user_id=org_pk)
+
 
 class ProgramApiView(GenericAPIView):
     '''This program view give the list of event group into their types.
@@ -234,13 +228,7 @@ class EventApiView(GenericAPIView):
 
 class EventDetailApiView(RetrieveUpdateDestroyAPIView):
     '''This view allows get for everyone while restricting update only to admin and organizer '''
-    permission_classes = [IsAuthenticatedOrReadOnly]
-
-    def get_permissions(self):
-        request = self.request
-        if request.method in ['PUT', 'PATCH', 'DELETE']:
-            self.permission_classes = [IsOrganizerOrReadOnly]
-        return super().get_permissions()
+    permission_classes = (IsOrganizerOwnerOrReadOnly,)
 
     def get_serializer_class(self):
         if self.request.method == "GET":

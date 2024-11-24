@@ -7,7 +7,7 @@ import pytest
 User = get_user_model()
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 @pytest.mark.django_db
 class TestCreateOrganizer:
     '''When a user is created and Organizer is created also.There is one-one relationship between them'''
@@ -22,7 +22,7 @@ class TestCreateOrganizer:
         assert organizer['email'] == user.email
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 @pytest.mark.django_db
 class TestRetrieveOrganizer:
 
@@ -123,7 +123,7 @@ class TestRetrieveOrganizer:
         assert response.status_code == 404
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 @pytest.mark.django_db
 class TestUpdateOrganizer:
     #positive cases
@@ -282,7 +282,7 @@ class TestUpdateOrganizer:
         assert update_data['username'] not in response.data
 
 
-@pytest.mark.skip
+# @pytest.mark.skip
 @pytest.mark.django_db
 class TestDeleteOrganizer:
     '''
