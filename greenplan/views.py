@@ -12,7 +12,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import Organizer, Address, Program, Event, Template, CustomField
 from .serializers import CreateEventSerializer, OrganizerSerializer, \
     AddressSerializer, ProgramSerializer, MiniProgramSerializer, EventSerializer, MiniEventSerializer, TemplateSerializer, MiniTemplateSerializer, CustomFieldSerializer
-from .permissions import IsAdminOrReadonly, IsOwnerOrReadOnly,IsOrganizerOwnerOrReadOnly
+from .permissions import IsAdminOrReadonly, IsOwnerOrReadOnly,IsOrganizerOwnerOrReadOnly,IsEventOwnerOrReadOnly
 from .tasks import all_event_organizer_email
 # Create your views here.
 
@@ -280,16 +280,16 @@ class TemplateLibraryApiView(GenericAPIView):
 class EventTemplateApiView(GenericAPIView):
     '''View to create and retrieve (list_createview) templates for a specific event.'''
     serializer_class = TemplateSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = (IsEventOwnerOrReadOnly,)
 
-    def get_permissions(self):
-        '''Allow only staff and organizer to create template for an event'''
-        if self.request.method == 'POST':
-            self.permission_classes = [IsOrganizerOrReadOnly]
-        return super().get_permissions()
+    # def get_permissions(self):
+    #     '''Allow only staff and organizer to create template for an event'''
+    #     if self.request.method == 'POST':
+    #         self.permission_classes = [IsOrganizerOrReadOnly]
+    #     return super().get_permissions()
 
     def get_queryset(self):
-        '''Retrieve templates based on organizer of the event or the event is  public.'''
+        ''' Retrieve templates based on organizer of the event or the event is public.'''
         user = self.request.user
 
         event_pk = self.kwargs['event_pk']
@@ -307,8 +307,6 @@ class EventTemplateApiView(GenericAPIView):
     def get(self, request, *args, **kwargs):
         event_templates = self.get_queryset()
 
-        total_event_template = event_templates.count()
-
         # event_pk = self.kwargs['event_pk']
         # event_data = get_object_or_404(Event, pk=event_pk)
         # event = MiniEventSerializer(event_data)
@@ -324,6 +322,7 @@ class EventTemplateApiView(GenericAPIView):
         return Response(data, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -342,13 +341,8 @@ class EventTemplateDetailApiView(GenericAPIView):
     'Retrieve a specific template for a specific event. methods: get, update, delete'
 
     serializer_class = TemplateSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = (IsEventOwnerOrReadOnly,)
 
-    def get_permissions(self):
-        """ Allow admin or organizer to perform full actions"""
-        if self.request.method in ['PUT', 'PATCH', 'DELETE']:
-            self.permission_classes = [IsOrganizerOrReadOnly]
-        return super().get_permissions()
 
     def get_queryset(self):
         '''Retrieve templates based on user role and template ID.'''

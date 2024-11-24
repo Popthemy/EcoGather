@@ -1,5 +1,4 @@
 from rest_framework import permissions
-
 from greenplan.models import Event, Template, Organizer, Address
 
 
@@ -56,6 +55,7 @@ class IsOrganizerOwnerOrReadOnly(permissions.BasePermission):
                 user = request.user
 
                 return user.is_staff or user.id == org_pk
+            return False
 
         return True # the safe method everyone has permission to them
     
@@ -69,3 +69,18 @@ class IsOrganizerOwnerOrReadOnly(permissions.BasePermission):
         organizer = obj.organizer.user
 
         return user.is_staff or organizer == user
+
+class IsEventOwnerOrReadOnly(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        if 'event_pk' in view.kwargs:
+            event_pk = view.kwargs.get('event_pk')
+            user = request.user
+
+            event = Event.objects.get(id=event_pk)
+
+            return bool(user.is_staff or event.organizer.user == user)
+        return False
