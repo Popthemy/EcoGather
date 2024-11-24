@@ -1,5 +1,4 @@
 
-from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 from django.db.models import Q
@@ -15,7 +14,7 @@ from .models import Organizer, Address, Program, Event, Template, CustomField
 from .serializers import CreateEventSerializer, OrganizerSerializer, \
     AddressSerializer, ProgramSerializer, MiniProgramSerializer, EventSerializer, MiniEventSerializer, TemplateSerializer, MiniTemplateSerializer, CustomFieldSerializer
 from .permissions import IsAdminOrReadonly, IsOrganizerOrReadOnly,IsOrganizerOwnerOrReadOnly
-from .task import all_event_organizer_email
+from .tasks import all_event_organizer_email
 # Create your views here.
 
 
@@ -182,9 +181,9 @@ class EventApiView(GenericAPIView):
 
     def get_queryset(self):
 
-        ### RUNNING CELERY TASK
-        task = all_event_organizer_email.delay()
-        print(f'task.id:{task.id}')
+        # ### RUNNING CELERY TASK
+        # task = all_event_organizer_email.delay()
+        # print(f'task.id:{task.id}')
         
         # getting what is used for the filtering
         user = self.request.user

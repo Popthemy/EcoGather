@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+from celery.schedules import crontab
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -191,4 +192,9 @@ SPECTACULAR_SETTINGS = {
 
 
 CELERY_BROKER_URL = 'redis://localhost:6379/1'
-
+CELERY_BEAT_SCHEDULE = {
+  'all_event_organizer_email':{
+  'task': 'greenplan.tasks.all_event_organizer_email',
+  'schedule':crontab(minute='*/5')
+    }
+}
