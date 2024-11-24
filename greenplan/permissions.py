@@ -84,3 +84,18 @@ class IsEventOwnerOrReadOnly(permissions.BasePermission):
 
             return bool(user.is_staff or event.organizer.user == user)
         return False
+
+class IsTemplateOwnerOrReadOnly(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        if 'template_pk' in view.kwargs:
+            template_pk = view.kwargs.get('template_pk')
+            user = request.user
+
+            template = Template.objects.get(id=template_pk)
+
+            return bool(user.is_staff or template.owner.user == user)
+        return False

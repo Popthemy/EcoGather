@@ -12,7 +12,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import Organizer, Address, Program, Event, Template, CustomField
 from .serializers import CreateEventSerializer, OrganizerSerializer, \
     AddressSerializer, ProgramSerializer, MiniProgramSerializer, EventSerializer, MiniEventSerializer, TemplateSerializer, MiniTemplateSerializer, CustomFieldSerializer
-from .permissions import IsAdminOrReadonly, IsOwnerOrReadOnly,IsOrganizerOwnerOrReadOnly,IsEventOwnerOrReadOnly
+from .permissions import IsAdminOrReadonly, IsOwnerOrReadOnly,IsOrganizerOwnerOrReadOnly,IsEventOwnerOrReadOnly,IsTemplateOwnerOrReadOnly
 from .tasks import all_event_organizer_email
 # Create your views here.
 
@@ -421,7 +421,7 @@ class EventTemplateDetailApiView(GenericAPIView):
 
 class CustomFieldApiView(ListCreateAPIView):
     '''Retrieves all custom fields for a specific template.'''
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = (IsTemplateOwnerOrReadOnly, )
     serializer_class = CustomFieldSerializer
 
     def get_queryset(self):
@@ -468,7 +468,7 @@ class CustomFieldApiView(ListCreateAPIView):
 
 class CustomFieldDetailApiView(GenericAPIView):
     '''View to get ,edit and delete a custom fields based on role only user and staff can perform full operations'''
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = (IsTemplateOwnerOrReadOnly, )
     serializer_class = CustomFieldSerializer
 
     def get_object(self):
