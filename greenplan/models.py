@@ -7,7 +7,7 @@ from django.db import transaction
 from django.core.exceptions import ValidationError
 from myutils.models import BaseSocialMediaLink
 from .validators import validate_file_size
-from .managers import OrganizerManager, AddressManager, EventManager
+from .managers import OrganizerManager, AddressManager, EventManager,TemplateManager
 # Create your models here.
 
 
@@ -255,6 +255,7 @@ class Template(models.Model):
     description = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    objects = TemplateManager()
 
     class Meta:
         ordering = ['-updated_at', 'title']
