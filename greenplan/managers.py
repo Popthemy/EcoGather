@@ -22,6 +22,12 @@ class EventManager(models.Manager):
 
 
 class TemplateManager(models.Manager):
+    '''Custom manager for template.'''
     def get_queryset(self) -> models.QuerySet:
         return super().get_queryset().select_related('event','owner')
 
+class CustomFieldManager(models.Manager):
+    def get_queryset(self) -> models.QuerySet:
+        return super().get_queryset().select_related('template')
+    }
+    

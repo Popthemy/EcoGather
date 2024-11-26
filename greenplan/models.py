@@ -7,7 +7,7 @@ from django.db import transaction
 from django.core.exceptions import ValidationError
 from myutils.models import BaseSocialMediaLink
 from .validators import validate_file_size
-from .managers import OrganizerManager, AddressManager, EventManager,TemplateManager
+from .managers import OrganizerManager, AddressManager, EventManager,TemplateManager,CustomFieldManager
 # Create your models here.
 
 
@@ -335,6 +335,7 @@ class CustomField(models.Model):
     content = models.TextField()
     start_time = models.TimeField(null=True, blank=True)
     end_time = models.TimeField(null=True, blank=True)
+    objects = CustomFieldManager()
 
     class Meta:
         ordering = ['start_time', 'label']
