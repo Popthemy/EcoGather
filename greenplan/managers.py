@@ -26,7 +26,7 @@ class TemplateManager(models.Manager):
     def get_queryset(self) -> models.QuerySet:
         return super().get_queryset().select_related('event','owner')
 
+
 class CustomFieldManager(models.Manager):
     def get_queryset(self) -> models.QuerySet:
         return super().get_queryset().select_related('template')
-    

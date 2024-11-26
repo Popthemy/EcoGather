@@ -164,9 +164,9 @@ class EventApiView(GenericAPIView):
     """ provide endpoints get and post"""
 
     permission_classes = [IsAuthenticatedOrReadOnly]
-    filter_backends = (filters.SearchFilter, DjangoFilterBackend)
-    filterset_class = ['title', 'program__title', 'city_or_state']
+    filter_backends = (filters.SearchFilter,filters.OrderingFilter)
     search_fields = ('title', 'program__title')
+    ordering_fields = ('title',)
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -178,7 +178,7 @@ class EventApiView(GenericAPIView):
         # ### RUNNING CELERY TASK
         # task = all_event_organizer_email.delay()
         # print(f'task.id:{task.id}')
-        
+
         # getting what is used for the filtering
         user = self.request.user
 
@@ -193,7 +193,7 @@ class EventApiView(GenericAPIView):
             is_private=False)).order_by('-is_private')
 
     def get(self, request, *args, **kwargs):
-        events = self.get_queryset()  # self.filter_queryset(self.get_queryset())
+        events = self.filter_queryset(self.get_queryset()) # self.get_queryset()
         total_events = events.count()
 
         serializer = self.get_serializer(events, many=True)
