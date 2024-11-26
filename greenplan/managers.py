@@ -29,5 +29,4 @@ class TemplateManager(models.Manager):
 class CustomFieldManager(models.Manager):
     def get_queryset(self) -> models.QuerySet:
         return super().get_queryset().select_related('template')
-    }
     
