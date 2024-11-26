@@ -109,7 +109,7 @@ class OrganizerSerializer(serializers.ModelSerializer):
         model = Organizer
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'organizer_events_count',
                   'type', 'phone_number', 'bio', 'vision', 'mission', 'addresses']
-    
+
     def get_validated_user(self):
         '''validate the user and return user object'''
         user = self.context['request'].user

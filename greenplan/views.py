@@ -171,7 +171,7 @@ class EventApiView(GenericAPIView):
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return CreateEventSerializer
-        return EventSerializer
+        return MiniEventSerializer
 
     def get_queryset(self):
 
@@ -193,7 +193,7 @@ class EventApiView(GenericAPIView):
             is_private=False)).order_by('-is_private')
 
     def get(self, request, *args, **kwargs):
-        events = self.filter_queryset(self.get_queryset()) # self.get_queryset()
+        events = self.filter_queryset(self.get_queryset())
         total_events = events.count()
 
         serializer = self.get_serializer(events, many=True)
