@@ -1,89 +1,83 @@
-# EcoGather
+# EcoGather: Event Management Platform
 
-**EcoGather** is an innovative platform that allows event organizers to streamline their operations by creating, sharing, and reusing digital bulletins for events. It supports features like customizable templates, event tracking, and public or private event settings, all while promoting sustainability by reducing paper waste.
+EcoGather is an innovative platform designed to streamline event creation, management, and participation. By integrating powerful features like QR code generation and reusable templates, EcoGather empowers organizers to manage events effectively while enhancing attendee experiences.
 
----
+## MVP (Minimum Viable Product) Features
 
-## Features
-- **Event Management**: Organizers can create and manage events with public or private visibility.
-- **Custom Bulletin Templates**: Design reusable templates with customizable fields.
-- **Template Cloning**: Easily clone and edit templates for recurring or similar events.
-- **User Access Control**:
-  - Anonymous users can access public templates.
-  - Authenticated users can access their own templates and public templates.
-  - Staff users have full access.
-- **Download Tracking**: Track template downloads for attendance insights.
-- **Sustainability Impact**: Contribute to reducing paper waste by promoting digital solutions.
+### 1.**User Registration, Login, and Logout**
 
----
+   -Authentication system using JWT tailored for event organizers.
+   -Provides secure access to event management tools.
+
+### 2.**Event Creation and Management**
+
+   - Organizers can create, edit, and manage event details, including:
+     -Event title, description, and location.
+     -Start and end times.
+     -Public or private visibility settings.
+
+### 3.**Templates and Custom Fields**
+
+   -Add custom fields to capture specific event details.
+
+### 4. **QR Code Generation**
+
+   -Generate unique QR codes for each event.
+   -Use QR codes to share event details
+
+### 5. **Event Listings**
+
+   -Display upcoming events with filters by category, date, or organizer.
+   -Attendees can browse public events without logging in.
+
+### 6.**Image Uploads**
+
+   -Organizers can upload event images and theirs.
+   -Set priority images to highlight specific details.
+
+### 7.**Contact Information**
+   -Organizers can provide their contact details for attendee inquiries.
+
+## Additional Planned Features
+
+- **Event Status**: Dynamically determine and display event status (upcoming, ongoing, ended).
+- **Organizer Profiles**: Showcase past and upcoming events by an organizer.
+
 
 ## Setup Guide
 
 ### Prerequisites
-1. Python 3.10 or higher.
-2. PostgreSQL database.
-3. Virtual environment tools (e.g., `venv` or `pipenv`).
-
+1. **Python** (v3.8 or higher)
+2. **Django** (v4.0 or higher)
+3. **PostgreSQL** (or any other supported database)
+4. **Virtual Environment Tool** (e.g., `venv` or `virtualenv`)
 ---
 
 ### Installation
 
-1. **Clone the Repository**
-   ```bash
+1.**Clone the Repository**
+
    git clone https://github.com/your-repo/EcoGather.git
    cd EcoGather
 
+2.**Install Dependencies**
 
-Install Dependencies
-
-bash
-Copy code
-pip install -r requirements.txt
+> pip install -r requirements.txt
 Set Up the Environment Variables Create a .env file in the project root and configure the following:
 
-makefile
-Copy code
-SECRET_KEY=your_secret_key
-DEBUG=True
-DATABASE_URL=postgres://username:password@localhost:5432/ecogather_db
-Apply Migrations
+4.**Makemigration and migrate**
 
-bash
-Copy code
 python manage.py makemigrations
 python manage.py migrate
 Create a Superuser
 
-bash
-Copy code
-python manage.py createsuperuser
-Run the Development Server
+5.**Create super user**
 
-bash
-Copy code
+python manage.py createsuperuser
+> password won't show, make sure you input the right one.
+
+6.**Run the Development Server**
+
 python manage.py runserver
 Access the application at http://127.0.0.1:8000.
-
-API Endpoints
-Authentication
-POST /auth/login/: Log in a user.
-POST /auth/register/: Register a new user.
-Events
-GET /api/events/: List all events (public and private based on permissions).
-POST /api/events/: Create a new event (authenticated users only).
-GET /api/events/<id>/: Retrieve a single event.
-Templates
-GET /api/templates/: List templates (permissions apply).
-POST /api/templates/: Create a new template (authenticated users only).
-PATCH /api/templates/<id>/: Update a template (owner only).
-POST /api/templates/<id>/clone/: Clone a template.
-Custom Fields
-POST /api/templates/<id>/fields/: Add a custom field to a template (owner only).
-PATCH /api/templates/fields/<id>/: Update a custom field.
-Testing
-Run the test suite to ensure everything works as expected:
-
-bash
-Copy code
-python manage.py test
 
