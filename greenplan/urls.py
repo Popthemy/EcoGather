@@ -1,5 +1,5 @@
 from django.urls import path,include
-from greenplan import views,image_views as im_views
+from greenplan import views,image_views as im_views,qr_code_views
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
@@ -33,6 +33,7 @@ urlpatterns = [
     path('events/<int:event_pk>/images/',im_views.EventImageApiView.as_view(),name='event-images'),
     path('events/<int:event_pk>/images/<int:pk>/',im_views.EventImageDetailApiView.as_view(),name='event-image-detail'),
 
+    path('generate_qr/',qr_code_views.generate_qr_code,name='generate_qr_code'),
     path('',include(router.urls)),
 
 ]

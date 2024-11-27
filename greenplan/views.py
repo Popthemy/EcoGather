@@ -165,7 +165,7 @@ class EventApiView(GenericAPIView):
 
     permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = (filters.SearchFilter,filters.OrderingFilter)
-    search_fields = ('title', 'program__title')
+    search_fields = ('title', 'program__title','organizer__username')
     ordering_fields = ('title',)
 
     def get_serializer_class(self):
