@@ -71,13 +71,17 @@ python manage.py makemigrations
 python manage.py migrate
 Create a Superuser
 
-5.**Create super user**
+5.**Configure the Database**
+
+Open the settings.py file in the EcoGather directory.
+Update the DATABASES section to match your PostgreSQL configuration:
+
+6.**Create super user**
 
 python manage.py createsuperuser
 > password won't show, make sure you input the right one.
 
-6.**Run the Development Server**
+7.**Run the Development Server**
 
 python manage.py runserver
 Access the application at http://127.0.0.1:8000.
-
