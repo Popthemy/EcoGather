@@ -1,6 +1,8 @@
 # EcoGather: Event Management Platform
 
-EcoGather is an innovative platform designed to streamline event creation, management, and participation. By integrating powerful features like QR code generation and reusable templates, EcoGather empowers organizers to manage events effectively while enhancing attendee experiences.
+EcoGather is an innovative platform designed to streamline event creation, management, and participation.
+By integrating powerful features like QR code generation and reusable templates.
+EcoGather empowers organizers to manage events effectively while enhancing attendee experiences.
 
 ## MVP (Minimum Viable Product) Features
 

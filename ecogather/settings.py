@@ -180,8 +180,8 @@ SIMPLE_JWT = {
 
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Your Project API',
-    'DESCRIPTION': 'Your project description',
+    'TITLE': 'EcoGather: Event Management Platform API',
+    'DESCRIPTION': 'This is an innovative platform designed to streamline event creation, management, and participation.',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     

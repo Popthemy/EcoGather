@@ -131,7 +131,7 @@ class OrganizerSerializer(serializers.ModelSerializer):
         user_instance = self.get_validated_user()
         return Organizer.objects.create(user=user_instance, **validated_data)
 
-    def get_organizer_events_count(self, organizer):
+    def get_organizer_events_count(self, organizer) -> int:
         return organizer.get_organizer_total_events()
 
 
@@ -145,7 +145,7 @@ class MiniEventSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'event_status', 'organizer',
                   'venue', 'is_private']
 
-    def get_event_status(self, event):
+    def get_event_status(self, event) -> str:
         return event.get_event_status()
 
 class MiniProgramSerializer(serializers.ModelSerializer):
@@ -177,7 +177,7 @@ class MiniProgramSerializer(serializers.ModelSerializer):
         '''Total number of events linked to a program'''
         return program.events.count()
 
-    def get_program_url(self, program):
+    def get_program_url(self, program) -> str:
         '''url to a single program with the list of all its events.'''
 
         request = self.context['request']

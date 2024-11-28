@@ -18,9 +18,13 @@ from django.contrib import admin
 from django.urls import path,include
 from debug_toolbar.toolbar import debug_toolbar_urls
 
-# Adding images fun
+# Adding images
 from django.conf import settings
 from django.conf.urls.static import static
+
+# for documentation
+from drf_spectacular.views import SpectacularAPIView,SpectacularSwaggerView
+
 
 admin.site.site_title = 'Green Admin'
 admin.site.site_header = 'EcoGather: A Greener Way to Event Planning'
@@ -34,8 +38,13 @@ first_version = [
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('playground/', include('myutils.urls')),
+    # path('playground/', include('myutils.urls')),
     path('api/v1/', include(first_version)),
+
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/schema/swagger-ui/',
+         SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+
 ] + debug_toolbar_urls()
 
 
