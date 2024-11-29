@@ -45,9 +45,11 @@ class LoginView(GenericAPIView):
     serializer_class = LoginSerializer
     permission_classes = [IsAnonymous]
 
+    # @login_user_doc
     def post(self, request):
         serializer = self.serializer_class(
             data=request.data, context={'request': request})
+
         if serializer.is_valid():
             user = self.login_user(serializer.validated_data)
 
