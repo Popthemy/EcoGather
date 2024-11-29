@@ -13,16 +13,6 @@ REGISTER_USER_DESCRIPTION = """
         - `IsAnonymous`: Only unauthenticated users are allowed to register.
     """
 
-LOGIN_VIEW_DESCRIPTION = """
-    User login endpoint.
-
-    This endpoint allows authenticated users to log in by providing their credentials. 
-    The `IsAnonymous` permission class ensures that only unauthenticated users can register through the registration endpoint, 
-    but this login endpoint should be used by authenticated users or users trying to log in.
-
-    **Permissions**:
-        - `IsAnonymous`: Ensures that only unauthenticated users can access the registration endpoint.
-"""
 
 REGISTER_USER_CREATED = OpenApiExample(
   '201 CREATED',
@@ -31,8 +21,8 @@ REGISTER_USER_CREATED = OpenApiExample(
             'status': 'Success',
             'message': 'Registration Successful',
              "token": {
-                    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzMyOTc0MDMwLCJpYXQiOjE3MzI4ODc2MzAsImp0aSI6ImUxMDE4NTQ3MDhlODQxMTA5YWM0Y2FiOTA1Nzk2NmViIiwidXNlcl9pZCI6IjhlZjljNjVlLTUwOTMtNDdjMi04OWMzLWFiNDg5ZTRkMzQyNSJ9.zp3M-qO7OgnELMmkJ4sazauilaBYL-M38bEEyXfNPiE",
-                    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTczMjk3NDAzMCwiaWF0IjoxNzMyODg3NjMwLCJqdGkiOiJhM2I3MWU0YmU4YmU0ZmYyYWJjMjc2ZDkyNTg3NmNhYSIsInVzZXJfaWQiOiI4ZWY5YzY1ZS01MDkzLTQ3YzItODljMy1hYjQ4OWU0ZDM0MjUifQ.64gFe_QBLrkCJNJu78jJDmRF0lEh1GjM43ykHerlBlY"
+                    "access": "your-access-token-here",
+                    "refresh": "your-refresh-token-here"
     },
     "data": {
         "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -62,15 +52,27 @@ REGISTER_USER_BAD_REQUEST = OpenApiExample(
 )
 
 
+LOGIN_VIEW_DESCRIPTION = """
+    User login endpoint.
+
+    This endpoint allows authenticated users to log in by providing their credentials. 
+    The `IsAnonymous` permission class ensures that only unauthenticated users can register through the registration endpoint, 
+    but this login endpoint should be used by authenticated users or users trying to log in.
+
+    **Permissions**:
+        - `IsAnonymous`: Ensures that only unauthenticated users can access the registration endpoint.
+"""
+
+
 LOGIN_USER_200_OK = OpenApiExample(
     '200 OK',
     description="If the provided credentials are valid, a successful login will return a JWT token and user data.",
     value={
         'status': 'Success',
         'message': 'Welcome back👋',
-         "token": {
-        "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzMyOTc0MDMwLCJpYXQiOjE3MzI4ODc2MzAsImp0aSI6ImUxMDE4NTQ3MDhlODQxMTA5YWM0Y2FiOTA1Nzk2NmViIiwidXNlcl9pZCI6IjhlZjljNjVlLTUwOTMtNDdjMi04OWMzLWFiNDg5ZTRkMzQyNSJ9.zp3M-qO7OgnELMmkJ4sazauilaBYL-M38bEEyXfNPiE",
-        "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTczMjk3NDAzMCwiaWF0IjoxNzMyODg3NjMwLCJqdGkiOiJhM2I3MWU0YmU4YmU0ZmYyYWJjMjc2ZDkyNTg3NmNhYSIsInVzZXJfaWQiOiI4ZWY5YzY1ZS01MDkzLTQ3YzItODljMy1hYjQ4OWU0ZDM0MjUifQ.64gFe_QBLrkCJNJu78jJDmRF0lEh1GjM43ykHerlBlY"
+        "token": {
+                    "access": "your-access-token-here",
+                    "refresh": "your-refresh-token-here"
     },
     "data": {
         "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -80,7 +82,6 @@ LOGIN_USER_200_OK = OpenApiExample(
     response_only=True,
     status_codes=['200']
 )
-
 
 
 LOGIN_USER_401_UNAUTHORIZED = OpenApiExample(
@@ -98,4 +99,42 @@ LOGIN_USER_401_UNAUTHORIZED = OpenApiExample(
     },
     response_only=True,
     status_codes=['401']
+)
+
+
+LOGOUT_USER_DESCRIPTION = """
+    User logout endpoint.
+
+    This endpoint allows authenticated users to log out by invalidating their refresh token.
+    The refresh token is blacklisted so that it cannot be used to generate new access tokens.
+    However, the user will not be immediately logged out until the access token has expired.
+    After the access token expires, the user must log in again to obtain new tokens.
+
+    **Permissions**:
+        - `IsAuthenticated`: Only authenticated users (with a valid token) are allowed to log out.
+"""
+
+
+LOGOUT_USER_200_OK = OpenApiExample(
+    '200 OK',
+    description="If the refresh token is valid and successfully blacklisted, you can't generate a new access token with that token anymore.",
+    value={
+        'status': 'Success',
+        'message': "Token blacklisted, you can't generate a new access token with that token 😋"
+    },
+    response_only=True,
+    status_codes=['200']
+)
+
+
+LOGOUT_USER_400_BAD_REQUEST = OpenApiExample(
+    '400 BAD_REQUEST',
+    description="If the refresh token is invalid or the logout operation fails, the response will indicate an error.",
+    value={
+        'status': 'Error',
+        'message': 'Logout failed',
+        'details': 'Invalid refresh token'
+    },
+    response_only=True,
+    status_codes=['400']
 )

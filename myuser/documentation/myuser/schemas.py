@@ -1,8 +1,8 @@
 from drf_spectacular.utils import extend_schema
 from drf_spectacular.types import OpenApiTypes
-from myuser.serializers import UserSerializer,LoginSerializer
+from myuser.serializers import UserSerializer,LoginSerializer,LogoutSerializer
 from myuser.documentation.myuser.docstrings import REGISTER_USER_DESCRIPTION,REGISTER_USER_BAD_REQUEST,REGISTER_USER_CREATED,LOGIN_VIEW_DESCRIPTION, \
-  LOGIN_USER_200_OK,LOGIN_USER_401_UNAUTHORIZED
+  LOGIN_USER_200_OK,LOGIN_USER_401_UNAUTHORIZED,LOGOUT_USER_DESCRIPTION,LOGOUT_USER_200_OK,LOGOUT_USER_400_BAD_REQUEST
 
 
 
@@ -30,6 +30,21 @@ login_user_doc = extend_schema(
     401:OpenApiTypes.OBJECT
   },
   examples=[LOGIN_USER_200_OK,LOGIN_USER_401_UNAUTHORIZED],
+  tags=['Authentication']
+
+)
+
+
+logout_user_doc =extend_schema(
+  methods=['POST'],
+  summary='User logout endpoint.',
+  description=LOGOUT_USER_DESCRIPTION,
+  request=LogoutSerializer,
+  responses={
+    200:OpenApiTypes.OBJECT,
+    400:OpenApiTypes.OBJECT
+  },
+  examples=[LOGIN_USER_200_OK,LOGOUT_USER_400_BAD_REQUEST],
   tags=['Authentication']
 
 )
