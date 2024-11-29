@@ -9,7 +9,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from myutils.reusable_func import get_jwt_tokens
 
-from myuser.documentation.myuser.schemas import register_user_doc,login_user_doc,logout_user_doc
+from myuser.documentation.myuser.schemas import register_user_doc,login_user_doc,logout_user_doc,refresh_token_doc
 
 from .serializers import UserSerializer, LoginSerializer, LogoutSerializer
 from .permissions import IsAnonymous
@@ -82,6 +82,8 @@ class LoginView(GenericAPIView):
         return user
 
 
+
+@refresh_token_doc
 class TokenRefreshView(BaseTokenRefreshView):
     """ Allows a user to get new access token after their token has expired."""
     pass
@@ -96,7 +98,7 @@ class LogoutView(GenericAPIView):
 
     @logout_user_doc
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.get_serializer(data=request.data)
         refresh_token = request.data.get('refresh')
 
         try:

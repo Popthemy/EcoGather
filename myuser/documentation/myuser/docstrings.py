@@ -138,3 +138,37 @@ LOGOUT_USER_400_BAD_REQUEST = OpenApiExample(
     response_only=True,
     status_codes=['400']
 )
+
+
+TOKEN_REFRESH_DESCRIPTION = """
+    Token refresh endpoint.
+
+    This endpoint allows a user to refresh their access token after it has expired, by providing a valid refresh token. 
+    The refresh token is used to obtain a new access token without requiring the user to log in again. 
+    If the provided refresh token is invalid or expired, an error will be returned.
+"""
+
+TOKEN_REFRESH_200_OK = OpenApiExample(
+    '200 OK',
+    description="If the provided refresh token is valid, a new access token is issued successfully.",
+    value={
+        'status': 'Success',
+        'message': 'Token refreshed successfully.',
+        'access_token': 'new-access-token-here'
+    },
+    response_only=True,
+    status_codes=['200']
+)
+
+
+TOKEN_REFRESH_400_BAD_REQUEST = OpenApiExample(
+    '400 BAD_REQUEST',
+    description="If the provided refresh token is invalid or expired, the token refresh will fail.",
+    value={
+        'status': 'Error',
+        'message': 'Token refresh failed',
+        'details': 'Refresh token is invalid or expired.'
+    },
+    response_only=True,
+    status_codes=['400']
+)
