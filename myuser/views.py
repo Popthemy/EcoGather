@@ -9,7 +9,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from myutils.reusable_func import get_jwt_tokens
 
-from myuser.documentation.myuser.schemas import register_user_doc
+from myuser.documentation.myuser.schemas import register_user_doc,login_user_doc
 
 from .serializers import UserSerializer, LoginSerializer, LogoutSerializer
 from .permissions import IsAnonymous
@@ -37,7 +37,6 @@ class RegisterView(GenericAPIView):
             'token': token,
             'data': serializer.data
         }
-
         return Response(data=data, status=status.HTTP_201_CREATED)
 
 
@@ -45,7 +44,7 @@ class LoginView(GenericAPIView):
     serializer_class = LoginSerializer
     permission_classes = [IsAnonymous]
 
-    # @login_user_doc
+    @login_user_doc
     def post(self, request):
         serializer = self.serializer_class(
             data=request.data, context={'request': request})

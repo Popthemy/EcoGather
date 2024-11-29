@@ -1,0 +1,8 @@
+openapi: 3.0.3
+info:
+  title: 'EcoGather: Event Management Platform API'
+  version: 1.0.0
+  description: This is an innovative platform designed to streamline event creation,
+    management, and participation.
+paths: {}
+components: {}
