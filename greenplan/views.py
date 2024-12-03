@@ -14,6 +14,8 @@ from .serializers import CreateEventSerializer, OrganizerSerializer, \
     AddressSerializer, ProgramSerializer, MiniProgramSerializer, EventSerializer, MiniEventSerializer, TemplateSerializer, MiniTemplateSerializer, CustomFieldSerializer
 from .permissions import IsAdminOrReadonly, IsOwnerOrReadOnly,IsOrganizerOwnerOrReadOnly,IsEventOwnerOrReadOnly,IsTemplateOwnerOrReadOnly
 from .tasks import all_event_organizer_email
+
+
 # Create your views here.
 
 
@@ -25,7 +27,8 @@ class OrganizerViewSet(ModelViewSet):
     serializer_class = OrganizerSerializer
     permission_classes = (IsOwnerOrReadOnly, )
     http_method_names = ['get', 'put', 'patch', 'delete']
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (filters.SearchFilter,DjangoFilterBackend)
+    filterset_fields = ('type',)
     search_fields = ('username', 'type')
 
     def get_queryset(self):

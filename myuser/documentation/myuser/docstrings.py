@@ -1,5 +1,4 @@
-from drf_spectacular.utils import OpenApiResponse,OpenApiExample
-from myuser.serializers import UserSerializer
+from drf_spectacular.utils import OpenApiExample
 
 
 REGISTER_USER_DESCRIPTION = """
@@ -15,38 +14,38 @@ REGISTER_USER_DESCRIPTION = """
 
 
 REGISTER_USER_CREATED = OpenApiExample(
-  '201 CREATED',
-  description='Registration Successful',
-  value={'data':{
-            'status': 'Success',
-            'message': 'Registration Successful',
-             "token": {
-                    "access": "your-access-token-here",
-                    "refresh": "your-refresh-token-here"
-    },
-    "data": {
-        "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        "email": "example@gmail.com"
-    }
+    '201 CREATED',
+    description='Registration Successful',
+    value={'data': {
+        'status': 'Success',
+        'message': 'Registration Successful',
+        "token": {
+            "access": "your-access-token-here",
+            "refresh": "your-refresh-token-here"
+        },
+        "data": {
+            "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "email": "example@gmail.com"
         }
-  },
-  response_only=True,
-  status_codes=['201']
+    }
+    },
+    response_only=True,
+    status_codes=['201']
 )
 
 
 REGISTER_USER_BAD_REQUEST = OpenApiExample(
-  '400 BAD_REQUEST',
-  description= "If the data is invalid, the serializer will raise an exception, and an appropriate error response will be returned.",
-  value={'errors':{"username": ["This field is required."],
-                   "password": ["This field is required."],
-                    "confirm_password": ["This field may not be blank."],
-                    "field": ["Password too common. Use a strong password"],
-                    "non_field_errors": [
-                        "This password is too short.", "It must contain at least 8 characters.",
-                        "Password and Confirm_password doesn't match."
-                    ]
-                    }},
+    '400 BAD_REQUEST',
+    description="If the data is invalid, the serializer will raise an exception, and an appropriate error response will be returned.",
+    value={'errors': {"username": ["This field is required."],
+                      "password": ["This field is required."],
+                      "confirm_password": ["This field may not be blank."],
+                      "field": ["Password too common. Use a strong password"],
+                      "non_field_errors": [
+        "This password is too short.", "It must contain at least 8 characters.",
+        "Password and Confirm_password doesn't match."
+    ]
+    }},
     response_only=True,
     status_codes=['400']
 )
@@ -71,13 +70,13 @@ LOGIN_USER_200_OK = OpenApiExample(
         'status': 'Success',
         'message': 'Welcome back👋',
         "token": {
-                    "access": "your-access-token-here",
-                    "refresh": "your-refresh-token-here"
-    },
-    "data": {
-        "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        "email": "example@gmail.com"
-    }
+            "access": "your-access-token-here",
+            "refresh": "your-refresh-token-here"
+        },
+        "data": {
+            "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "email": "example@gmail.com"
+        }
     },
     response_only=True,
     status_codes=['200']
