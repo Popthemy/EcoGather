@@ -24,13 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('ECOGATHER_SECRET_KEY')
+SECRET_KEY = config('MY_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(config('IS_DEBUG'))
+DEBUG = config('IS_DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['0.0.0.0' ,'localhost', '127.0.0.1', 'localhost:800']
-
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Application definition
 
@@ -108,11 +107,11 @@ WSGI_APPLICATION = 'ecogather.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'eco_gather',
+        'NAME': config('DB_NAME'),
         'USER': 'postgres',
         'PASSWORD': config('DB_PASSWORD'),
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'HOST': config('DB_HOST'),
+        'PORT': config('DB_PORT'),
     }
 }
 
