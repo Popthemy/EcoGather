@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 from celery.schedules import crontab
+from decouple import config
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -23,12 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-h!+275u2*-irlquv%b9=sa!58#8))sd0e(*l4@h7fa(+tqf49='
+SECRET_KEY = config('ECOGATHER_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = bool(config('IS_DEBUG'))
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['0.0.0.0' ,'localhost', '127.0.0.1', 'localhost:800']
 
 
 # Application definition
@@ -109,7 +110,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'eco_gather',
         'USER': 'postgres',
-        'PASSWORD': os.environ.get('book hall postgres PASSWORD'),
+        'PASSWORD': config('DB_PASSWORD'),
         'HOST': 'localhost',
         'PORT': '5432',
     }
