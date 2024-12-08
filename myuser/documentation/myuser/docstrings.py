@@ -68,8 +68,7 @@ LOGIN_USER_200_OK = OpenApiExample(
     description="If the provided credentials are valid, a successful login will return a JWT token and user data.",
     value={
         'status': 'Success',
-        'message': 'Welcome back👋',
-        "token": {
+        'message': 'Welcome back👋',        "token": {
             "access": "your-access-token-here",
             "refresh": "your-refresh-token-here"
         },

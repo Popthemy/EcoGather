@@ -4,7 +4,7 @@ from django.db.models.query import QuerySet
 from django.contrib.auth import get_user_model
 from django.http import HttpRequest
 from django.utils import timezone
-from django.utils.html import format_html
+from django.utils.html import format_html,urlencode
 from django.urls import reverse
 from greenplan.models import Event, EventImage, Template, CustomField, Program, Organizer, OrganizerImage, Address
 # Register your models here.
@@ -125,7 +125,7 @@ class EventAdmin(admin.ModelAdmin):
     fields = ['code', 'title',  'organizer', 'slug', 'program', 'is_private', 'description',
               'start_datetime', 'end_datetime', 'venue', 'city', 'contact_email', 'contact_phone_number']
     inlines = [EventImageInline]
-    list_display = ['id', 'code', 'title', 'organizer', 'event_status', 'program', 'is_private',
+    list_display = ['id','code', 'title', 'organizer', 'event_status', 'program', 'is_private',
                     'venue', 'start_datetime', 'end_datetime']
     list_editable = ['title', 'organizer', 'is_private', 'venue']
     list_filter = [EventStatusFilter, 'program']

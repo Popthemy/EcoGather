@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+
+{% block event-brief-content %}
+
+
+<section id="intro">
+  <div class="intro-container wow fadeIn">
+    <h1 class="mb-4 pb-0">{{event.title}} <span> #{{event.code}} </span></h1>
+    <p class="mb-4 pb-0"> {{event.description}} </p>
+    <a href="#" class="venobox play-btn mb-4" data-vbtype="video"
+      data-autoplay="true"></a>
+    <a href="#about" class="about-btn scrollto">About The Event</a>
+  </div>
+</section>
+{% endblock %}
+{% block content %}
+
+
+  <!--==========================
+      About Event Section
+    ============================-->
+    <section id="about">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-6">
+            <h2>About The Event</h2>
+            <p>{{event.description}}</p>
+          </div>
+          <div class="col-lg-3">
+            <h3>Where</h3>
+            <p> {{event.venue}}, {{event.city}}</p>
+          </div>
+          <div class="col-lg-3">
+            <h3>When || <span>{{event.get_event_status}}</span></h3>
+            <p>{{event.start_datetime}} to <br>{{event.end_datetime}}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+     <!-- <section>
+      {% for template in event_templates %}
+      <ol>
+        <li> <h4> {{template.title}}  </h4></li>
+      </ol>
+      
+      
+      {% endfor %}
+
+
+      {% for template in event_templates %}
+      {% for field in template.custom_fields.all %}
+      
+      <h4> {{field.label}}   -   {{template.id}}</h4>
+      {% comment %} <p>{{template.owner.images.all[0]}}</p> {% endcomment %}
+      <img src='{{organizer_image.image_url.url}}' alt='some text'>
+      <hr>
+      {% endfor %}
+      
+      {% endfor %}
+        {% comment %} <p></p> {% endcomment %}
+
+
+    </section>  -->
+
+
+
+
+    <section id="schedule" class="section-with-bg">
+      <div class="container wow fadeInUp">
+        <div class="section-header">
+          <h2>Order of service</h2>
+          <p>Here is how our service is planned</p>
+        </div>
+    
+        <!-- Tab Navigation (for each day) -->
+        <ul class="nav nav-tabs" role="tablist">
+          {% for template in event_templates %}
+            <li class="nav-item">
+              <a class="nav-link {% if forloop.first %}active{% endif %}" href="#day-{{ template.id }}" role="tab" data-toggle="tab">{{ template.title }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+    
+          
+        
+        <div class="tab-content row justify-content-center">
+          {% for template in event_templates %}
+          <div role="tabpanel" class="col-lg-9 tab-pane fade {% if forloop.first %}show active{% endif %}" id="day-{{ template.id }}">
+            
+              <h3 class="sub-heading" >{{template.description}}.</h3>
+              {% for field in template.custom_fields.all %}
+                <div class="row schedule-item">
+                  <div class="col-md-2">
+                    <time>{{ field.start_time }} - {{ field.end_time }}</time>
+                  </div>
+                  <div class="col-md-10">
+                    <!-- Organizer Image if available -->
+                    {% if organizer_image %}
+                      <div class="speaker">
+                        <img src="{{organizer_image.image_url.url }}" alt="{{template.owner.username}}">
+                      </div>
+                    {% endif %}
+    
+                    <h4>{{ field.label }}</h4>
+                    <p>{{ field.content }}</p>
+                  </div>
+                </div>
+              {% endfor %}
+    
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+    
+{% endblock  %}
