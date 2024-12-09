@@ -1,15 +1,28 @@
 from django.shortcuts import render
-from greenplan.models import Event,Template
+from greenplan.models import Event, Template
 # Create your views here.
 
 
-def demo_view(request):
-    event = Event.objects.get(pk=29)
+def events(request):
 
-    event_templates = Template.objects.select_related('owner').prefetch_related('custom_fields').filter(event_id=29)
+    events = Event.objects.all()
+    context = {'page': 'Home page', 'events': events}
+    return render(request, 'frontend_demo/events.html', context)
+
+
+def event_view(request, event_id, event_code):
+    '''This view leads to a single event landing page.'''
+    event = Event.objects.get(pk=event_id, code=event_code)
+
+    event_templates = Template.objects.select_related('owner').prefetch_related(
+        'custom_fields').filter(event_id=29, event__code=event_code)
     # print([template.custom_fields.all() for template in event_templates])
 
-    organizer_images = event_templates.first().owner.images.all()
+    image = ''
+    organizer_image = event_templates.first()
+    if organizer_image:
+        image = organizer_image.owner.images.all().first()
 
-    context = {'page': 'Event', 'event': event, 'event_templates':event_templates,'organizer_image':organizer_images.first()}
+    context = {'page': 'Event', 'event': event,
+               'event_templates': event_templates, 'organizer_image': image}
     return render(request, 'frontend_demo/order-of-service.html', context)
