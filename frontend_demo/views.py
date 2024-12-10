@@ -1,12 +1,20 @@
 from django.shortcuts import render
-from greenplan.models import Event, Template
+from greenplan.models import Event, Template,Program
 # Create your views here.
 
 
-def events(request):
+def index(request):
+    '''Include the events and the program we have.'''
+    programs = Program.objects.all()
 
-    events = Event.objects.all()
-    context = {'page': 'Home page', 'events': events}
+    filter_by_program_title = request.GET.get('program',None)
+    if filter_by_program_title:
+        events = Event.objects.filter(program__title=filter_by_program_title)
+        print(f'i used filter {[ i.program for i in events]}')
+    else:
+        events = Event.objects.all()
+    
+    context = {'page': 'Home page', 'events': events,'programs':programs}
     return render(request, 'frontend_demo/events.html', context)
 
 

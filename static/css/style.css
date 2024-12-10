@@ -1015,6 +1015,35 @@ body.mobile-nav-active #mobile-nav-toggle {
   font-size: 15px;
 }
 
+
+
+#speakers .speaker .details .social {
+  height: 30px;
+}
+
+#speakers .speaker .details a {
+  color: #fff;
+}
+
+#speakers .speaker .details a:hover {
+  color: #7dd001;
+}
+
+#speakers .speaker:hover .details {
+  bottom: 0;
+}
+
+#speakers-details {
+  padding: 60px 0;
+}
+
+#speakers-details .details h2 {
+  color: #112363;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
 /*--------------------------------------------------------------
 # Gallery Section
 --------------------------------------------------------------*/

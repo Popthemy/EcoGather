@@ -6,7 +6,8 @@
 
 <section id="intro">
   <div class="intro-container wow fadeIn">
-    <h1 class="mb-4 pb-0">{{event.title}} <span> #{{event.code}} </span></h1>
+    <h1 class="mb-4 pb-0">{{event.title}}</h1>
+    <h1 class="mb-4 pb-0"><span> #{{event.code}} </span></h1>
     <p class="mb-4 pb-0"> {{event.description}} </p>
     <a href="#" class="venobox play-btn mb-4" data-vbtype="video"
       data-autoplay="true"></a>
@@ -24,7 +25,7 @@
       <div class="container">
         <div class="row">
           <div class="col-lg-6">
-            <h2>About The Event</h2>
+            <h2>About This Event</h2>
             <p>{{event.description}}</p>
           </div>
           <div class="col-lg-3">
@@ -32,7 +33,7 @@
             <p> {{event.venue}}, {{event.city}}</p>
           </div>
           <div class="col-lg-3">
-            <h3>When || <span>{{event.get_event_status}}</span></h3>
+            <h3>When || {{event.get_event_status}}</h3>
             <p>{{event.start_datetime}} to <br>{{event.end_datetime}}</p>
           </div>
         </div>
@@ -40,41 +41,17 @@
     </section>
 
 
-     <!-- <section>
-      {% for template in event_templates %}
-      <ol>
-        <li> <h4> {{template.title}}  </h4></li>
-      </ol>
-      
-      
-      {% endfor %}
-
-
-      {% for template in event_templates %}
-      {% for field in template.custom_fields.all %}
-      
-      <h4> {{field.label}}   -   {{template.id}}</h4>
-      {% comment %} <p>{{template.owner.images.all[0]}}</p> {% endcomment %}
-      <img src='{{organizer_image.image_url.url}}' alt='some text'>
-      <hr>
-      {% endfor %}
-      
-      {% endfor %}
-        {% comment %} <p></p> {% endcomment %}
-
-
-    </section>  -->
-
-
-
-
     <section id="schedule" class="section-with-bg">
       <div class="container wow fadeInUp">
         <div class="section-header">
           <h2>Order of service</h2>
+          {% if not event_templates %}
+          <p>Bulletins Unavailable!!!..</p>
+          {% else %}
           <p>Here is how our service is planned</p>
+          {% endif %}
         </div>
-    
+
         <!-- Tab Navigation (for each day) -->
         <ul class="nav nav-tabs" role="tablist">
           {% for template in event_templates %}
@@ -83,9 +60,9 @@
             </li>
           {% endfor %}
         </ul>
-    
-          
+  
         
+    
         <div class="tab-content row justify-content-center">
           {% for template in event_templates %}
           <div role="tabpanel" class="col-lg-9 tab-pane fade {% if forloop.first %}show active{% endif %}" id="day-{{ template.id }}">
@@ -113,7 +90,11 @@
             </div>
           {% endfor %}
         </div>
+
+    
+
       </div>
+
     </section>
     
 {% endblock  %}

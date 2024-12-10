@@ -9,24 +9,20 @@
     <section id="speakers" class="wow fadeInUp">
       <div class="container">
         <div class="section-header">
-          <h2>Event </h2>
-          <p>Here are some of our varieties of events</p>
+          <h2>Program </h2>
+          <p>Filter by program type</p>
         </div>
 
         <div class="row">
-          
-          {% for event in events %}
+
+          {% for program in programs %}
             <div class="col-lg-4 col-md-6">
               <div class="speaker">
-                  <img src="{{event.images.all.first.image_url.url}}" alt="{{event.title}}" class="img-fluid">
+                  <img src="{{program.featured_event.images.all.first.image_url.url}}" alt="{{event.title}}" class="img-fluid">
                 <div class="details">
-                  <h3><a href="{% url 'event_detail' event.id event.code %}">{{event.title}}</a></h3>
-                  <p>Venue: {{event.venue}} || Status: {{event.get_event_status}}</p>
+                  <h3><a href="?program={{program.title}}">{{program.title}}</a></h3>
                   <div class="social">
-                    <a href=""><i class="fa fa-twitter"></i></a>
-                    <a href=""><i class="fa fa-facebook"></i></a>
-                    <a href=""><i class="fa fa-google-plus"></i></a>
-                    <a href=""><i class="fa fa-linkedin"></i></a>
+                    
                   </div>
                 </div>
               </div>
@@ -36,16 +32,15 @@
 
 
 
-
     <!--==========================
-      Event 2 Section
+      Event Section
     ============================-->
     <section id="hotels" class="section-with-bg wow fadeInUp">
 
       <div class="container">
         <div class="section-header">
           <h2>Event </h2>
-          <p>Here are some of our varieties of events</p>
+          <p>Discover varieties of events</p>
         </div>
 
         <div class="row">
@@ -62,12 +57,14 @@
                 <div class="details">
                   <h3><a href="{% url 'event_detail' event.id event.code %}">{{event.title}}</a></h3>
                   <p>Venue: {{event.venue}} || Status: {{event.get_event_status}}</p>
-                  <div class="social">
+                  <p>Program: {{event.program}} </p>
+
+                  <p class="social">
                     <a href=""><i class="fa fa-twitter"></i></a>
                     <a href=""><i class="fa fa-facebook"></i></a>
                     <a href=""><i class="fa fa-google-plus"></i></a>
                     <a href=""><i class="fa fa-linkedin"></i></a>
-                  </div>
+                  </p>
                 </div>
 
               </div>
