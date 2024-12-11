@@ -10,10 +10,11 @@ def index(request):
     filter_by_program_title = request.GET.get('program',None)
     if filter_by_program_title:
         events = Event.objects.filter(program__title=filter_by_program_title)
-        print(f'i used filter {[ i.program for i in events]}')
     else:
         events = Event.objects.all()
     
+    events = events.prefetch_related('images')
+
     context = {'page': 'Home page', 'events': events,'programs':programs}
     return render(request, 'frontend_demo/events.html', context)
 
@@ -30,6 +31,8 @@ def event_view(request, event_id, event_code):
     organizer_image = event_templates.first()
     if organizer_image:
         image = organizer_image.owner.images.all().first()
+
+    
 
     context = {'page': 'Event', 'event': event,
                'event_templates': event_templates, 'organizer_image': image}
