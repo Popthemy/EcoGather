@@ -5,7 +5,7 @@ from greenplan.models import Event, Template,Program
 
 def index(request):
     '''Include the events and the program we have.'''
-    programs = Program.objects.all()
+    programs = Program.objects.all().select_related('featured_event')
 
     filter_by_program_title = request.GET.get('program',None)
     if filter_by_program_title:
@@ -31,8 +31,6 @@ def event_view(request, event_id, event_code):
     organizer_image = event_templates.first()
     if organizer_image:
         image = organizer_image.owner.images.all().first()
-
-    
 
     context = {'page': 'Event', 'event': event,
                'event_templates': event_templates, 'organizer_image': image}
