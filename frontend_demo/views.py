@@ -3,17 +3,23 @@ from greenplan.models import Event, Template,Program
 # Create your views here.
 
 
+""" Include page in every view context data so we can track the page you are currently working on from the title of the HTML page.
+e.g {"page":"Event"}
+"""
+
 def index(request):
-    '''Include the events and the program we have.'''
-    programs = Program.objects.all().select_related('featured_event')
+    '''
+    Include the events and the program we have. 
+    Used featured event image as the program image  '''
 
     filter_by_program_title = request.GET.get('program',None)
+
     if filter_by_program_title:
-        events = Event.objects.filter(program__title=filter_by_program_title)
+        events = Event.objects.prefetch_related('images').filter(program__title=filter_by_program_title)
     else:
-        events = Event.objects.all()
-    
-    events = events.prefetch_related('images')
+        events = Event.objects.prefetch_related('images').all()
+
+    programs = Program.objects.select_related('featured_event').prefetch_related('featured_event__images').all()
 
     context = {'page': 'Home page', 'events': events,'programs':programs}
     return render(request, 'frontend_demo/events.html', context)
@@ -35,3 +41,11 @@ def event_view(request, event_id, event_code):
     context = {'page': 'Event', 'event': event,
                'event_templates': event_templates, 'organizer_image': image}
     return render(request, 'frontend_demo/order-of-service.html', context)
+
+
+def login(request):
+    '''user sign up to get authenticated.'''
+
+    context = {'page':'login'}
+
+    return render(request,'frontend_demo/login.html',context)

@@ -173,13 +173,13 @@ class TemplateAdmin(admin.ModelAdmin):
                 else:
                     self.message_user(
                         request,
-                        f'{template.title} is an empty template and was not cloned.',
+                        f'{template.title} template not cloned because it has no custom fields.',
                         messages.ERROR
                     )
             if not cloned_templates:
                 self.message_user(
                     request,
-                    'No templates were cloned due to being empty!',
+                    'No templates were cloned due to template being empty!',
                     messages.ERROR
                 )
         else:

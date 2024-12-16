@@ -285,12 +285,6 @@ class EventTemplateApiView(GenericAPIView):
     serializer_class = TemplateSerializer
     permission_classes = (IsEventOwnerOrReadOnly,)
 
-    # def get_permissions(self):
-    #     '''Allow only staff and organizer to create template for an event'''
-    #     if self.request.method == 'POST':
-    #         self.permission_classes = [IsOrganizerOrReadOnly]
-    #     return super().get_permissions()
-
     def get_queryset(self):
         ''' Retrieve templates based on organizer of the event or the event is public.'''
         user = self.request.user

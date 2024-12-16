@@ -285,16 +285,18 @@ class Template(models.Model):
                     code=self.generate_unique_code()
                 )
 
-                custom_fields = [CustomField(
+                custom_fields = [ CustomField(
                     template=new_template,
                     label=field.label,
                     content=field.content,
                     start_time=field.start_time,
                     end_time=field.end_time)
-                    for field in self.custom_fields.all()]
+                    for field in self.custom_fields.all() ]
 
                 CustomField.objects.bulk_create(custom_fields)
                 return new_template
+            else: 
+                raise ValidationError('Template not cloned because it has no custom fields.')
         return None
 
     def save(self, *args, **kwargs):
