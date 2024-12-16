@@ -34,6 +34,7 @@ urlpatterns = [
     path('events/<int:event_pk>/images/<int:pk>/',im_views.EventImageDetailApiView.as_view(),name='event-image-detail'),
 
     path('generate_qr/',qr_code_views.generate_qr_code,name='generate_qr_code'),
+    path('templates/<int:template_id>/clone/', views.CloneTemplateView.as_view(),name='clone-template'),
     path('',include(router.urls)),
 
 ]

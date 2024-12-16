@@ -155,7 +155,7 @@ class TemplateAdmin(admin.ModelAdmin):
     @admin.action(description='Clone template')
     def clone_template(self, request, queryset):
         """Using the action to clone a template, but empty template can't be cloned
-        Empty template means template without no custom fields"""
+        Empty template means template without no custom fields """
 
         if queryset.exists():
             cloned_templates = []
@@ -163,7 +163,7 @@ class TemplateAdmin(admin.ModelAdmin):
                 # Ensure that the template has custom fields before cloning
                 if template.custom_fields.exists():
                     user = Organizer.objects.get(user_id=request.user.id)
-                    new_template = template.clone(user=user)
+                    new_template = template.clone_template(user=user)
                     cloned_templates.append(new_template)
                     self.message_user(
                         request,

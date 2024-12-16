@@ -1,18 +1,22 @@
 from django.shortcuts import get_object_or_404
 from django.http import Http404
 from django.db.models import Q
+from django.core.exceptions import ValidationError
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import GenericAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status, filters
 from rest_framework.exceptions import PermissionDenied
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly,IsAuthenticated
+
 
 from .models import Organizer, Address, Program, Event, Template, CustomField
 from .serializers import CreateEventSerializer, OrganizerSerializer, \
-    AddressSerializer, ProgramSerializer, MiniProgramSerializer, EventSerializer, MiniEventSerializer, TemplateSerializer, MiniTemplateSerializer, CustomFieldSerializer
-from .permissions import IsAdminOrReadonly, IsOwnerOrReadOnly,IsOrganizerOwnerOrReadOnly,IsEventOwnerOrReadOnly,IsTemplateOwnerOrReadOnly
+    AddressSerializer, ProgramSerializer, MiniProgramSerializer, EventSerializer, \
+    MiniEventSerializer, TemplateSerializer, MiniTemplateSerializer, CustomFieldSerializer, \
+    CloneTemplateSerializer
+from .permissions import IsAdminOrReadonly, IsOwnerOrReadOnly, IsOrganizerOwnerOrReadOnly, IsEventOwnerOrReadOnly, IsTemplateOwnerOrReadOnly
 from .tasks import all_event_organizer_email
 
 
@@ -27,7 +31,7 @@ class OrganizerViewSet(ModelViewSet):
     serializer_class = OrganizerSerializer
     permission_classes = (IsOwnerOrReadOnly, )
     http_method_names = ['get', 'put', 'patch', 'delete']
-    filter_backends = (filters.SearchFilter,DjangoFilterBackend)
+    filter_backends = (filters.SearchFilter, DjangoFilterBackend)
     filterset_fields = ('type',)
     search_fields = ('username', 'type')
 
@@ -78,7 +82,7 @@ class AddressApiView(ListCreateAPIView):
     def post(self, request, *args, **kwargs):
 
         serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True) # raise 400
+        serializer.is_valid(raise_exception=True)  # raise 400
         serializer.save()
 
         data = {
@@ -90,7 +94,7 @@ class AddressApiView(ListCreateAPIView):
         return Response(data=data, status=status.HTTP_201_CREATED)
 
     def get_serializer_context(self):
-        return {'request': self.request,'addresses_owner': self.kwargs.get('organizer_pk') }
+        return {'request': self.request, 'addresses_owner': self.kwargs.get('organizer_pk')}
 
 
 class AddressDetailApiView(RetrieveUpdateDestroyAPIView):
@@ -167,8 +171,8 @@ class EventApiView(GenericAPIView):
     """ provide endpoints get and post"""
 
     permission_classes = [IsAuthenticatedOrReadOnly]
-    filter_backends = (filters.SearchFilter,filters.OrderingFilter)
-    search_fields = ('title', 'program__title','organizer__username')
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
+    search_fields = ('title', 'program__title', 'organizer__username')
     ordering_fields = ('title',)
 
     def get_serializer_class(self):
@@ -339,7 +343,6 @@ class EventTemplateDetailApiView(GenericAPIView):
 
     serializer_class = TemplateSerializer
     permission_classes = (IsEventOwnerOrReadOnly,)
-
 
     def get_queryset(self):
         '''Retrieve templates based on user role and template ID.'''
@@ -529,3 +532,37 @@ class CustomFieldDetailApiView(GenericAPIView):
             'template_pk': self.kwargs['template_pk'],
             'user': self.request.user,
         }
+
+
+
+class CloneTemplateView(GenericAPIView):
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self,*args, **kwargs):
+        '''
+               Make duplication of the template       
+               data = {
+                "status": "success",
+                "message": " Templates custom field retrieved successfully",
+                "data": serializer.data }
+            }'''
+
+        template = get_object_or_404(Template,pk= kwargs['template_id'])
+
+        try:
+            duplicate = template.clone_template(user=Organizer.objects.get(user_id=self.request.user.id))
+            serializer = MiniTemplateSerializer(duplicate)
+
+            data = {
+                "status": "success",
+                "message": " Templates cloned successfully",
+                "data": serializer.data }
+
+            return Response( data,status=status.HTTP_201_CREATED)
+
+        except ValidationError as e:
+            return Response(data={
+                'status':'error',
+                'message': str(e)
+            },status=status.HTTP_400_BAD_REQUEST)

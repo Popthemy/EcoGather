@@ -272,15 +272,16 @@ class Template(models.Model):
         code = character + digit
         return ''.join(code)
 
-    def clone(self, user, new_template=None):
+    def clone_template(self, user, event=None):
         '''This help template to be reused, user an decide to clone their template 
-        or another users template provided it is available.'''
+        or another users template provided it is available.
+        It can also be included to clone template for a know event also'''
 
         with transaction.atomic():
             if self.custom_fields.exists():
                 new_template = Template.objects.create(
                     title=f'{self.title } (cloned)',
-                    event=None,
+                    event=event,
                     owner=user,
                     code=self.generate_unique_code()
                 )
@@ -295,7 +296,7 @@ class Template(models.Model):
 
                 CustomField.objects.bulk_create(custom_fields)
                 return new_template
-            else: 
+            else:
                 raise ValidationError('Template not cloned because it has no custom fields.')
         return None
 
