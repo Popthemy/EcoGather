@@ -36,7 +36,7 @@ def event_view(request, event_id, event_code):
     event = Event.objects.get(pk=event_id, code=event_code)
 
     event_templates = Template.objects.select_related('owner').prefetch_related(
-        'custom_fields').filter(event_id=29, event__code=event_code)
+        'custom_fields').filter(event_id=event_id, event__code=event_code)
     # print([template.custom_fields.all() for template in event_templates])
 
     image = ''
@@ -75,3 +75,13 @@ def login_view(request):
     context = {'page':'login'}
 
     return render(request,'frontend_demo/login.html',context)
+
+
+def templates_view(request):
+    '''this view provides list of all templates, we can click to clone a templates for our event'''
+
+    templates = Template.objects.prefetch_related('custom_fields').all()
+
+    context = {'page':'templates','templates':templates}
+
+    return render(request,'frontend_demo/bulletins.html',context)

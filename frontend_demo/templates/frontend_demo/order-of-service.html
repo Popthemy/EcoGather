@@ -46,48 +46,49 @@
         <div class="section-header">
           <h2>Order of service</h2>
           {% if not event_templates %}
-          <p>Bulletins Unavailable!!!..</p>
+              <p>Bulletins Unavailable!!!..</p>
           {% else %}
-          <p>Here is how our service is planned</p>
-          {% endif %}
-        </div>
+              <p>Here is how our service is planned</p>
+            </div>
 
-        <!-- Tab Navigation (for each day) -->
-        <ul class="nav nav-tabs" role="tablist">
-          {% for template in event_templates %}
-            <li class="nav-item">
-              <a class="nav-link {% if forloop.first %}active{% endif %}" href="#day-{{ template.id }}" role="tab" data-toggle="tab">{{ template.title }}</a>
-            </li>
-          {% endfor %}
-        </ul>
-    
-        <div class="tab-content row justify-content-center">
-          {% for template in event_templates %}
-          <div role="tabpanel" class="col-lg-9 tab-pane fade {% if forloop.first %}show active{% endif %}" id="day-{{ template.id }}">
-            
-              <h3 class="sub-heading" >{{template.description}}.</h3>
-              {% for field in template.custom_fields.all %}
-                <div class="row schedule-item">
-                  <div class="col-md-2">
-                    <time>{{ field.start_time }} - {{ field.end_time }}</time>
-                  </div>
-                  <div class="col-md-10">
-                    <!-- Organizer Image if available -->
-                    {% if organizer_image %}
-                      <div class="speaker">
-                        <img src="{{organizer_image.image_url.url }}" alt="{{template.owner.username}}">
+            <!-- Tab Navigation (for each day) -->
+            <ul class="nav nav-tabs" role="tablist">
+              {% for template in event_templates %}
+                <li class="nav-item">
+                  <a class="nav-link {% if forloop.first %}active{% endif %}" href="#day-{{ template.id }}" role="tab" data-toggle="tab">{{ template.title }}</a>
+                </li>
+              {% endfor %}
+            </ul>
+        
+            <div class="tab-content row justify-content-center">
+              {% for template in event_templates %}
+              <div role="tabpanel" class="col-lg-9 tab-pane fade {% if forloop.first %}show active{% endif %}" id="day-{{ template.id }}">
+                
+                  <h3 class="sub-heading" >{{template.description}}.</h3>
+                  {% for field in template.custom_fields.all %}
+                    <div class="row schedule-item">
+                      <div class="col-md-2">
+                        <time>{{ field.start_time }} - {{ field.end_time }}</time>
                       </div>
-                    {% endif %}
-    
-                    <h4>{{ field.label }}</h4>
-                    <p>{{ field.content }}</p>
-                  </div>
+                      <div class="col-md-10">
+                        <!-- Organizer Image if available -->
+                        {% if organizer_image %}
+                          <div class="speaker">
+                            <img src="{{organizer_image.image_url.url }}" alt="{{template.owner.username}}">
+                          </div>
+                        {% endif %}
+        
+                        <h4>{{ field.label }}</h4>
+                        <p>{{ field.content }}</p>
+                      </div>
+                    </div>
+                  {% endfor %}
+        
                 </div>
               {% endfor %}
-    
             </div>
-          {% endfor %}
-        </div>
+          
+          {% endif %}
 
     
 

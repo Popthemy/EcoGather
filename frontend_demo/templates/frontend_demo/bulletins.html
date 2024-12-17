@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+    <!--==========================
+      Sponsors Section
+    ============================-->
+    <section id="sponsors" class="section-with-bg wow fadeInUp">
+
+      <div class="container">
+        <div class="section-header">
+          <h2>Templates</h2>
+          <p>Select the template you will like to clone...</p>
+        </div>
+
+        <div class="row no-gutters sponsors-wrap clearfix">
+          
+          {% for template in templates %}
+            <div class="col-lg-4 col-md-6 text-center">
+              <div class="sponsor-logo">
+                <h4 class="mb-4 pb-0"><a href='' >{{template.title}} <br><span> #{{template.code}} </span> </a> </h4>
+                <p>Number of fields: {{template.custom_fields.count}} </p>
+                <p> <small> {{template.description}} </small> </p>
+              </div>
+            </div>
+          {% endfor %}
+
+
+
+        </div>
+
+      </div>
+
+    </section>
+
+{% endblock  %}

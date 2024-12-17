@@ -20,7 +20,11 @@
           <li><a href="#venue">Venue</a></li>
           {% comment %} <li><a href="#sponsors">Sponsors</a></li> {% endcomment %}
           {% comment %} <li><a href="#contact">Contact</a></li> {% endcomment %}
-          <li class="buy-tickets"><a href="#buy-tickets">Sign up</a></li>
+          {% if request.user.is_authenticated %}
+          <li class="buy-tickets"><a href="#buy-tickets"> Sign out</a></li>
+          {% else %}
+          <li class="buy-tickets"><a href="{% url 'login_page' %}"> Sign up</a></li>
+          {% endif %}
         </ul>
       </nav><!-- #nav-menu-container -->
     </div>
