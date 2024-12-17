@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate,login
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from greenplan.models import Event, Template,Program
 
 # Create your views here.
@@ -63,7 +64,7 @@ def login_view(request):
                 login(request,sign_in_user)
                 message = 'Login Successful!'
                 messages.success(request,message)
-                return redirect('events')
+                return redirect( request.GET.get('next') if 'next' in request.GET else 'events')
             else:
                 message = 'Invalid Password!'
                 messages.error(request,message)
@@ -87,7 +88,34 @@ def templates_view(request):
     return render(request,'frontend_demo/bulletins.html',context)
 
 
-def clone_template(request,template_id,template_code):
+@login_required(login_url='login')
+def clone_template_view(request, template_id, template_code):
+    '''For cloning a template, user needs to select an event to link it to'''
+    template = Template.objects.get(pk=template_id, code=template_code)
+    current_user_id = request.user.id
 
-    templates = Template.objects.all()
+    if request.method == "POST":
+        # Retrieve event_id and event_code from POST data
+        event_id = request.POST.get('event_id')  # Match form 'name' attribute
+        event_code = request.POST.get('event_code')  # Sent via hidden input
+
+        print(f'Event ID: {event_id}, Event Code: {event_code}')
+
+        if event_id and event_code:
+            # Call the clone method and pass the required parameters
+            cloned_template = template.clone_template(user_id=current_user_id, event_id=event_id)
+            
+            # Redirect to event details page with event_id and event_code as parameters
+            return redirect('event_detail', event_id=event_id, event_code=event_code)
+
+        # Handle missing input
+        message = 'Please select an event to link with the cloned template.'
+        messages.error(request, message)
+        return redirect(request.get_full_path())
+
+    events = Event.objects.filter(organizer_id=current_user_id)
+
+    context = {'page': 'Clone Template', 'events': events}
+    return render(request, 'frontend_demo/clone_event_template.html', context)
+
 

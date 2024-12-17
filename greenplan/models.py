@@ -272,7 +272,7 @@ class Template(models.Model):
         code = character + digit
         return ''.join(code)
 
-    def clone_template(self, user, event=None):
+    def clone_template(self, user_id, event_id=None):
         '''This help template to be reused, user an decide to clone their template 
         or another users template provided it is available.
         It can also be included to clone template for a know event also'''
@@ -281,8 +281,8 @@ class Template(models.Model):
             if self.custom_fields.exists():
                 new_template = Template.objects.create(
                     title=f'{self.title } (cloned)',
-                    event=event,
-                    owner=user,
+                    event_id=event_id,
+                    owner_id=user_id,
                     code=self.generate_unique_code()
                 )
 

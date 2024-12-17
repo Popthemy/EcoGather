@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+
+
+    <!--==========================
+      Contact Section
+    ============================-->
+    <section id="contact" class="section-bg wow fadeInUp">
+
+      <div class="container">
+
+        <div class="section-header">
+          <h2>Attach event <br> to cloned Template </h2>
+          <p>Last step to clone a template is to select an event. Kindly select a template</p>
+        </div>
+
+        <div class="form">
+
+          <form method="post" role="form" class="contactForm">
+            {% csrf_token %}
+            
+            <!-- Event Selection Dropdown -->
+            <div class="col-md-10 form-group">
+                <label for="event-select" class="font-weight-bold text-black">Event</label>
+                <div class="field-icon-wrap">
+                    <select name="event_id" id="event-select" class="form-control" required>
+                        <option value="" disabled selected>-- Select an Event --</option>
+                        {% for event in events %}
+                            <option value="{{ event.id }}" data-code="{{ event.code }}">
+                                {{ event.title }} (Code: {{ event.code }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        
+            <!-- Submit Button -->
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary">Add Event</button>
+            </div>
+        </form>
+        
+        <!-- JavaScript to Add Event Code as Hidden Input -->
+        <script>
+            document.querySelector('.contactForm').addEventListener('submit', function (e) {
+                const selectElement = document.getElementById('event-select');
+                const selectedOption = selectElement.options[selectElement.selectedIndex];
+                const eventCode = selectedOption.getAttribute('data-code');
+        
+                // Create a hidden input for event_code
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'event_code';
+                hiddenInput.value = eventCode;
+        
+                // Append the hidden input to the form
+                this.appendChild(hiddenInput);
+            });
+        </script>
+        
+        </div>
+
+      </div>
+    </section><!-- #contact -->
+
+
+{% endblock  %}
+

@@ -19,7 +19,7 @@
           {% for template in templates %}
             <div class="col-lg-4 col-md-6 text-center">
               <div class="sponsor-logo">
-                <h4 class="mb-4 pb-0"><a href='' >{{template.title}} <br><span> #{{template.code}} </span> </a> </h4>
+                <h4 class="mb-4 pb-0"><a href='{% url "clone_template" template.id template.code %}' >{{template.title}} <br><span> #{{template.code}} </span> </a> </h4>
                 <p>Number of fields: {{template.custom_fields.count}} </p>
                 <p> <small> {{template.description}} </small> </p>
               </div>
