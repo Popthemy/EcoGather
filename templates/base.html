@@ -31,15 +31,24 @@
 
 </head>
 
-
-
-
 <body>
 
   <!--==========================
     Header
   ============================-->
   {% include "nav-bar.html" %}
+
+  <section >
+      
+        {% if messages %}
+        {% for message in messages %}
+        <script> alert('{{ message }}')</script>
+        {% endfor %}
+        {% endif %}
+
+
+    </div>
+  </section>
 
   <!--==========================
     Intro Section

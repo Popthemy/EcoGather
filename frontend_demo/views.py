@@ -1,11 +1,17 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
+from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate,login
+from django.contrib import messages
 from greenplan.models import Event, Template,Program
-# Create your views here.
 
+# Create your views here.
 
 """ Include page in every view context data so we can track the page you are currently working on from the title of the HTML page.
 e.g {"page":"Event"}
 """
+
+User = get_user_model()
+
 
 def index(request):
     '''
@@ -43,8 +49,28 @@ def event_view(request, event_id, event_code):
     return render(request, 'frontend_demo/order-of-service.html', context)
 
 
-def login(request):
+def login_view(request):
     '''user sign up to get authenticated.'''
+
+    if request.method == "POST":
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        user = User.objects.filter(email=email).first()
+        if user:
+            sign_in_user = authenticate(request,email=email,password=password)
+            if sign_in_user:
+                login(request,sign_in_user)
+                message = 'Login Successful!'
+                messages.success(request,message)
+                return redirect('events')
+            else:
+                message = 'Invalid Password!'
+                messages.error(request,message)
+                return redirect(request.get_full_path())
+        
+        message = 'Invalid Email'
+        messages.error(request,message)
 
     context = {'page':'login'}
 
