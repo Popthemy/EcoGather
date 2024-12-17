@@ -24,7 +24,7 @@ class EventManager(models.Manager):
 class TemplateManager(models.Manager):
     '''Custom manager for template.'''
     def get_queryset(self) -> models.QuerySet:
-        return super().get_queryset().select_related('event','owner')
+        return super().get_queryset().select_related('event','owner').prefetch_related('custom_fields')
 
 
 class CustomFieldManager(models.Manager):

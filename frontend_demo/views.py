@@ -80,8 +80,14 @@ def login_view(request):
 def templates_view(request):
     '''this view provides list of all templates, we can click to clone a templates for our event'''
 
-    templates = Template.objects.prefetch_related('custom_fields').all()
+    templates = Template.objects.all()
 
     context = {'page':'templates','templates':templates}
 
     return render(request,'frontend_demo/bulletins.html',context)
+
+
+def clone_template(request,template_id,template_code):
+
+    templates = Template.objects.all()
+
