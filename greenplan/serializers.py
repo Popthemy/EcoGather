@@ -442,12 +442,3 @@ class EventImageSerializer(serializers.ModelSerializer):
             validated_data['image_url'] = instance.image_url
 
         return super().update(instance, validated_data)
-
-class CloneTemplateSerializer(serializers.Serializer):
-    id = serializers.IntegerField(write_only=True)
-
-    def validate_id(self,value) -> int:
-        if value < 0:
-            raise serializers.ValidationError("ID can't be negative")
-        return int(value)
-

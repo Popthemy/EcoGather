@@ -10,12 +10,12 @@ from rest_framework import status, filters
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticatedOrReadOnly,IsAuthenticated
 
+from greenplan.documentation.greenplan.schemas import clone_template_doc
 
 from .models import Organizer, Address, Program, Event, Template, CustomField
 from .serializers import CreateEventSerializer, OrganizerSerializer, \
     AddressSerializer, ProgramSerializer, MiniProgramSerializer, EventSerializer, \
-    MiniEventSerializer, TemplateSerializer, MiniTemplateSerializer, CustomFieldSerializer, \
-    CloneTemplateSerializer
+    MiniEventSerializer, TemplateSerializer, MiniTemplateSerializer, CustomFieldSerializer
 from .permissions import IsAdminOrReadonly, IsOwnerOrReadOnly, IsOrganizerOwnerOrReadOnly, IsEventOwnerOrReadOnly, IsTemplateOwnerOrReadOnly
 from .tasks import all_event_organizer_email
 
@@ -539,16 +539,20 @@ class CloneTemplateView(GenericAPIView):
 
     permission_classes = [IsAuthenticated]
 
+    @clone_template_doc
     def get(self,*args, **kwargs):
-        '''
-               Make duplication of the template       
-               data = {
-                "status": "success",
-                "message": " Templates custom field retrieved successfully",
-                "data": serializer.data }
-            }'''
+        '''The template to be cloned ID is gotten from the url.
+        This only clone for template without paying attention to the event. '''
 
-        template = get_object_or_404(Template,pk= kwargs['template_id'])
+        template_id = kwargs['template_id']
+        if template_id < 1:
+            data = {
+                "status": "error",
+                "message": " Templates cloned unsuccessfully",
+                "data": "ID can't be negative or less than one"}
+            return Response(data,status=status.HTTP_400_BAD_REQUEST)
+
+        template = get_object_or_404(Template,pk= template_id)
 
         try:
             duplicate = template.clone_template(user=Organizer.objects.get(user_id=self.request.user.id))
@@ -566,3 +570,5 @@ class CloneTemplateView(GenericAPIView):
                 'status':'error',
                 'message': str(e)
             },status=status.HTTP_400_BAD_REQUEST)
+
+
