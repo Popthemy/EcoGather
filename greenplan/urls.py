@@ -18,7 +18,7 @@ urlpatterns = [
     path('programs/<int:pk>/',view=views.ProgramDetailApiView.as_view(),name='programs-detail'),
 
     path('events/', view=views.EventApiView.as_view(), name='events'),
-    path('events/<int:pk>/',view=views.EventDetailApiView.as_view(),name='events-detail'),
+    path('events/<int:event_pk>/',view=views.EventDetailApiView.as_view(),name='events-detail'),
     path('templates/',view=views.TemplateLibraryApiView.as_view(),name='templates'),
     path('events/<int:event_pk>/templates/',view=views.EventTemplateApiView.as_view(),name='event-templates'),
     path('events/<int:event_pk>/templates/<int:pk>/',view=views.EventTemplateDetailApiView.as_view(),name='event-templates-detail'),
