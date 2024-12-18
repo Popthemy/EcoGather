@@ -22,7 +22,7 @@ def index(request):
     filter_by_program_title = request.GET.get('program',None)
 
     if filter_by_program_title:
-        events = Event.objects.prefetch_related('images').filter(program__title=filter_by_program_title)
+        events = Event.objects.prefetch_related('images').filter(program__title__icontains=filter_by_program_title)
     else:
         events = Event.objects.prefetch_related('images').all()
 
@@ -124,5 +124,4 @@ def logout_view(request):
     messages.success(request,message)
     logout(request)
     return redirect('events')
-    
     
