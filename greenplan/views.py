@@ -235,7 +235,7 @@ class EventApiView(GenericAPIView):
 
 class EventDetailApiView(RetrieveUpdateDestroyAPIView):
     '''This view allows get for everyone while restricting update only to admin and organizer '''
-    permission_classes = (IsOrganizerOwnerOrReadOnly,)
+    permission_classes = (IsEventOwnerOrReadOnly,)
 
     def get_serializer_class(self):
         if self.request.method == "GET":
@@ -244,7 +244,7 @@ class EventDetailApiView(RetrieveUpdateDestroyAPIView):
 
     def get_object(self):
         user = self.request.user
-        pk = self.kwargs['pk']
+        pk = self.kwargs['event_pk']
 
         event = get_object_or_404(Event, pk=pk)
 
