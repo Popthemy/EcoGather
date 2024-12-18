@@ -3,20 +3,21 @@
  <!--==========================
     Header
   ============================-->
-  <header id="header">
+
+  <header id="header" class="{% if page != 'Home page' %} header-fixed {% endif %}" >
     <div class="container">
 
       <div id="logo" class="pull-left">
         <!-- Uncomment below if you prefer to use a text logo -->
-        <h1> <a href="#main">Eco<span>Gather</span></a></h1>
+        <h1> <a href="{% url 'events' %}">Eco<span>Gather</span></a></h1>
         {% comment %} <a href="#intro" class="scrollto"><img src="{% static "img\ecoGather.png" %}" alt="EcoGather logo" title=""></a> {% endcomment %}
       </div>
 
       <nav id="nav-menu-container">
         <ul class="nav-menu">
-          <li class="menu-active"><a href="#intro">Home</a></li>
+          <li class="menu-active"><a href="{% url 'events' %}">Home</a></li>
           <li><a href="#about">About</a></li>
-          <li><a href="#schedule">Schedule</a></li>
+          <li><a href="#">Create Event</a></li>
           <li><a href="#venue">Venue</a></li>
           <li><a href="{% url 'templates' %}">Clone template</a></li>
           {% comment %} <li><a href="#contact">Contact</a></li> {% endcomment %}

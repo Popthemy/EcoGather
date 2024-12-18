@@ -4,41 +4,95 @@
 {% block event-brief-content %}
 
 
-<section id="intro">
-  <div class="intro-container wow fadeIn">
-    <h1 class="mb-4 pb-0">{{event.title}}</h1>
-    <h1 class="mb-4 pb-0"><span> #{{event.code}} </span></h1>
-    <p class="mb-4 pb-0"> {{event.description}} </p>
-    <a href="#" class="venobox play-btn mb-4" data-vbtype="video"
-      data-autoplay="true"></a>
-    <a href="#about" class="about-btn scrollto">About The Event</a>
-  </div>
-</section>
-{% endblock %}
-{% block content %}
-
+<main id="main" class="main-page">
 
   <!--==========================
+    Speaker Details Section
+  ============================-->
+  <section id="speakers-details" class="wow fadeIn justify-content-center">
+    <div class="container">
+      <div class="section-header">
+        <h2>Event Details</h2>
+        <p>This section aims to provide attendees and participants with all the information they need to prepare for the event, 
+          whether it's to attend, participate, or engage with it in other ways..</p>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6 owl-carousel gallery-carousel ">
+          {% if event.images.all %}
+            {% for event_image in event.images.all %}
+              <a href="{{event_image.image_url.url}}" class="venobox" data-gall="gallery-carousel">
+                <img src="{{event_image.image_url.url}}" alt="{{event_image}}" class="img-fluid">
+              </a>
+            {% endfor %}
+          {% endif %}
+        </div>
+
+        <div class="col-md-6">
+          <div class="details">
+            <h2>{{event.title}} </h2>
+            <h3><span> #{{event.code}} </span></h3>
+            
+            <div class="social">
+              <a href=""><i class="fa fa-twitter"></i></a>
+              <a href=""><i class="fa fa-facebook"></i></a>
+              <a href=""><i class="fa fa-google-plus"></i></a>
+              <a href=""><i class="fa fa-linkedin"></i></a>
+            </div>
+              <p><strong>Organizer:</strong> {{ event.organizer.first_name }} {{ event.organizer.last_name }}</p>
+              <p><strong>Email:</strong> {{ event.contact_email }}</p>
+              <p><strong>Phone:</strong> {{ event.contact_phone_number }}</p>
+              
+              {% if event.description %}
+                <p>{{ event.description|linebreaks }}</p>
+              {% else %}
+                <p>No description available for this event.</p>
+              {% endif %}
+
+          </div>
+        </div>
+        
+      </div>
+    </div>
+
+  </section>
+
+
+
+    <!--==========================
       About Event Section
     ============================-->
     <section id="about">
       <div class="container">
         <div class="row">
-          <div class="col-lg-6">
+          {% comment %} <div class="col-lg-6">
             <h2>About This Event</h2>
             <p>{{event.description}}</p>
-          </div>
-          <div class="col-lg-3">
+          </div> {% endcomment %}
+          <div class="col-lg-6">
             <h3>Where</h3>
-            <p> {{event.venue}}, {{event.city}}</p>
+            <p><strong>Venue:</strong> {{ event.venue }} <br> <strong>Location:</strong> {{ event.city }} </p> <!-- Event venue -->
           </div>
-          <div class="col-lg-3">
+          <div class="col-lg-6">
             <h3>When || {{event.get_event_status}}</h3>
-            <p>{{event.start_datetime}} to <br>{{event.end_datetime}}</p>
+            <p>{{event.start_datetime|date:"l, F j, Y, g:i A"}} to <br>{{event.end_datetime|date:"l, F j, Y, g:i A"}}</p>
           </div>
         </div>
       </div>
     </section>
+
+
+</main>
+
+
+{% endblock %}
+{% block content %}
+
+
+
+
+
+
 
 
     <section id="schedule" class="section-with-bg">
@@ -46,7 +100,7 @@
         <div class="section-header">
           <h2>Order of service</h2>
           {% if not event_templates %}
-              <p>Bulletins Unavailable!!!..</p>
+              <p>You should clone or create a template for this event. Bulletins Unavailable!!!.</p>
           {% else %}
               <p>Here is how our service is planned</p>
             </div>

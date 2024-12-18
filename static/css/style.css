@@ -1051,6 +1051,13 @@ body.mobile-nav-active #mobile-nav-toggle {
 #gallery {
   padding: 60px;
   overflow: hidden;
+    
+  /* Flexbox setup to center content */
+  display: flex;
+  justify-content: center;  /* Centers horizontally */
+  align-items: center;      /* Centers vertically */
+  flex-direction: column;   /* Aligns the children vertically */
+  
 }
 
 #gallery .owl-nav,
@@ -1089,6 +1096,11 @@ body.mobile-nav-active #mobile-nav-toggle {
   background: #fff;
   z-index: 1;
 }
+
+
+
+
+
 
 /*--------------------------------------------------------------
 # Sponsors Section
