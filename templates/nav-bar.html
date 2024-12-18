@@ -22,7 +22,7 @@
           <li><a href="{% url 'templates' %}">Clone template</a></li>
           {% comment %} <li><a href="#contact">Contact</a></li> {% endcomment %}
           {% if request.user.is_authenticated %}
-          <li class="buy-tickets"><a href="#buy-tickets"> Sign out</a></li>
+          <li class="buy-tickets"><a href="{% url 'logout' %}"> Sign out</a></li>
           {% else %}
           <li class="buy-tickets"><a href="{% url 'login' %}"> Sign up</a></li>
           {% endif %}

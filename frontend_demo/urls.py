@@ -9,4 +9,5 @@ urlpatterns = [
     path('templates/',views.templates_view,name='templates'),
     path('templates/<int:template_id>/<str:template_code>/',views.clone_template_view,name='clone_template'),
     path('login/',views.login_view,name='login'),
+    path('logout/',views.logout_view,name='logout'),
 ]

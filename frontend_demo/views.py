@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect
 from django.contrib.auth import get_user_model
-from django.contrib.auth import authenticate,login
+from django.contrib.auth import authenticate,login,logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from greenplan.models import Event, Template,Program
@@ -119,3 +119,10 @@ def clone_template_view(request, template_id, template_code):
     return render(request, 'frontend_demo/clone_event_template.html', context)
 
 
+def logout_view(request):
+    message = 'Logout Successful. See you around..'
+    messages.success(request,message)
+    logout(request)
+    return redirect('events')
+    
+    
