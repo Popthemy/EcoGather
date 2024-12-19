@@ -258,7 +258,7 @@ class Template(models.Model):
     objects = TemplateManager()
 
     class Meta:
-        ordering = ['-updated_at', 'title']
+        ordering = ['updated_at', 'title']
         verbose_name = "Template"
         verbose_name_plural = "Templates"
 

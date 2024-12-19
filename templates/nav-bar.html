@@ -19,7 +19,7 @@
           <li><a href="#about">About</a></li>
           <li><a href="#">Create Event</a></li>
           <li><a href="#venue">Venue</a></li>
-          <li><a href="{% url 'templates' %}">Clone template</a></li>
+          <li><a href="{% url 'templates' %}">Clone Template</a></li>
           {% comment %} <li><a href="#contact">Contact</a></li> {% endcomment %}
           {% if request.user.is_authenticated %}
           <li class="buy-tickets"><a href="{% url 'logout' %}"> Sign out</a></li>

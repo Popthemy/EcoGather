@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate,login,logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from greenplan.models import Event, Template,Program
+from django.core.exceptions import ValidationError
 
 # Create your views here.
 
@@ -69,7 +70,7 @@ def login_view(request):
                 message = 'Invalid Password!'
                 messages.error(request,message)
                 return redirect(request.get_full_path())
-        
+
         message = 'Invalid Email'
         messages.error(request,message)
 
@@ -79,12 +80,13 @@ def login_view(request):
 
 
 def templates_view(request):
-    '''this view provides list of all templates, we can click to clone a templates for our event'''
+    '''This view provides list of all templates, we can click to clone a templates for our event'''
 
     templates = Template.objects.all()
+    message = 'Select one of the template to clone.A Template to be clone must have more than one field'
+    messages.info(request, message)
 
-    context = {'page':'templates','templates':templates}
-
+    context = {'page':'Templates','templates':templates}
     return render(request,'frontend_demo/bulletins.html',context)
 
 
@@ -99,11 +101,13 @@ def clone_template_view(request, template_id, template_code):
         event_id = request.POST.get('event_id')  # Match form 'name' attribute
         event_code = request.POST.get('event_code')  # Sent via hidden input
 
-        print(f'Event ID: {event_id}, Event Code: {event_code}')
-
         if event_id and event_code:
             # Call the clone method and pass the required parameters
-            cloned_template = template.clone_template(user_id=current_user_id, event_id=event_id)
+            try:
+                template.clone_template(user_id=current_user_id, event_id=event_id)
+            except ValidationError as e:
+                messages.error(request,message=str(e))
+                return redirect(request.get_full_path())
             
             # Redirect to event details page with event_id and event_code as parameters
             return redirect('event_detail', event_id=event_id, event_code=event_code)

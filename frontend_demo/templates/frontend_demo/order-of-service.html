@@ -44,7 +44,7 @@
               <p><strong>Phone:</strong> {{ event.contact_phone_number }}</p>
               
               {% if event.description %}
-                <p>{{ event.description|linebreaks }}</p>
+                <p>{{ event.description|linebreaksbr }}</p>
               {% else %}
                 <p>No description available for this event.</p>
               {% endif %}
@@ -118,7 +118,7 @@
               {% for template in event_templates %}
               <div role="tabpanel" class="col-lg-9 tab-pane fade {% if forloop.first %}show active{% endif %}" id="day-{{ template.id }}">
                 
-                  <h3 class="sub-heading" >{{template.description}}.</h3>
+                  <h3 class="sub-heading" >{{template.description|linebreaksbr}}.</h3>
                   {% for field in template.custom_fields.all %}
                     <div class="row schedule-item">
                       <div class="col-md-2">
@@ -131,9 +131,10 @@
                             <img src="{{organizer_image.image_url.url }}" alt="{{template.owner.username}}">
                           </div>
                         {% endif %}
-        
+
                         <h4>{{ field.label }}</h4>
-                        <p>{{ field.content }}</p>
+                        <p><span>{{ field.content|linebreaks }}</span></p>
+
                       </div>
                     </div>
                   {% endfor %}
