@@ -25,8 +25,7 @@ from django.conf.urls.static import static
 # for documentation
 from drf_spectacular.views import SpectacularAPIView,SpectacularSwaggerView
 
-
-admin.site.site_title = 'Green Admin'
+admin.site.index_title = 'Green Admin'
 admin.site.site_header = 'EcoGather: A Greener Way to Event Planning'
 
 

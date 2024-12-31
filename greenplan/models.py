@@ -149,7 +149,7 @@ class Event(models.Model):
         max_length=20, null=True, blank=True)
     organizer = models.ForeignKey(
         Organizer, on_delete=models.CASCADE, related_name='events')
-    slug = models.SlugField(unique=True, blank=True, null=True,
+    slug = models.SlugField(unique=True,max_length=255 ,blank=True, null=True,
                             help_text="A slug is a URL-friendly version of the title. It should contain only letters, numbers, hyphens, and underscores. It will be used in URLs to identify this item."
                             )
     is_private = models.BooleanField(default=False)
@@ -249,7 +249,7 @@ class Template(models.Model):
     title = models.CharField(max_length=255)
     event = models.ForeignKey(
         Event, on_delete=models.CASCADE, related_name='templates', null=True, blank=True)
-    slug = models.SlugField(unique=True, null=True, blank=True,
+    slug = models.SlugField(unique=True, max_length=255, null=True, blank=True,
                             help_text="A slug is a URL-friendly version of the title. It should contain only letters, numbers, hyphens, and underscores. It will be used in URLs to identify this item."
                             )
     description = models.TextField(null=True, blank=True)
