@@ -37,7 +37,8 @@ class Organizer(BaseSocialMediaLink):
     objects = OrganizerManager()
 
     class Meta:
-        ordering = ['username', 'first_name', 'last_name', 'type']
+        ordering = ('username', 'type')
+        indexes = (models.Index(fields=(('username', 'type'))),)
         verbose_name = 'Organizer'
         verbose_name_plural = 'Organizers'
 
@@ -45,7 +46,8 @@ class Organizer(BaseSocialMediaLink):
         return f"{self.username} - {self.phone_number}"
 
     def get_organizer_total_events(self):
-        ''' Count the number of time an organizer has organized an event , 
+        ''' This increase number of queries. use annotate instead
+        Count the number of time an organizer has organized an event , 
         the event model has a related_name of the organizer set to events'''
         return self.events.count()
 
@@ -101,7 +103,8 @@ class Address(models.Model):
     objects = AddressManager()
 
     class Meta:
-        ordering = ['street_number', 'street_name', 'city', 'zip_code']
+        ordering = ['street_number', 'street_name' ,'zip_code']
+        indexes = (models.Index(fields=('street_number', 'street_name' ,'zip_code')),)
         verbose_name = 'Address'
         verbose_name_plural = 'Addresses'
 

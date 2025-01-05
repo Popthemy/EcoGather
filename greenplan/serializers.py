@@ -132,7 +132,7 @@ class OrganizerSerializer(serializers.ModelSerializer):
         return Organizer.objects.create(user=user_instance, **validated_data)
 
     def get_organizer_events_count(self, organizer) -> int:
-        return organizer.get_organizer_total_events()
+        return organizer.event_count
 
 
 class MiniEventSerializer(serializers.ModelSerializer):

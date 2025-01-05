@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.http import Http404
-from django.db.models import Q
+from django.db.models import Q,Count
 from django.core.exceptions import ValidationError
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.generics import GenericAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
@@ -22,7 +22,6 @@ from .tasks import all_event_organizer_email
 
 # Create your views here.
 
-
 class OrganizerViewSet(ModelViewSet):
     '''This endpoint doesn't allow `POST` because new organizer is created when a new user is created by a signal.
     Anonymous user should be able to view the organizer but not allowed to perform other action. 
@@ -40,20 +39,16 @@ class OrganizerViewSet(ModelViewSet):
         user = self.request.user
 
         if user.is_staff and not pk:
-            # print(f'@@@@@@  admin request -> admin:{user.id}')
-            return Organizer.objects.all()
+            return Organizer.objects.annotate(event_count=Count('events'))
 
-        # print(
-        #     f'!!!! Ordinary user request -> user: {user.id} , request id: {pk}')
-
-        # this will act as the detail view for admin user , also list for non-admin
+        # for non-admin it serve as details view, while it requires id for anonymous user
         id = pk if pk else user.id
-        organizer = Organizer.objects.filter(pk=id)
+        organizer = Organizer.objects.annotate(event_count=Count('events')).filter(pk=id)
         if organizer is not None:
             return organizer
 
         raise Http404(
-            'Organizer Not Found. Kindly create your organizer profile.')
+            'Organizer Not Found! Try Again.')
 
 
 class AddressApiView(ListCreateAPIView):
