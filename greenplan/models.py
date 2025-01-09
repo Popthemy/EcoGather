@@ -159,6 +159,7 @@ class Event(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     objects = EventManager()
+    base_manager = models.Manager() # use this when we don't need to apply prefetch and select related for optmization
 
     class Meta:
         ordering = ['start_datetime', '-updated_at', 'title']

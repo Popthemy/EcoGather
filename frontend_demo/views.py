@@ -23,9 +23,9 @@ def index(request):
     filter_by_program_title = request.GET.get('program',None)
 
     if filter_by_program_title:
-        events = Event.objects.prefetch_related('images').filter(program__title__icontains=filter_by_program_title)
+        events = Event.base_manager.prefetch_related('images').filter(program__title__icontains=filter_by_program_title)
     else:
-        events = Event.objects.prefetch_related('images').all()
+        events = Event.base_manager.prefetch_related('images').all()
 
     programs = Program.objects.select_related('featured_event').prefetch_related('featured_event__images').all()
 
