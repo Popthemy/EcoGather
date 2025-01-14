@@ -7,7 +7,7 @@ from django.db import transaction
 from django.core.exceptions import ValidationError
 from myutils.models import BaseSocialMediaLink
 from .validators import validate_file_size
-from .managers import OrganizerManager, AddressManager, EventManager,TemplateManager,CustomFieldManager
+from .managers import OrganizerManager, AddressManager, EventManager, TemplateManager, CustomFieldManager
 # Create your models here.
 
 
@@ -25,8 +25,8 @@ class Organizer(BaseSocialMediaLink):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, primary_key=True, on_delete=models.CASCADE)
     username = models.CharField(max_length=100, unique=True)
-    first_name = models.CharField(max_length=255,blank=True)
-    last_name = models.CharField(max_length=255,blank=True)
+    first_name = models.CharField(max_length=255, blank=True)
+    last_name = models.CharField(max_length=255, blank=True)
     email = models.EmailField()
     phone_number = models.CharField(max_length=20)
     type = models.TextField(
@@ -103,8 +103,9 @@ class Address(models.Model):
     objects = AddressManager()
 
     class Meta:
-        ordering = ['street_number', 'street_name' ,'zip_code']
-        indexes = (models.Index(fields=('street_number', 'street_name' ,'zip_code')),)
+        ordering = ['street_number', 'street_name', 'zip_code']
+        indexes = (models.Index(
+            fields=('street_number', 'street_name', 'zip_code')),)
         verbose_name = 'Address'
         verbose_name_plural = 'Addresses'
 
@@ -138,13 +139,15 @@ class Event(models.Model):
     )
 
     title = models.CharField(max_length=255)
+    impressions = models.PositiveBigIntegerField(
+        default=0, help_text='total number of time an event has a unique field')
     description = models.TextField(null=True, blank=True)
     program = models.ForeignKey(
         Program, on_delete=models.PROTECT, related_name='events', null=True)
     venue = models.CharField(
         max_length=255, help_text="Exact location where the event is taking place e.g The Great hall,Lautech")
     city = models.CharField(
-        max_length=255, help_text="City or state the event could be taking place e.g Ogbomoso")
+        max_length=255, help_text="City or state the event could be taking place e.g Ogbomosho")
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
     contact_email = models.EmailField(null=True, blank=True)
@@ -152,14 +155,15 @@ class Event(models.Model):
         max_length=20, null=True, blank=True)
     organizer = models.ForeignKey(
         Organizer, on_delete=models.CASCADE, related_name='events')
-    slug = models.SlugField(unique=True,max_length=255 ,blank=True, null=True,
+    slug = models.SlugField(unique=True, max_length=255, blank=True, null=True,
                             help_text="A slug is a URL-friendly version of the title. It should contain only letters, numbers, hyphens, and underscores. It will be used in URLs to identify this item."
                             )
     is_private = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     objects = EventManager()
-    base_manager = models.Manager() # use this when we don't need to apply prefetch and select related for optmization
+    # use this when we don't need to apply prefetch and select related for optmization
+    base_manager = models.Manager()
 
     class Meta:
         ordering = ['start_datetime', '-updated_at', 'title']
@@ -199,6 +203,25 @@ class Event(models.Model):
         super().save(*args, **kwargs)
 
 
+class EventImpression(models.Model):
+    """Store details that will be used to track/update the impression field on the event"""
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, related_name='event_impression')
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)  # Null for anonymous users
+    session_key = models.CharField(
+        max_length=40, null=True, blank=True)  # For anonymous users
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = [('event', 'user'), ('event', 'session_key')]
+        indexes = [
+            models.Index(fields=['event', 'user']),
+            models.Index(fields=['event', 'session_key']),
+        ]
+
+
 class EventImage(models.Model):
     """ Event can have more than one image for visual.
     Images can be a flyer or from previously held similar events. """
@@ -230,8 +253,8 @@ class EventImage(models.Model):
 
     class Meta:
         ordering = ['priority', 'updated_at']
-    
-    def save(self,*args, **kwargs):
+
+    def save(self, *args, **kwargs):
         if self.image_url == '':
             self.image_url = 'default_event.png'
         super().save(*args, **kwargs)
@@ -290,18 +313,19 @@ class Template(models.Model):
                     code=self.generate_unique_code()
                 )
 
-                custom_fields = [ CustomField(
+                custom_fields = [CustomField(
                     template=new_template,
                     label=field.label,
                     content=field.content,
                     start_time=field.start_time,
                     end_time=field.end_time)
-                    for field in self.custom_fields.all() ]
+                    for field in self.custom_fields.all()]
 
                 CustomField.objects.bulk_create(custom_fields)
                 return new_template
             else:
-                raise ValidationError('Template not cloned because it has no custom fields.')
+                raise ValidationError(
+                    'Template not cloned because it has no custom fields.')
         return None
 
     def save(self, *args, **kwargs):

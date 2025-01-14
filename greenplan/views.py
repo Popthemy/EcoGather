@@ -17,8 +17,8 @@ from .serializers import CreateEventSerializer, OrganizerSerializer, \
     AddressSerializer, ProgramSerializer, MiniProgramSerializer, EventSerializer, \
     MiniEventSerializer, TemplateSerializer, MiniTemplateSerializer, CustomFieldSerializer
 from .permissions import IsAdminOrReadonly, IsOwnerOrReadOnly, IsOrganizerOwnerOrReadOnly, IsEventOwnerOrReadOnly, IsTemplateOwnerOrReadOnly
+from .utils import track_impression
 from .tasks import all_event_organizer_email
-
 
 # Create your views here.
 
@@ -242,6 +242,7 @@ class EventDetailApiView(RetrieveUpdateDestroyAPIView):
         pk = self.kwargs['event_pk']
 
         event = get_object_or_404(Event, pk=pk)
+        track_impression(self.request,event)
 
         if event.organizer.user == user or user.is_staff:
             return event

@@ -6,7 +6,8 @@ from django.http import HttpRequest
 from django.utils import timezone
 from django.utils.html import format_html, urlencode
 from django.urls import reverse
-from greenplan.models import Event, EventImage, Template, CustomField, Program, Organizer, OrganizerImage, Address
+from greenplan.models import Event, EventImage, Template, CustomField, \
+    Program, Organizer, OrganizerImage, Address, EventImpression
 # Register your models here.
 
 
@@ -203,3 +204,11 @@ class CustomFieldAdmin(admin.ModelAdmin):
     list_editable = ['label', 'content', 'start_time', 'end_time']
     list_select_related = ['template']
     search_fields = ['label']
+
+@admin.register(EventImpression)
+class EventImpressionAdmin(admin.ModelAdmin):
+    list_display = ( 'id', 'event' , 'session_key', 'ip_address')
+
+    class Meta:
+        model = EventImpression
+
