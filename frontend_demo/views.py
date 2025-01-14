@@ -3,9 +3,9 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate,login,logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from greenplan.models import Event, Template,Program
+from greenplan.models import Event, Template,Program,Organizer
 from django.core.exceptions import ValidationError
-
+from greenplan.utils import track_impression
 # Create your views here.
 
 """ Include page in every view context data so we can track the page you are currently working on from the title of the HTML page.
@@ -23,9 +23,9 @@ def index(request):
     filter_by_program_title = request.GET.get('program',None)
 
     if filter_by_program_title:
-        events = Event.base_manager.prefetch_related('images').filter(program__title__icontains=filter_by_program_title)
+        events = Event.base_manager.select_related('program').prefetch_related('images').filter(program__title__icontains=filter_by_program_title)
     else:
-        events = Event.base_manager.prefetch_related('images').all()
+        events = Event.base_manager.select_related('program').prefetch_related('images').all()
 
     programs = Program.objects.select_related('featured_event').prefetch_related('featured_event__images').all()
 
@@ -33,9 +33,11 @@ def index(request):
     return render(request, 'frontend_demo/events.html', context)
 
 
-def event_view(request, event_id, event_code):
+
+def event_detail(request, event_id, event_code):
     '''This view leads to a single event landing page.'''
     event = Event.objects.get(pk=event_id, code=event_code)
+    track_impression(request,event)
 
     event_templates = Template.objects.select_related('owner').prefetch_related(
         'custom_fields').filter(event_id=event_id, event__code=event_code)
@@ -128,4 +130,18 @@ def logout_view(request):
     messages.success(request,message)
     logout(request)
     return redirect('events')
-    
+
+
+def organizer_detail(request,organizer_id):
+    organizer = Organizer.objects.get(user_id=organizer_id)
+
+    image = ''
+    organizer_image = organizer.images.all()
+    if organizer_image:
+        image = organizer_image.first()
+
+
+    context = {'page': f'{ organizer.username if organizer else Organizer }', 'organizer':organizer,'organizer_image':image }
+
+
+    return render(request,'frontend_demo/organizer_detail.html',context)
