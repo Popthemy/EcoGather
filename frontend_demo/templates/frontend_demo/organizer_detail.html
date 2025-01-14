@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<main id="main" class="main-page">
+  <!--==========================
+      Speaker Details Section
+    ============================-->
+    <section id="speakers-details" class="wow fadeIn">
+      <div class="container">
+        <div class="section-header">
+          <h2>Organizer Details</h2>
+          <p>Praesentium ut qui possimus sapiente nulla.</p>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 speakers">
+            {% if organizer_image %}
+            <img src="{{organizer_image.image_url.url}}" alt="{{organizer.username}}" class="img-fluid">
+            {% endif %}
+
+          </div>
+
+          <div class="col-md-6">
+            <div class="details">
+              <h2>{{organizer.first_name}} {{organizer.last_name}} </h2>
+              <p>Username: {{organizer.username}} </p>
+              <p></p>
+ 
+              <div class="social">
+                <a href=""><i class="fa fa-twitter"></i></a>
+                <a href=""><i class="fa fa-facebook"></i></a>
+                <a href="mailto:{{organizer.email}}"><i class="fa fa-google-plus"></i></a>
+                <a href=""><i class="fa fa-linkedin"></i></a>
+              </div>
+
+              <h3>About Me</h3>
+              <p> {{organizer.bio}} </p>
+
+              <h3>Total number of Events</h3>
+              <p> {{organizer.get_organizer_total_events}} </p>
+
+              <h3>Vision</h3>
+              <p> {{organizer.vision}} </p>
+
+              <h3>Mission</h3>
+              <p> {{organizer.mission}} </p>
+            
+            </div>
+          </div>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+
+{% endblock content %}

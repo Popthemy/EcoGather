@@ -39,9 +39,11 @@
               <a href=""><i class="fa fa-google-plus"></i></a>
               <a href=""><i class="fa fa-linkedin"></i></a>
             </div>
-              <p><strong>Organizer:</strong> {{ event.organizer.first_name }} {{ event.organizer.last_name }}</p>
+              <p><strong>Organizer:</strong> <a href="{% url 'organizer_detail' event.organizer.user.id  %}">{{ event.organizer.first_name }} {{ event.organizer.last_name }}</a></p>
               <p><strong>Email:</strong> {{ event.contact_email }}</p>
               <p><strong>Phone:</strong> {{ event.contact_phone_number }}</p>
+              <p> <strong>Views:</strong> {{event.impressions}} </p>
+
               
               {% if event.description %}
                 <p>{{ event.description|linebreaksbr }}</p>
@@ -128,7 +130,7 @@
                         <!-- Organizer Image if available -->
                         {% if organizer_image %}
                           <div class="speaker">
-                            <img src="{{organizer_image.image_url.url }}" alt="{{template.owner.username}}">
+                            <img src="{{ organizer_image.image_url.url }}" alt="{{template.owner.username}}">
                           </div>
                         {% endif %}
 

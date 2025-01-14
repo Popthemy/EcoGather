@@ -58,12 +58,14 @@
                   <h3><a href="{% url 'event_detail' event.id event.code %}">{{event.title}}</a></h3>
                   <p>Venue: {{event.venue}} || Status: {{event.get_event_status}}</p>
                   <p>Program: {{event.program}} </p>
+                  <p>Views: {{event.impressions}} </p>
 
                   <p class="social">
                     <a href=""><i class="fa fa-twitter"></i></a>
                     <a href=""><i class="fa fa-facebook"></i></a>
                     <a href=""><i class="fa fa-google-plus"></i></a>
                     <a href=""><i class="fa fa-linkedin"></i></a>
+                    
                   </p>
                 </div>
 
