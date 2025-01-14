@@ -1,7 +1,35 @@
 prep_file
 myutils.seed.py
-migrations/
-**__pycache__/
-db.sqlite3
-.env
 frontend_demo\seed.sql
+
+
+# enviroment variables
+
+env/
+env/bin/
+env/lib/
+.venv/
+.env
+
+
+# Bytecode files
+
+*.pyc
+__pycache__/
+
+# Compiled static files
+
+static/
+staticfiles/
+
+# Database files
+
+db.sqlite3
+
+# Migrations (except for the initial migration)
+
+migrations/
+
+# IDE and editor files
+.idea/
+.vscode/
