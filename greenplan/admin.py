@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.utils.html import format_html, urlencode
 from django.urls import reverse
 from greenplan.models import Event, EventImage, Template, CustomField, \
-    Program, Organizer, OrganizerImage, Address, EventImpression
+    Program, Organizer, OrganizerImage, Address, EventImpression,EventComment
 # Register your models here.
 
 
@@ -132,12 +132,13 @@ class EventAdmin(admin.ModelAdmin):
     list_filter = (EventStatusFilter, 'program')
     list_select_related = ('organizer', 'program')
     search_fields = ('code', 'title')
-    show_facets = admin.ShowFacets.ALWAYS 
+    show_facets = admin.ShowFacets.ALWAYS
     date_hierarchy = 'created_at'
 
     @admin.display(ordering='start_datetime')
     def event_status(self, event):
         return event.get_event_status()
+
 
 
 class CustomFieldInline(admin.TabularInline):
@@ -212,3 +213,13 @@ class EventImpressionAdmin(admin.ModelAdmin):
     class Meta:
         model = EventImpression
 
+
+@admin.register(EventComment)
+class EventCommentAdmin(admin.ModelAdmin):
+    list_display = ( 'id', 'event' , 'user', 'parent')
+    date_hierarchy = 'updated_at'
+    search_fields = ('event__title','user__username')
+    autocomplete_fields = ('event','user')
+
+    class Meta:
+        model = EventComment

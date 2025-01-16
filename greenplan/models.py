@@ -203,6 +203,35 @@ class Event(models.Model):
         super().save(*args, **kwargs)
 
 
+class EventComment(models.Model):
+    '''Comment on Event'''
+
+    event = models.ForeignKey(
+        Event, on_delete=models.CASCADE, related_name='comments'
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='comments'
+    )
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    parent = models.ForeignKey(
+        'self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies',
+        help_text='replay this comment'
+    )
+     # For moderation purposes, iif we want comment to be reviewed before other can see it
+    is_approved = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = (
+            models.Index(fields=('-created_at',)),
+        )
+
+    def __str__(self):
+        return f"Comment by {self.user} on {self.event.title}"
+
+
 class EventImpression(models.Model):
     """Store details that will be used to track/update the impression field on the event"""
     event = models.ForeignKey(
@@ -379,3 +408,5 @@ class CustomField(models.Model):
         end_time = self.end_time.strftime(
             "%I:%M %p") if self.end_time else "No Time"
         return f'{self.label}: {self.content} ({start_time} - {end_time} )'
+
+
