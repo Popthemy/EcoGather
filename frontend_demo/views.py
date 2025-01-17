@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from greenplan.models import Event, Template, Program, Organizer,EventComment
+from greenplan.models import Event, Template, Program, Organizer, EventComment
 from django.core.exceptions import ValidationError
 from greenplan.utils import track_impression
 from django.views import View
@@ -47,7 +47,7 @@ def event_detail(request, event_id, event_code):
     '''This view leads to a single event landing page.'''
     event = Event.objects.get(pk=event_id, code=event_code)
 
-    #for tracking impression
+    # for tracking impression
     track_impression(request, event)
 
     # current path for redirect after successful comment
@@ -59,6 +59,7 @@ def event_detail(request, event_id, event_code):
     # reading event comments
     comments = EventComment.objects.filter(event_id=event.id)
 
+    # including image
     image = ''
     organizer_image = event_templates.first()
     if organizer_image:
@@ -66,38 +67,61 @@ def event_detail(request, event_id, event_code):
 
     username = request.user.organizer.username if request.user.is_authenticated else None
 
-    comment_form = CommentForm()
-    if request.method =='POST':
+    # creating and editing comment
+
+    comment_id = request.GET.get('comment_id', None)
+    comment_to_edit = None
+    if comment_id:
+        comment_to_edit = EventComment.objects.get(
+            id=comment_id, event_id=event.id)
+        comment_form = CommentForm(
+            initial={'content': comment_to_edit.content})
+    else:
+        comment_form = CommentForm()
+
+    if request.method == 'POST':
         form = CommentForm(request.POST)
         if form.is_valid():
             content = form.cleaned_data['content'].strip()
 
-            #create comment
+            # edit comment
+            if comment_id and comment_to_edit:
+                comment_to_edit.content = content
+                comment_to_edit.save()
+                message = 'Comment Updated!'
+                messages.success(request, message)
+                return redirect('event_detail', event_id=event_id, event_code=event_code)
+
+            # create comment
             if request.user.is_authenticated and len(content):
-                EventComment.objects.create(event_id=event_id,user_id=request.user.id,content=content )
+                EventComment.objects.create(
+                    event_id=event_id, user_id=request.user.id, content=content)
                 message = 'Commenting Successful'
-                messages.success(request,message)
+                messages.success(request, message)
                 return redirect(current_url)
+
         else:
             message = 'Commenting Unsuccessful'
-            messages.success(request,message)
+            messages.success(request, message)
             return redirect(current_url)
 
     context = {'page': 'Event', 'current_user': username, 'event': event,
-               'event_templates': event_templates, 'organizer_image': image,'comments':comments,'current_time':timezone.now(),'comment_form':comment_form}
+               'event_templates': event_templates, 'organizer_image': image, 'comments': comments,
+               'current_time': timezone.now(), 'comment_form': comment_form, 'edit_comment': comment_to_edit
+               }
 
     return render(request, 'frontend_demo/order-of-service.html', context)
 
-def delete_event_comment(request,event_id,comment_id):
+
+def delete_event_comment(request, event_id, comment_id):
     '''After deleting comment it should reload the current page'''
 
-    comment = EventComment.objects.get(id=comment_id,event_id=event_id)
+    comment = EventComment.objects.get(id=comment_id, event_id=event_id)
     print('thinking of deletion')
     comment.delete()
     message = 'Comment Deleted'
-    messages.success(request,message)
-    return redirect(request.GET.get('next','events'))
-
+    messages.success(request, message)
+    return redirect(request.GET.get('next', 'events'))
 
 
 def login_view(request):
@@ -200,9 +224,6 @@ def organizer_detail(request, organizer_id):
     return render(request, 'frontend_demo/organizer_detail.html', context)
 
 
-
-
-
 # class CommentList(View):
 #     '''Comment belong to an event
 #     1. get the event the comment belong to '''
@@ -212,5 +233,3 @@ def organizer_detail(request, organizer_id):
 #         comments = EventComment.objects.get(event_id=event_id)
 
 #         context = {'page':'Event & comment':'comments':comments}
-
-        

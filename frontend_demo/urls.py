@@ -10,6 +10,6 @@ urlpatterns = [
     path('templates/<int:template_id>/<str:template_code>/',views.clone_template_view,name='clone_template'),
     path('login/',views.login_view,name='login'),
     path('logout/',views.logout_view,name='logout'),
-    path('events/<int:event_id>/comments/<int:comment_id>/',views.delete_event_comment,name='event_comment_delete'),
+    path('events/<int:event_id>/comments/<int:comment_id>/delete/',views.delete_event_comment,name='event_comment_delete'),
     path('organizers/<uuid:organizer_id>/',views.organizer_detail,name='organizer_detail'),
 ]
