@@ -6,10 +6,8 @@ from django.contrib.auth.decorators import login_required
 from greenplan.models import Event, Template, Program, Organizer, EventComment
 from django.core.exceptions import ValidationError
 from greenplan.utils import track_impression
-from django.views import View
 from django.utils import timezone
 from .forms import CommentForm
-
 
 # Create your views here.
 
@@ -54,18 +52,16 @@ def event_detail(request, event_id, event_code):
     current_url = request.get_full_path()
 
     event_templates = Template.objects.select_related('owner').prefetch_related(
-        'custom_fields').filter(event_id=event_id, event__code=event_code)
+        'custom_fields').filter(event=event)
 
     # reading event comments
-    comments = EventComment.objects.filter(event_id=event.id)
+    comments = EventComment.objects.filter(event=event)
 
     # including image
     image = ''
     organizer_image = event_templates.first()
     if organizer_image:
         image = organizer_image.owner.images.all().first()
-
-    username = request.user.organizer.username if request.user.is_authenticated else None
 
     # creating and editing comment
 
@@ -105,9 +101,15 @@ def event_detail(request, event_id, event_code):
             messages.success(request, message)
             return redirect(current_url)
 
-    context = {'page': 'Event', 'current_user': username, 'event': event,
-               'event_templates': event_templates, 'organizer_image': image, 'comments': comments,
-               'current_time': timezone.now(), 'comment_form': comment_form, 'edit_comment': comment_to_edit
+    context = {'page': 'Event', 
+               'current_user': request.user.organizer.username if request.user.is_authenticated else None, 
+               'event': event,
+               'event_templates': event_templates,
+                'organizer_image': image, 
+                'comments': comments,
+               'current_time': timezone.now(), 
+               'comment_form': comment_form, 
+               'edit_comment': comment_to_edit
                }
 
     return render(request, 'frontend_demo/order-of-service.html', context)
