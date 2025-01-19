@@ -293,33 +293,41 @@ class MiniCustomFieldSerializer(serializers.ModelSerializer):
 
 class CustomFieldSerializer(serializers.ModelSerializer):
     '''Serializer for template custom fields'''
+    template = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = CustomField
         fields = ['id', 'template', 'label',
                   'content', 'start_time', 'end_time']
+        
+    def validate_user_permission(self,user,template_pk):
+        """Validates if a user has permission to modify a template's fields."""
+
+        event = get_object_or_404(Event, templates=template_pk)
+        if not user.is_staff and event.organizer.user != user:
+            raise PermissionError("You are not allowed to modify this template.NOT THE EVENT ORGANIZER")
 
     def create(self, validated_data):
         user = self.context['user']
         template_pk = self.context['template_pk']
 
-        event = get_object_or_404(Event, templates=template_pk)
-        if not user.is_staff or event.organizer.user != user:
-            raise serializers.ValidationError(
-                'You are not allowed to add field to this template. NOT ORGANIZER')
+        #validate user
+        self.validate_user_permission(user,template_pk)
 
+        if isinstance(validated_data,(list,tuple)): #bulk creation
+            for field_data in validated_data:
+                field_data['template_id'] = template_pk
+            return CustomField.objects.bulk_create([CustomField(**field_data) for field_data in validated_data])
+
+        # single creation
         return CustomField.objects.create(template_id=template_pk, **validated_data)
 
     def update(self, instance, validated_data):
         user = self.context['user']
         template_pk = self.context['template_pk']
 
-        event = get_object_or_404(Event, templates=template_pk)
-
-        if not user.is_staff and event.organizer.user != user:
-            raise serializers.ValidationError(
-                'You are not allowed to add field to this template. NOT ORGANIZER')
-
+        #validate user
+        self.validate_user_permission(user,template_pk)
         return super().update(instance, validated_data)
 
 

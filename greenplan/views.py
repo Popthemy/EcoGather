@@ -416,7 +416,14 @@ class EventTemplateDetailApiView(GenericAPIView):
 
 
 class CustomFieldApiView(ListCreateAPIView):
-    '''Retrieves all custom fields for a specific template.'''
+    '''Retrieves all and create custom fields for a specific template.
+    {
+    "label": "opening prayer 1",
+    "content": "i will demonstratre",
+    "start_time": null,
+    "end_time": null
+    }
+    '''
     permission_classes = (IsTemplateOwnerOrReadOnly, )
     serializer_class = CustomFieldSerializer
 
@@ -424,28 +431,42 @@ class CustomFieldApiView(ListCreateAPIView):
         template_pk = self.kwargs['template_pk']
         user = self.request.user
 
-        if user.is_staff:
-            return CustomField.objects.filter(template_id=template_pk)
+        templates =  CustomField.objects.filter(template_id=template_pk)
+        if not user.is_staff:
+            templates = templates.filter(
+                Q(template__event__organizer_id=user.id) | 
+                Q(template__event__is_private=False)
+                )
+        return templates
+    
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        is_bulk = isinstance(data,(list,tuple))
 
-        return CustomField.objects.filter(
-            (Q(template_id=template_pk) & Q(
-                template__event__organizer_id=user.id)) | (Q(template_id=template_pk) & Q(template__event__is_private=False))
-        )
+        serializer = self.get_serializer(data=data,many=is_bulk)
+        if serializer.is_valid():
+            serializer.save()
+
+            message =  "Custom fields created successfully" if is_bulk else "Custom field created successfully"
+            data = {
+                'status':'Success',
+                'message': message,
+                'data': serializer.data
+            }
+            return Response(data,status=status.HTTP_201_CREATED)
+
+
+        return super().post(request, *args, **kwargs)
+
 
     def get(self, request, *args, **kwargs):
-        # 1, 9,4,10,13
         qs = self.get_queryset()
         serializer = self.get_serializer(qs, many=True)
 
         template_pk = self.kwargs['template_pk']
-        user = self.request.user
         event = get_object_or_404(Event, templates=template_pk)
-
-        if event.is_private is True and event.organizer.user != user:
-            raise PermissionDenied(
-                'You are not allowed to access this template fields.')
-
         event_serializer = MiniEventSerializer(event)
+
         data = {
             "status": "success",
             "message": " Custom fields for the template retrieved successfully",
