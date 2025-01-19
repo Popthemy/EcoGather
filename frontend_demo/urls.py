@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views
+from . import views,demo_user_views
 
 
 urlpatterns = [
@@ -12,4 +12,8 @@ urlpatterns = [
     path('logout/',views.logout_view,name='logout'),
     path('events/<int:event_id>/comments/<int:comment_id>/delete/',views.delete_event_comment,name='event_comment_delete'),
     path('organizers/<uuid:organizer_id>/',views.organizer_detail,name='organizer_detail'),
+
+    # user
+    path('users/register/',demo_user_views.create_user,name='register_user'),
+
 ]
