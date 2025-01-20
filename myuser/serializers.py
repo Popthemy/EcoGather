@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
-
+from django.core.exceptions import ValidationError
 
 User = get_user_model()
 
@@ -24,7 +24,11 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Password and Confirm_password doesn't match")
 
-        validate_password(password)
+        # Validate password strength
+        try:
+            validate_password(password)
+        except ValidationError as e:
+            raise serializers.ValidationError(str(e))
 
         return attrs
 
