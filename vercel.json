@@ -23,6 +23,5 @@
       "src": "/(.*)",
       "dest": "ecogather/wsgi.py"
     }
-  ],
-  "outputDirectory":"staticfiles_build"
+  ]
 }
