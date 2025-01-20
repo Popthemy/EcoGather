@@ -225,13 +225,3 @@ def organizer_detail(request, organizer_id):
 
     return render(request, 'frontend_demo/organizer_detail.html', context)
 
-
-# class CommentList(View):
-#     '''Comment belong to an event
-#     1. get the event the comment belong to '''
-#     def get(self, *args, **kwargs):
-#         event_id = self.kwargs['event_id']
-
-#         comments = EventComment.objects.get(event_id=event_id)
-
-#         context = {'page':'Event & comment':'comments':comments}
