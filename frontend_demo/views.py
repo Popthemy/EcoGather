@@ -152,7 +152,7 @@ def login_view(request):
 
     context = {'page': 'login'}
 
-    return render(request, 'frontend_demo/login.html', context)
+    return render(request, 'frontend_demo/login-register.html', context)
 
 
 def templates_view(request):
