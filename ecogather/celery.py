@@ -2,7 +2,7 @@ from celery import Celery
 import os
 
 # set default django settings module for celery program
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ecogather.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ecogather.settings.dev')
 
 celery = Celery('ecogather') # celery instance
 

@@ -1,10 +1,11 @@
 '''Include views for creating user and profile on the demo frontend'''
-from .forms import CreateUserForm
+from .forms import CreateUserForm,OrganizerForm
 from myuser.models import CustomUser
 from django.shortcuts import render,redirect
 from django.contrib import messages
-from django.contrib.auth import get_user_model,authenticate,login
-
+from django.contrib.auth import get_user_model,login
+from greenplan.models import Organizer
+from django.urls import reverse
 
 User = get_user_model()
 
@@ -29,10 +30,25 @@ def create_user(request):
 
             # redirect to homepage
             messages.success(request,'Account successfully created')
-            return redirect(request.GET.get('next','events'))
+            return redirect(request.GET.get('next',reverse('edit_organizer_profile',kwargs={'user_id': user.id})))
 
     context = {'page':'Register Page','form':form}
     return render(request,'frontend_demo/login-register.html',context)
 
+
+def create_or_update_organizer(request,user_id):
+
+    organizer , _= Organizer.objects.get_or_create(user=request.user)
+    form = OrganizerForm(instance=organizer)
+
+    if request.method == 'POST':
+        form = OrganizerForm(request.POST, instance=organizer)
+        if form.is_valid():
+            form.save()  # Save the form data to the database
+            messages.success(request, 'Organizer details updated successfully!')
+            return redirect(request.GET.get('next','events'))
+        
+    context = {'page':'Organizer edit','form': form}
+    return render(request, 'frontend_demo/create-or-update-organizer.html', context)
 
 

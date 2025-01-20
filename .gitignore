@@ -30,6 +30,9 @@ db.sqlite3
 
 migrations/
 
+# organizer images for testing 
+ media/images/
+
 # IDE and editor files
 .idea/
 .vscode/

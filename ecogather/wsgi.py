@@ -11,8 +11,7 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ecogather.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ecogather.settings.dev')
 
 application = get_wsgi_application()
 app = application
-

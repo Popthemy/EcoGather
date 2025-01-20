@@ -3,6 +3,7 @@ from django import forms
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from greenplan.models import Organizer
 
 
 User = get_user_model()
@@ -49,3 +50,29 @@ class CreateUserForm(forms.Form):
             self.add_error('email', 'Email already exists')
 
         return super().clean()
+
+
+class OrganizerForm(forms.ModelForm):
+    class Meta:
+        model = Organizer
+        fields = [
+            'username', 'first_name', 'last_name', 'email', 
+            'phone_number', 'type', 'bio', 'vision', 'mission'
+        ]
+        widgets = {
+            'bio': forms.Textarea(attrs={'rows': 3, 'class': 'form-control', 'placeholder': 'Tell us about yourself...'}),
+            'vision': forms.Textarea(attrs={'rows': 2, 'class': 'form-control', 'placeholder': 'What is your vision for the future?'}),
+            'mission': forms.Textarea(attrs={'rows': 2, 'class': 'form-control', 'placeholder': 'What mission drives your work?'}),
+            'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Choose a unique username'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Your first name'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Your last name'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Your email address'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Your phone number'}),
+            'type': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Select your type'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Optionally, customize field labels
+        self.fields['type'].label = 'Organizer Type'
+

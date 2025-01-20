@@ -1,8 +1,8 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
 
 
-<main id="main" class="main-page">
   <!--==========================
       Speaker Details Section
     ============================-->
@@ -10,25 +10,31 @@
       <div class="container">
         <div class="section-header">
           <h2>Organizer Details</h2>
-          <p>Praesentium ut qui possimus sapiente nulla.</p>
+          <p>Your Command Center for Powerful Events.</p>
         </div>
 
         <div class="row">
           <div class="col-md-6 speakers">
             {% if organizer_image %}
             <img src="{{organizer_image.image_url.url}}" alt="{{organizer.username}}" class="img-fluid">
+            {% else %}
+            <img src="{% static 'img\default_organizer.png' %}" alt="{{organizer.username}}" class="img-fluid">
+
             {% endif %}
+
 
           </div>
 
           <div class="col-md-6">
             <div class="details">
-              <h2>{{organizer.first_name}} {{organizer.last_name}} </h2>
-              <p>Username: {{organizer.username}} </p>
+
+              <h2>{{organizer.first_name}} {{organizer.last_name}}  </h2>
+              <p  >Username: {{organizer.username}} | <a  href='{% url "edit_organizer_profile" organizer.user.id %}'>Edit Profile</a> </p>
               <p></p>
  
               <div class="social">
                 <a href=""><i class="fa fa-twitter"></i></a>
+                <a href=""><i class="fa fa-facebook"></i></a>
                 <a href=""><i class="fa fa-facebook"></i></a>
                 <a href="mailto:{{organizer.email}}"><i class="fa fa-google-plus"></i></a>
                 <a href=""><i class="fa fa-linkedin"></i></a>
@@ -53,8 +59,6 @@
       </div>
 
     </section>
-
-  </main>
 
 
 {% endblock content %}

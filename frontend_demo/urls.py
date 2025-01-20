@@ -15,5 +15,6 @@ urlpatterns = [
 
     # user
     path('users/register/',demo_user_views.create_user,name='register_user'),
+    path('users/<uuid:user_id>/organizers/',demo_user_views.create_or_update_organizer,name='edit_organizer_profile'),
 
 ]

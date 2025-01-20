@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+    <!--==========================
+      organizer edit Section
+    ============================-->
+      
+    <section id="contact" class="section-bg wow fadeInUp">
+
+        <div class="container">
+
+              <div class="form">
+                <div class="section-header">
+                  <h2>🎗️<br>Quick one </h2>
+                  <p>Update Your Profile!</p>
+                </div>
+              
+                <form method="post" role="form" class="contactForm">
+                  {% csrf_token %}
+                  <div class="form-row justify-content-center">
+
+                    {% for field in form %}
+                    <div class="form-group col-md-6">
+                      {{field.label}}
+                      {{field}}
+                   
+                      {% if field.errors %}
+                        <ul class="error-list">
+                            {% for error in field.errors %}
+                                <li style="color: red;">{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                      {% endif %}
+
+                    </div>
+                    {% endfor %}
+                    
+                  </div>
+                  <div class="text-center"><button type="submit"> Update</button></div>
+                </form>
+
+          
+              </div>
+        </div>
+      </section><!-- #organizer edit -->
+
+
+{% endblock  %}

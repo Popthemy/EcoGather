@@ -20,6 +20,10 @@
           <li><a href="#">Create Event</a></li>
           <li><a href="#venue">Venue</a></li>
           <li><a href="{% url 'templates' %}">Clone Template</a></li>
+          {% if request.user.is_authenticated %}
+          
+          <li><a href="{% url 'organizer_detail' request.user.id %}">Profile</a></li>
+          {% endif %}
           {% comment %} <li><a href="#contact">Contact</a></li> {% endcomment %}
           {% if request.user.is_authenticated %}
           <li class="buy-tickets"><a href="{% url 'logout' %}"> Dear {{ current_user }} Sign out</a></li>
