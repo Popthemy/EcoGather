@@ -19,8 +19,8 @@ __pycache__/
 
 # Compiled static files
 
-static/
-staticfiles/
+# static/
+# staticfiles/
 
 # Database files
 
