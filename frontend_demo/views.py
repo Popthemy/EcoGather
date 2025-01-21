@@ -128,6 +128,12 @@ def delete_event_comment(request, event_id, comment_id):
 
 def login_view(request):
     '''user sign up to get authenticated.'''
+    if request.user.is_authenticated:
+        # in case a user is authenticated already
+        message = f'Welcome {request.user.organizer.username} 😃'
+        messages.info(request,message)
+        return redirect('/')
+        
 
     if request.method == "POST":
         email = request.POST.get('email')
@@ -159,7 +165,7 @@ def templates_view(request):
     '''This view provides list of all templates, we can click to clone a templates for our event'''
 
     templates = Template.objects.all()
-    message = 'Select one of the template to clone.A Template to be clone must have more than one field'
+    message = 'Select one of the template to clone. A Template to be clone must have more than one field'
     messages.info(request, message)
 
     username = request.user.organizer.username if request.user.is_authenticated else None

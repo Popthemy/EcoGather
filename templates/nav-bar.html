@@ -28,7 +28,8 @@
           {% if request.user.is_authenticated %}
           <li class="buy-tickets"><a href="{% url 'logout' %}"> Dear {{ current_user }} Sign out</a></li>
           {% else %}
-          <li class="buy-tickets"><a href="{% url 'login' %}"> Sign up</a></li>
+          <li class="buy-tickets"><a href="{% url 'login' %}"> Log in</a></li>
+          <li class="buy-tickets"><a href="{% url 'register_user' %}"> Register Account</a></li>
           {% endif %}
         </ul>
       </nav><!-- #nav-menu-container -->

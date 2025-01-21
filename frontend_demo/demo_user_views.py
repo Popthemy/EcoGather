@@ -12,6 +12,12 @@ User = get_user_model()
 
 def create_user(request):
     '''Create a new user and redirect to a form to edit your organizer profile'''
+
+    if request.user.is_authenticated:
+        # in case a user is authenticated already
+        message = f'Welcome {request.user.organizer.username} 😃'
+        messages.info(request,message)
+        return redirect('/')
     form = CreateUserForm()
 
     if request.method == 'POST':
