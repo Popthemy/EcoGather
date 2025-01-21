@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 echo "Starting build process..."
@@ -15,9 +14,16 @@ python3 -m pip install --upgrade pip || { echo 'Failed to upgrade pip'; exit 1; 
 # Install only the required dependencies
 python3 -m pip install --no-cache-dir -r requirements.txt || { echo 'Failed to install dependencies'; exit 1; }
 
-python3.9 manage.py collectstatic --noinput
+# Ensure the static files output directory exists
+mkdir -p staticfiles_build/static
 
-# Apply migrations (if using Django)
+# Run makemigrations to create any new migration files
+python3 manage.py makemigrations || { echo 'Failed to make migrations'; exit 1; }
+
+# Run the collectstatic command to gather all static files
+python3 manage.py collectstatic --noinput || { echo 'Failed to collect static files'; exit 1; }
+
+# Apply migrations to the database
 python3 manage.py migrate || { echo 'Failed to apply migrations'; exit 1; }
 
 echo "Build process completed successfully."
