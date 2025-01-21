@@ -147,7 +147,7 @@ class Event(models.Model):
     venue = models.CharField(
         max_length=255, help_text="Exact location where the event is taking place e.g The Great hall,Lautech")
     city = models.CharField(
-        max_length=255, help_text="City or state the event could be taking place e.g Ogbomosho")
+        max_length=255,null=True, help_text="City or state the event could be taking place e.g Ogbomosho")
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
     contact_email = models.EmailField(null=True, blank=True)
