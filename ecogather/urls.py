@@ -39,7 +39,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # path('playground/', include('myutils.urls')),
     path('api/v1/', include(first_version)),
-    path('demo/', include('frontend_demo.urls')),
+    path('', include('frontend_demo.urls')),
 
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/schema/swagger-ui/',
