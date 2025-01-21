@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load static %}
 
 {% block event-brief-content %}
 
@@ -25,6 +25,10 @@
                 <img src="{{event_image.image_url.url}}" alt="{{event_image}}" class="img-fluid">
               </a>
             {% endfor %}
+
+            {% else %}
+            <img src="{% static 'img\default_event.png' %}" alt="{{organizer.username}}" class="img-fluid">
+
           {% endif %}
         </div>
 

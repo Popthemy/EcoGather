@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load static %}
 {% block content %}
 {% include "event-brief.html" %}
 
@@ -18,7 +18,11 @@
           {% for program in programs %}
             <div class="col-lg-4 col-md-6">
               <div class="speaker">
+                  {% if program.featured_event.images %}
                   <img src="{{program.featured_event.images.all.first.image_url.url}}" alt="{{event.title}}" class="img-fluid">
+                  {% else %}
+                  <img src="{% static 'img\default_event.png' %}" alt="{{organizer.username}}" class="img-fluid">
+                  {% endif %}
                 <div class="details">
                   <h3><a href="?program={{program.title}}">{{program.title}}</a></h3>
                   <div class="social">
@@ -51,7 +55,13 @@
               <div class="hotel">
 
                 <div class="hotel-img">
+
+                  {% if event.images.all %}
                   <img src="{{event.images.all.first.image_url.url}}" alt="{{event.title}}" class="img-fluid">
+                  {% else %}
+                  <img src="{% static 'img\default_event.png' %}" alt="{{organizer.username}}" class="img-fluid">
+                  {% endif %}
+
                 </div>
 
                 <div class="details">
