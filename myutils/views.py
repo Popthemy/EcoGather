@@ -52,23 +52,56 @@ def import_dummy_data(request):
         return Response({'errors': f'{str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-def list_event(request):
-    events = Event.objects.select_related('organizer', 'program')
-    programs = Program.objects.select_related(
-        'featured_event').annotate(event_count=Count("events"))
-
-    summit_event = Event.objects.filter(
-        program__title__icontains='summit').values_list('id')  # get summit event
-
-    templates = Template.objects.filter(event_name_id__in=summit_event)
-
-    template_fields = CustomField.objects.select_related('template').filter(
-        template__id__in=templates).order_by('template__id')
+from myuser.models import CustomUser
+from greenplan.models import Organizer, Program, Event, Template,CustomField,EventComment
+from datetime import datetime
 
 
-    sponsored_events = Sponsorship.objects.select_related('sponsor').all() #create_sponsors_for(sponsor_name='Culinary Creations',obj_type=Event,obj_id=2) #get_sponsors_for(Event,1)
-    
-    context = {'events': events, 'programs': programs, 'summit_event': summit_event, \
-               'templates': templates, 'template_fields': template_fields, "sponsored_events": sponsored_events
-               }
-    return render(request, 'demo.html', context)
+# 1. Insert Programs
+program_map = {}
+for program_data in programs:
+    program, created = Program.objects.get_or_create(title=program_data["title"])
+    program_map[program_data["title"]] = program
+
+# 2. Insert Organizers
+organizer_map = {}
+for event_data in events:
+    organizer_name = event_data["organizer_name"]
+    organizer, created = Organizer.objects.get_or_create(name=organizer_name)
+    organizer_map[organizer_name] = organizer
+
+# 3. Insert Events
+event_map = {}
+for event_data in events:
+    program = program_map[event_data["program_title"]]
+    organizer = organizer_map[event_data["organizer_name"]]
+    event, created = Event.objects.get_or_create(
+        title=event_data["title"],
+        defaults={
+            "program": program,
+            "impressions": event_data["impressions"],
+            "venue": event_data["venue"],
+            "city": event_data["city"],
+            "start_datetime": datetime.strptime(event_data["start_datetime"], "%Y-%m-%d %H:%M:%S"),
+            "end_datetime": datetime.strptime(event_data["end_datetime"], "%Y-%m-%d %H:%M:%S"),
+            "contact_email": event_data["contact_email"],
+            "contact_phone_number": event_data["contact_phone_number"],
+            "organizer": organizer,
+            "slug": event_data["slug"],
+            "is_private": event_data["is_private"]
+        }
+    )
+    event_map[event_data["slug"]] = event
+
+# 4. Insert Templates
+for template_data in templates:
+    event = event_map[template_data["event_slug"]]
+    Template.objects.get_or_create(
+        title=template_data["title"],
+        event=event,
+        defaults={"description": template_data["description"]}
+    )
+
+
+
+print("Data inserted successfully!")

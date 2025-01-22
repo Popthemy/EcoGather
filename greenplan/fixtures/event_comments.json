@@ -1,0 +1,362 @@
+[
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 1,
+    "fields": {
+      "event_id": 1,
+      "user_id": "78551291-b6be-44d8-837f-9b567a9b5a1d",
+      "content": "This event was truly inspiring and well-organized. Kudos to the team!",
+      "created_at": "2025-01-23T05:00:00Z",
+      "updated_at": "2025-01-23T05:30:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 2,
+    "fields": {
+      "event_id": 2,
+      "user_id": "e5cf77e7-f989-4349-a100-8fdd890e0177",
+      "content": "I enjoyed the panel discussion on sustainability. Looking forward to the next edition.",
+      "created_at": "2025-01-23T05:10:00Z",
+      "updated_at": "2025-01-23T05:40:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 3,
+    "fields": {
+      "event_id": 3,
+      "user_id": "4b106aba-0913-416a-b30f-939982e1e0c2",
+      "content": "The webinar was informative, but I would have loved a Q&A session.",
+      "created_at": "2025-01-23T05:20:00Z",
+      "updated_at": "2025-01-23T05:50:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 4,
+    "fields": {
+      "event_id": 4,
+      "user_id": null,
+      "content": "Great initiative! How can I access the recorded sessions?",
+      "created_at": "2025-01-23T05:30:00Z",
+      "updated_at": "2025-01-23T06:00:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 5,
+    "fields": {
+      "event_id": 5,
+      "user_id": "9e9145af-5868-425f-8158-6cd6360d5961",
+      "content": "This was a great opportunity to network with professionals in the field.",
+      "created_at": "2025-01-23T05:40:00Z",
+      "updated_at": "2025-01-23T06:10:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 6,
+    "fields": {
+      "event_id": 6,
+      "user_id": "54aa26b0-c089-4eda-8691-5f45e73a30b3",
+      "content": "I had issues joining the virtual room. Please improve the login process.",
+      "created_at": "2025-01-23T05:50:00Z",
+      "updated_at": "2025-01-23T06:20:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 7,
+    "fields": {
+      "event_id": 5,
+      "user_id": "78551291-b6be-44d8-837f-9b567a9b5a1d",
+      "content": "The keynote speaker was phenomenal. Can we get the slides shared?",
+      "created_at": "2025-01-23T06:00:00Z",
+      "updated_at": "2025-01-23T06:30:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 8,
+    "fields": {
+      "event_id": 1,
+      "user_id": "78551291-b6be-44d8-837f-9b567a9b5a1d",
+      "content": "This event was incredibly insightful! Looking forward to the next one.",
+      "created_at": "2025-01-23T06:10:00Z",
+      "updated_at": "2025-01-23T06:40:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 9,
+    "fields": {
+      "event_id": 2,
+      "user_id": "e5cf77e7-f989-4349-a100-8fdd890e0177",
+      "content": "I found the discussions very engaging. Great job to the organizers!",
+      "created_at": "2025-01-23T06:20:00Z",
+      "updated_at": "2025-01-23T06:50:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 10,
+    "fields": {
+      "event_id": 3,
+      "user_id": null,
+      "content": "Is there a recording available for those who couldn’t attend?",
+      "created_at": "2025-01-23T06:30:00Z",
+      "updated_at": "2025-01-23T07:00:00Z",
+      "is_approved": false
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 11,
+    "fields": {
+      "event_id": 4,
+      "user_id": "54aa26b0-c089-4eda-8691-5f45e73a30b3",
+      "content": "Loved the venue and the networking opportunities. Thank you!",
+      "created_at": "2025-01-23T06:40:00Z",
+      "updated_at": "2025-01-23T07:10:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 12,
+    "fields": {
+      "event_id": 5,
+      "user_id": "4b106aba-0913-416a-b30f-939982e1e0c2",
+      "content": "The session on AI applications was the highlight for me. Well done!",
+      "created_at": "2025-01-23T06:50:00Z",
+      "updated_at": "2025-01-23T07:20:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 13,
+    "fields": {
+      "event_id": 2,
+      "user_id": "78551291-b6be-44d8-837f-9b567a9b5a1d",
+      "content": "Please ensure the Q&A session is better moderated next time.",
+      "created_at": "2025-01-23T07:00:00Z",
+      "updated_at": "2025-01-23T07:30:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 14,
+    "fields": {
+      "event_id": 7,
+      "user_id": "9e9145af-5868-425f-8158-6cd6360d5961",
+      "content": "Fantastic lineup of speakers. The content exceeded my expectations!",
+      "created_at": "2025-01-23T07:10:00Z",
+      "updated_at": "2025-01-23T07:40:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 15,
+    "fields": {
+      "event_id": 2,
+      "user_id": "54aa26b0-c089-4eda-8691-5f45e73a30b3",
+      "content": "Looking forward to the next edition. Great job!",
+      "created_at": "2025-01-23T07:20:00Z",
+      "updated_at": "2025-01-23T07:50:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 16,
+    "fields": {
+      "event_id": 3,
+      "user_id": "9e9145af-5868-425f-8158-6cd6360d5961",
+      "content": "The topic on AI was very engaging, would love to know more!",
+      "created_at": "2025-01-23T07:30:00Z",
+      "updated_at": "2025-01-23T08:00:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 17,
+    "fields": {
+      "event_id": 4,
+      "user_id": "78551291-b6be-44d8-837f-9b567a9b5a1d",
+      "content": "How can I access the materials shared during the event?",
+      "created_at": "2025-01-23T07:40:00Z",
+      "updated_at": "2025-01-23T08:10:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 18,
+    "fields": {
+      "event_id": 5,
+      "user_id": "4b106aba-0913-416a-b30f-939982e1e0c2",
+      "content": "Fantastic session on entrepreneurship. The networking was invaluable.",
+      "created_at": "2025-01-23T07:50:00Z",
+      "updated_at": "2025-01-23T08:20:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 19,
+    "fields": {
+      "event_id": 6,
+      "user_id": "e5cf77e7-f989-4349-a100-8fdd890e0177",
+      "content": "The login process was difficult to follow. Hope it improves next time.",
+      "created_at": "2025-01-23T08:00:00Z",
+      "updated_at": "2025-01-23T08:30:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 20,
+    "fields": {
+      "event_id": 7,
+      "user_id": "78551291-b6be-44d8-837f-9b567a9b5a1d",
+      "content": "What an amazing event. Looking forward to the next one!",
+      "created_at": "2025-01-23T08:10:00Z",
+      "updated_at": "2025-01-23T08:40:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 21,
+    "fields": {
+      "event_id": 8,
+      "user_id": "9e9145af-5868-425f-8158-6cd6360d5961",
+      "content": "The venue was perfect for this event, really enjoyed the experience.",
+      "created_at": "2025-01-23T08:35:00Z",
+      "updated_at": "2025-01-23T08:40:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 22,
+    "fields": {
+      "event_id": 9,
+      "user_id": "78551291-b6be-44d8-837f-9b567a9b5a1d",
+      "content": "This was a great experience, will definitely attend again!",
+      "created_at": "2025-01-23T08:45:00Z",
+      "updated_at": "2025-01-23T08:50:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 23,
+    "fields": {
+      "event_id": 10,
+      "user_id": "4b106aba-0913-416a-b30f-939982e1e0c2",
+      "content": "I found the discussions valuable, and the networking was excellent.",
+      "created_at": "2025-01-23T08:55:00Z",
+      "updated_at": "2025-01-23T09:00:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 24,
+    "fields": {
+      "event_id": 11,
+      "user_id": "9e9145af-5868-425f-8158-6cd6360d5961",
+      "content": "Great content, but I think more interactive sessions would be beneficial.",
+      "created_at": "2025-01-23T09:05:00Z",
+      "updated_at": "2025-01-23T09:10:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 25,
+    "fields": {
+      "event_id": 12,
+      "user_id": "54aa26b0-c089-4eda-8691-5f45e73a30b3",
+      "content": "I would have liked a follow-up session to dive deeper into some topics.",
+      "created_at": "2025-01-23T09:15:00Z",
+      "updated_at": "2025-01-23T09:20:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 26,
+    "fields": {
+      "event_id": 3,
+      "user_id": "78551291-b6be-44d8-837f-9b567a9b5a1d",
+      "content": "I missed the event, but I hope to catch the next one!",
+      "created_at": "2025-01-23T09:25:00Z",
+      "updated_at": "2025-01-23T09:30:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 27,
+    "fields": {
+      "event_id": 4,
+      "user_id": "9e9145af-5868-425f-8158-6cd6360d5961",
+      "content": "The event was very well organized, kudos to the team!",
+      "created_at": "2025-01-23T09:35:00Z",
+      "updated_at": "2025-01-23T09:40:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 28,
+    "fields": {
+      "event_id": 5,
+      "user_id": "4b106aba-0913-416a-b30f-939982e1e0c2",
+      "content": "Amazing event, it was worth attending!",
+      "created_at": "2025-01-23T09:45:00Z",
+      "updated_at": "2025-01-23T09:50:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 29,
+    "fields": {
+      "event_id": 6,
+      "user_id": "78551291-b6be-44d8-837f-9b567a9b5a1d",
+      "content": "I had a wonderful time at the event, thank you for organizing!",
+      "created_at": "2025-01-23T09:55:00Z",
+      "updated_at": "2025-01-23T10:00:00Z",
+      "is_approved": true
+    }
+  },
+  {
+    "model": "greenplan.eventcomment",
+    "pk": 30,
+    "fields": {
+      "event_id": 30,
+      "user_id": "9e9145af-5868-425f-8158-6cd6360d5961",
+      "content": "Looking forward to attending future events like this!",
+      "created_at": "2025-01-23T10:05:00Z",
+      "updated_at": "2025-01-23T10:10:00Z",
+      "is_approved": true
+    }
+  }
+]

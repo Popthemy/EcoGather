@@ -1,0 +1,354 @@
+[
+  {
+    "model": "greenplan.customfield",
+    "pk": 1,
+    "fields": {
+      "template_id": 1,
+      "label": "Opening Address",
+      "content": "Welcome speech by the event host.",
+      "start_time": "09:00:00",
+      "end_time": "09:15:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 2,
+    "fields": {
+      "template_id": 1,
+      "label": "Keynote Speech",
+      "content": "Delivered by the chief guest.",
+      "start_time": "09:15:00",
+      "end_time": "09:45:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 3,
+    "fields": {
+      "template_id": 1,
+      "label": "Networking Break",
+      "content": "Time for attendees to network.",
+      "start_time": "09:45:00",
+      "end_time": "10:00:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 4,
+    "fields": {
+      "template_id": 1,
+      "label": "Panel Discussion",
+      "content": "Experts discuss the event topic.",
+      "start_time": "10:00:00",
+      "end_time": "11:00:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 5,
+    "fields": {
+      "template_id": 2,
+      "label": "Workshop Registration",
+      "content": "Participants register for the workshop.",
+      "start_time": "08:30:00",
+      "end_time": "09:00:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 6,
+    "fields": {
+      "template_id": 2,
+      "label": "Icebreaker Activity",
+      "content": "Fun activity to warm up attendees.",
+      "start_time": "09:00:00",
+      "end_time": "09:30:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 7,
+    "fields": {
+      "template_id": 2,
+      "label": "Breakout Sessions",
+      "content": "Small group discussions.",
+      "start_time": "09:30:00",
+      "end_time": "11:00:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 8,
+    "fields": {
+      "template_id": 2,
+      "label": "Lunch Break",
+      "content": "Lunch served for all attendees.",
+      "start_time": "11:00:00",
+      "end_time": "12:00:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 9,
+    "fields": {
+      "template_id": 3,
+      "label": "Opening Worship",
+      "content": "Opening prayer session.",
+      "start_time": "07:00:00",
+      "end_time": "07:30:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 10,
+    "fields": {
+      "template_id": 3,
+      "label": "Scripture Reading",
+      "content": "Selected scripture passage.",
+      "start_time": "07:30:00",
+      "end_time": "07:45:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 11,
+    "fields": {
+      "template_id": 3,
+      "label": "Sermon",
+      "content": "Main message delivered by the pastor.",
+      "start_time": "07:45:00",
+      "end_time": "08:30:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 12,
+    "fields": {
+      "template_id": 3,
+      "label": "Closing Hymn",
+      "content": "Final hymn sung by the congregation.",
+      "start_time": "08:30:00",
+      "end_time": "08:45:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 13,
+    "fields": {
+      "template_id": 4,
+      "label": "Registration",
+      "content": "Sign-in and badge collection.",
+      "start_time": "08:00:00",
+      "end_time": "08:30:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 14,
+    "fields": {
+      "template_id": 4,
+      "label": "Welcome Address",
+      "content": "Speech by the event organizer.",
+      "start_time": "08:30:00",
+      "end_time": "08:45:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 15,
+    "fields": {
+      "template_id": 4,
+      "label": "First Session",
+      "content": "Presentation by the first speaker.",
+      "start_time": "08:45:00",
+      "end_time": "09:30:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 16,
+    "fields": {
+      "template_id": 4,
+      "label": "Coffee Break",
+      "content": "Light refreshments.",
+      "start_time": "09:30:00",
+      "end_time": "09:45:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 17,
+    "fields": {
+      "template_id": 5,
+      "label": "Session 1: Innovation",
+      "content": "Discussing innovations in tech.",
+      "start_time": "10:00:00",
+      "end_time": "10:45:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 18,
+    "fields": {
+      "template_id": 5,
+      "label": "Q&A Session",
+      "content": "Audience questions for the speaker.",
+      "start_time": "10:45:00",
+      "end_time": "11:15:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 19,
+    "fields": {
+      "template_id": 5,
+      "label": "Session 2: Sustainability",
+      "content": "Sustainable practices in the industry.",
+      "start_time": "11:15:00",
+      "end_time": "12:00:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 20,
+    "fields": {
+      "template_id": 5,
+      "label": "Lunch and Networking",
+      "content": "Networking over lunch.",
+      "start_time": "12:00:00",
+      "end_time": "13:00:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 21,
+    "fields": {
+      "template_id": 6,
+      "label": "Pre-conference Registration",
+      "content": "Participants complete check-in.",
+      "start_time": "08:30:00",
+      "end_time": "09:00:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 22,
+    "fields": {
+      "template_id": 6,
+      "label": "Opening Ceremony",
+      "content": "Inaugural address and introduction.",
+      "start_time": "09:00:00",
+      "end_time": "09:30:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 23,
+    "fields": {
+      "template_id": 6,
+      "label": "Breakout Sessions",
+      "content": "Workshops based on participant groups.",
+      "start_time": "09:30:00",
+      "end_time": "11:30:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 24,
+    "fields": {
+      "template_id": 6,
+      "label": "Tea Break",
+      "content": "Short break for tea and snacks.",
+      "start_time": "11:30:00",
+      "end_time": "12:00:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 25,
+    "fields": {
+      "template_id": 7,
+      "label": "Opening Remarks",
+      "content": "Introduction by the chairperson.",
+      "start_time": "08:00:00",
+      "end_time": "08:15:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 26,
+    "fields": {
+      "template_id": 7,
+      "label": "Session 1: Policy Reform",
+      "content": "Discussion on reform strategies.",
+      "start_time": "08:15:00",
+      "end_time": "09:00:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 27,
+    "fields": {
+      "template_id": 7,
+      "label": "Session 2: Panel Debate",
+      "content": "Debate on current challenges.",
+      "start_time": "09:00:00",
+      "end_time": "09:45:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 28,
+    "fields": {
+      "template_id": 7,
+      "label": "Closing Remarks",
+      "content": "Summary and thank-you speech.",
+      "start_time": "09:45:00",
+      "end_time": "10:00:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 29,
+    "fields": {
+      "template_id": 8,
+      "label": "Meet and Greet",
+      "content": "Informal introductions among attendees.",
+      "start_time": "08:30:00",
+      "end_time": "09:00:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 30,
+    "fields": {
+      "template_id": 8,
+      "label": "Workshop 1",
+      "content": "Hands-on activity by an expert.",
+      "start_time": "09:00:00",
+      "end_time": "10:30:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 31,
+    "fields": {
+      "template_id": 8,
+      "label": "Discussion Panel",
+      "content": "Interactive discussion with speakers.",
+      "start_time": "10:30:00",
+      "end_time": "11:30:00"
+    }
+  },
+  {
+    "model": "greenplan.customfield",
+    "pk": 32,
+    "fields": {
+      "template_id": 8,
+      "label": "Closing Activity",
+      "content": "Feedback and group photo.",
+      "start_time": "11:30:00",
+      "end_time": "12:00:00"
+    }
+  }
+]

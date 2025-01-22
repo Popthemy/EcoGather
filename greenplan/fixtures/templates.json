@@ -1,0 +1,282 @@
+[
+  {
+    "model": "greenplan.template",
+    "pk": 1,
+    "fields": {
+      "owner_id": "78551291-b6be-44d8-837f-9b567a9b5a1d",
+      "code": "TECH-INNOVATION",
+      "title": "Tech Innovation Template",
+      "event_id": 1,
+      "slug": "tech-innovation-template",
+      "description": "Template for showcasing tech innovations.",
+      "created_at": "2025-01-23T05:00:00Z",
+      "updated_at": "2025-01-23T05:30:00Z"
+    }
+  },
+  {
+    "model": "greenplan.template",
+    "pk": 2,
+    "fields": {
+      "owner_id": "e5cf77e7-f989-4349-a100-8fdd890e0177",
+      "code": "GREEN-ENERGY",
+      "title": "Green Energy Template",
+      "event_id": 6,
+      "slug": "green-energy-template",
+      "description": "Template for discussing sustainable energy solutions.",
+      "created_at": "2025-01-23T05:15:00Z",
+      "updated_at": "2025-01-23T05:45:00Z"
+    }
+  },
+  {
+    "model": "greenplan.template",
+    "pk": 3,
+    "fields": {
+      "owner_id": "4b106aba-0913-416a-b30f-939982e1e0c2",
+      "code": "EDUCATION-REFORM",
+      "title": "Education Reform Template",
+      "event_id": 12,
+      "slug": "education-reform-template",
+      "description": "Template for highlighting educational changes.",
+      "created_at": "2025-01-23T05:30:00Z",
+      "updated_at": "2025-01-23T06:00:00Z"
+    }
+  },
+  {
+    "model": "greenplan.template",
+    "pk": 4,
+    "fields": {
+      "owner_id": "9e9145af-5868-425f-8158-6cd6360d5961",
+      "code": "HEALTH-CONFERENCE",
+      "title": "Health Conference Template",
+      "event_id": 4,
+      "slug": "health-conference-template",
+      "description": "Template for global health conventions.",
+      "created_at": "2025-01-23T05:45:00Z",
+      "updated_at": "2025-01-23T06:15:00Z"
+    }
+  },
+  {
+    "model": "greenplan.template",
+    "pk": 5,
+    "fields": {
+      "owner_id": "54aa26b0-c089-4eda-8691-5f45e73a30b3",
+      "code": "STARTUP-SUCCESS",
+      "title": "Startup Success Template",
+      "event_id": 3,
+      "slug": "startup-success-template",
+      "description": "Template for startup growth guidance.",
+      "created_at": "2025-01-23T06:00:00Z",
+      "updated_at": "2025-01-23T06:30:00Z"
+    }
+  },
+  {
+    "model": "greenplan.template",
+    "pk": 6,
+    "fields": {
+      "owner_id": "78551291-b6be-44d8-837f-9b567a9b5a1d",
+      "code": "YOUTH-LEADERSHIP",
+      "title": "Youth Leadership Template",
+      "event_id": 5,
+      "slug": "youth-leadership-template",
+      "description": "Template for youth empowerment retreats.",
+      "created_at": "2025-01-23T06:15:00Z",
+      "updated_at": "2025-01-23T06:45:00Z"
+    }
+  },
+  {
+    "model": "greenplan.template",
+    "pk": 7,
+    "fields": {
+      "owner_id": "e5cf77e7-f989-4349-a100-8fdd890e0177",
+      "code": "SUSTAINABILITY-PLAN",
+      "title": "Sustainability Plan Template",
+      "event_id": 16,
+      "slug": "sustainability-plan-template",
+      "description": "Template for eco-friendly practices.",
+      "created_at": "2025-01-23T06:30:00Z",
+      "updated_at": "2025-01-23T07:00:00Z"
+    }
+  },
+  {
+    "model": "greenplan.template",
+    "pk": 8,
+    "fields": {
+      "owner_id": "4b106aba-0913-416a-b30f-939982e1e0c2",
+      "code": "TECH-SEMINAR",
+      "title": "Tech Seminar Template",
+      "event_id": 21,
+      "slug": "tech-seminar-template",
+      "description": "Template for tech-focused seminars.",
+      "created_at": "2025-01-23T07:00:00Z",
+      "updated_at": "2025-01-23T07:30:00Z"
+    }
+  },
+  {
+    "model": "greenplan.template",
+    "pk": 9,
+    "fields": {
+      "owner_id": "9e9145af-5868-425f-8158-6cd6360d5961",
+      "code": "CULTURE-EXCHANGE",
+      "title": "Culture Exchange Template",
+      "event_id": 24,
+      "slug": "culture-exchange-template",
+      "description": "Template for cultural heritage discussions.",
+      "created_at": "2025-01-23T07:15:00Z",
+      "updated_at": "2025-01-23T07:45:00Z"
+    }
+  },
+  {
+    "model": "greenplan.template",
+    "pk": 10,
+    "fields": {
+      "owner_id": "54aa26b0-c089-4eda-8691-5f45e73a30b3",
+      "code": "AI-WORKSHOP",
+      "title": "AI Workshop Template",
+      "event_id": 25,
+      "slug": "ai-workshop-template",
+      "description": "Template for artificial intelligence workshops.",
+      "created_at": "2025-01-23T07:30:00Z",
+      "updated_at": "2025-01-23T08:00:00Z"
+    }
+  },
+  {
+    "model": "greenplan.template",
+    "pk": 11,
+    "fields": {
+      "owner_id": "78551291-b6be-44d8-837f-9b567a9b5a1d",
+      "code": "POLICY-FORUM",
+      "title": "Policy Forum Template",
+      "event_id": 18,
+      "slug": "policy-forum-template",
+      "description": "Template for policymaking forums.",
+      "created_at": "2025-01-23T08:00:00Z",
+      "updated_at": "2025-01-23T08:30:00Z"
+    }
+  },
+  {
+    "model": "greenplan.template",
+    "pk": 12,
+    "fields": {
+      "owner_id": "e5cf77e7-f989-4349-a100-8fdd890e0177",
+      "code": "MENTAL-WELLNESS",
+      "title": "Mental Wellness Template",
+      "event_id": 23,
+      "slug": "mental-wellness-template",
+      "description": "Template for mental health awareness.",
+      "created_at": "2025-01-23T08:15:00Z",
+      "updated_at": "2025-01-23T08:45:00Z"
+    }
+  },
+  {
+    "model": "greenplan.template",
+    "pk": 13,
+    "fields": {
+      "owner_id": "4b106aba-0913-416a-b30f-939982e1e0c2",
+      "code": "BUSINESS-NETWORK",
+      "title": "Business Network Template",
+      "event_id": 29,
+      "slug": "business-network-template",
+      "description": "Template for business leader conventions.",
+      "created_at": "2025-01-23T08:30:00Z",
+      "updated_at": "2025-01-23T09:00:00Z"
+    }
+  },
+  {
+    "model": "greenplan.template",
+    "pk": 14,
+    "fields": {
+      "owner_id": "9e9145af-5868-425f-8158-6cd6360d5961",
+      "code": "FAITH-SUMMIT",
+      "title": "Faith Summit Template",
+      "event_id": 30,
+      "slug": "faith-summit-template",
+      "description": "Template for interfaith cooperation events.",
+      "created_at": "2025-01-23T09:00:00Z",
+      "updated_at": "2025-01-23T09:30:00Z"
+    }
+  },
+  {
+    "model": "greenplan.template",
+    "pk": 15,
+    "fields": {
+      "owner_id": "54aa26b0-c089-4eda-8691-5f45e73a30b3",
+      "code": "AGRIC-INNOVATION",
+      "title": "Agricultural Innovation Template",
+      "event_id": 22,
+      "slug": "agric-innovation-template",
+      "description": "Template for modern agricultural events.",
+      "created_at": "2025-01-23T09:15:00Z",
+      "updated_at": "2025-01-23T09:45:00Z"
+    }
+  },
+  {
+    "model": "greenplan.template",
+    "pk": 16,
+    "fields": {
+      "owner_id": "78551291-b6be-44d8-837f-9b567a9b5a1d",
+      "code": "DEV-CONFERENCE",
+      "title": "Developer Conference Template",
+      "event_id": 21,
+      "slug": "dev-conference-template",
+      "description": "Template for developer conferences.",
+      "created_at": "2025-01-23T09:30:00Z",
+      "updated_at": "2025-01-23T10:00:00Z"
+    }
+  },
+  {
+    "model": "greenplan.template",
+    "pk": 17,
+    "fields": {
+      "owner_id": "e5cf77e7-f989-4349-a100-8fdd890e0177",
+      "code": "RESEARCH-TECH",
+      "title": "Research in Tech Template",
+      "event_id": 28,
+      "slug": "research-tech-template",
+      "description": "Template for technology research symposiums.",
+      "created_at": "2025-01-23T10:00:00Z",
+      "updated_at": "2025-01-23T10:30:00Z"
+    }
+  },
+  {
+    "model": "greenplan.template",
+    "pk": 18,
+    "fields": {
+      "owner_id": "4b106aba-0913-416a-b30f-939982e1e0c2",
+      "code": "YOUTH-ADVOCACY",
+      "title": "Youth Advocacy Template",
+      "event_id": 26,
+      "slug": "youth-advocacy-template",
+      "description": "Template for youth policy forums.",
+      "created_at": "2025-01-23T10:15:00Z",
+      "updated_at": "2025-01-23T10:45:00Z"
+    }
+  },
+  {
+    "model": "greenplan.template",
+    "pk": 19,
+    "fields": {
+      "owner_id": "9e9145af-5868-425f-8158-6cd6360d5961",
+      "code": "ECO-INITIATIVE",
+      "title": "Eco Initiative Template",
+      "event_id": 27,
+      "slug": "eco-initiative-template",
+      "description": "Template for green environmental plans.",
+      "created_at": "2025-01-23T10:30:00Z",
+      "updated_at": "2025-01-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "greenplan.template",
+    "pk": 20,
+    "fields": {
+      "owner_id": "54aa26b0-c089-4eda-8691-5f45e73a30b3",
+      "code": "HEALTH-AWARENESS",
+      "title": "Health Awareness Template",
+      "event_id": 28,
+      "slug": "health-awareness-template",
+      "description": "Template for promoting health education.",
+      "created_at": "2025-01-23T11:00:00Z",
+      "updated_at": "2025-01-23T11:30:00Z"
+    }
+  }
+]

@@ -33,6 +33,10 @@ migrations/
 # organizer images for testing 
  media/images/
 
+# seed file trial
+seed.txt
+seed.sql
+
 # IDE and editor files
 .idea/
 .vscode/
