@@ -119,9 +119,11 @@ def delete_event_comment(request, event_id, comment_id):
     '''After deleting comment it should reload the current page'''
 
     comment = EventComment.objects.get(id=comment_id, event_id=event_id)
-    print('thinking of deletion')
-    comment.delete()
-    message = 'Comment Deleted'
+    message = 'No permission to delete someone else message'
+
+    if request.user == comment.user:
+        comment.delete()
+        message = 'Comment Deleted'
     messages.success(request, message)
     return redirect(request.GET.get('next', 'events'))
 

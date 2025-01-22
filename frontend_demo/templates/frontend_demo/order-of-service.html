@@ -195,8 +195,9 @@
                         <h4>{{ comment.user.organizer.username }}</h4>
                         <p><span>{{comment.content|linebreaksbr}}</span></p>
                         <time>{{ comment.created_at|timesince:current_time }} ago {% if comment.created_at != comment.updated_at %} | Edited{% endif %} </time>
-                        <li class=" text-left buy-tickets"><a href="?comment_id={{comment.id}}"> edit</a>  <a href='{% url "event_comment_delete" event.id comment.id %}?next={{request.path}}'> delete</a></li>
-
+                        {% if request.user ==   comment.user %}
+                          <li class=" text-left buy-tickets"><a href="?comment_id={{comment.id}}"> edit</a>  <a href='{% url "event_comment_delete" event.id comment.id %}?next={{request.path}}'> delete</a></li>
+                        {% endif %}
                       </div>
                     </div>
                   {% endfor %}
