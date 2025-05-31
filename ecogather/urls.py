@@ -33,9 +33,13 @@ admin.site.site_header = 'EcoGather: A Greener Way to Event Planning'
 first_version = [
     path('users/', include('myuser.urls')),
     path('', include('greenplan.urls')),
+
 ]
 
 urlpatterns = [
+    # drf social auth
+    path('auth/', include('drf_social_oauth2.urls', namespace='drf')),
+
     path('admin/', admin.site.urls),
     # path('playground/', include('myutils.urls')),
     path('api/v1/', include(first_version)),

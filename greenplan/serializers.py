@@ -33,6 +33,8 @@ class AddressSerializer(serializers.ModelSerializer):
         model = Address
         fields = ['id', 'organizer', 'street_number', 'street_name',
                   'city', 'state', 'zip_code', 'country']
+        read_only_fields = ['id', 'organizer']
+
 
     def validate_organizer_id(self, org_id):
         '''Check if the organizer exist'''
@@ -148,6 +150,7 @@ class MiniEventSerializer(serializers.ModelSerializer):
     def get_event_status(self, event) -> str:
         return event.get_event_status()
 
+
 class MiniProgramSerializer(serializers.ModelSerializer):
     '''Responsible for creating the a new program by Admin '''
 
@@ -208,6 +211,7 @@ class MiniProgramSerializer(serializers.ModelSerializer):
         if event.program != instance.title:
             event.program_id = instance.id
             event.save()
+
 
 class ProgramSerializer(serializers.ModelSerializer):
     ''' Handles update and delete '''
@@ -305,7 +309,7 @@ class CustomFieldSerializer(serializers.ModelSerializer):
 
         event = get_object_or_404(Event, templates=template_pk)
         if not user.is_staff and event.organizer.user != user:
-            raise PermissionError("You are not allowed to modify this template.NOT THE EVENT ORGANIZER")
+            raise PermissionError("You are not allowed to modify this template. NOT THE EVENT ORGANIZER")
 
     def create(self, validated_data):
         user = self.context['user']
@@ -314,7 +318,7 @@ class CustomFieldSerializer(serializers.ModelSerializer):
         #validate user
         self.validate_user_permission(user,template_pk)
 
-        if isinstance(validated_data,(list,tuple)): #bulk creation
+        if isinstance(validated_data, (list, tuple)): #bulk creation
             for field_data in validated_data:
                 field_data['template_id'] = template_pk
             return CustomField.objects.bulk_create([CustomField(**field_data) for field_data in validated_data])

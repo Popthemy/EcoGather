@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.core.management import call_command
 
+
 class Command(BaseCommand):
     help = "Load fixtures in a transactional way"
 
@@ -21,7 +22,7 @@ class Command(BaseCommand):
                 call_command('loaddata', 'templates.json')
 
                 self.stdout.write("Loading custom fields...")
-                call_command('loaddata', 'custom_fields.json',verbosity=3)
+                call_command('loaddata', 'custom_fields.json', verbosity=3)
 
                 self.stdout.write(self.style.SUCCESS("All fixtures loaded successfully!"))
         except Exception as e:

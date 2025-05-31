@@ -48,7 +48,10 @@ THIRD_PARTY_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'drf_spectacular',
-    'drf_spectacular_sidecar', 
+    'drf_spectacular_sidecar',
+    'oauth2_provider',
+    'social_django',
+    'drf_social_oauth2',
 
 ]
 
@@ -69,7 +72,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     "whitenoise.middleware.WhiteNoiseMiddleware",
-    'greenplan.middlewears.CaptureUserDetailsMiddleware', #custom middlewear
+    'greenplan.middlewears.CaptureUserDetailsMiddleware',  # custom middlewear
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -86,7 +89,7 @@ INTERNAL_IPS = [
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ BASE_DIR,'templates' ],
+        'DIRS': [BASE_DIR, 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -94,6 +97,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -172,12 +177,16 @@ AUTH_USER_MODEL = 'myuser.CustomUser'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+
+        # drf social auth
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+        'drf_social_oauth2.authentication.SocialAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
     ),
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
- 
+
 }
 
 SIMPLE_JWT = {
@@ -185,6 +194,19 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
 }
 
+AUTHENTICATION_BACKENDS = (
+    # Google  OAuth2
+    'social_core.backends.google.GoogleOAuth2',
+    'drf_social_oauth2.backends.DjangoOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+
+# Define SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE to get extra permissions from Google.
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+    'https://www.googleapis.com/auth/userinfo.email',
+    'https://www.googleapis.com/auth/userinfo.profile',
+]
 
 
 SPECTACULAR_SETTINGS = {
@@ -192,7 +214,7 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'This is an innovative platform designed to streamline event creation, management, and participation.',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
-    
+
     'SWAGGER_UI_DIST': 'SIDECAR',  # shorthand to use the sidecar instead
     'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
     'REDOC_DIST': 'SIDECAR',
@@ -201,9 +223,8 @@ SPECTACULAR_SETTINGS = {
 
 CELERY_BROKER_URL = 'redis://localhost:6379/1'
 CELERY_BEAT_SCHEDULE = {
-  'all_event_organizer_email':{
-  'task': 'greenplan.tasks.all_event_organizer_email',
-  'schedule':crontab(minute='*/5')
+    'all_event_organizer_email': {
+        'task': 'greenplan.tasks.all_event_organizer_email',
+        'schedule': crontab(minute='*/5')
     }
 }
-

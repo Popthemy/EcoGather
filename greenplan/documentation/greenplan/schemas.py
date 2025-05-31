@@ -14,12 +14,3 @@ clone_template_doc = extend_schema(
   examples=[CLONE_TEMPLATE_400_BAD_REQUEST, CLONE_TEMPLATE_201_CREATED],
   tags =['Template']
 )
-
-
-"""
-        
-        Returns:
-            Response: 
-                - A successful response with status `201 Created` if the template is cloned.
-                - A `400 Bad Request` response if the template ID is invalid or if an error occurs during cloning.
-        """

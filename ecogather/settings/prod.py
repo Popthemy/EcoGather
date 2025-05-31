@@ -18,8 +18,7 @@ SECRET_KEY = config('MY_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('IS_DEBUG',default=False, cast=bool)
 
-ALLOWED_HOSTS = ['.vercel.app', '.now.sh']
-
+ALLOWED_HOSTS = ['eco-gather.vercel.app', , '.vercel.app', '.now.sh']
 
 DATABASES = {
     'default': {

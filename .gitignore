@@ -1,7 +1,7 @@
 prep_file
 myutils.seed.py
 frontend_demo\seed.sql
-
+.vscode/
 
 # enviroment variables
 
@@ -16,6 +16,7 @@ env/lib/
 
 *.pyc
 __pycache__/
+.pytest_cache/
 
 # Compiled static files
 
